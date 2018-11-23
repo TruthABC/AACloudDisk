@@ -19,6 +19,11 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public int getCount() {
+        return TITLES.length;
+    }
+
+    @Override
     public Fragment getItem(int position) {
         if (fragments[position] == null) {
             switch (position) {
@@ -31,7 +36,8 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public int getCount() {
-        return TITLES.length;
+    public CharSequence getPageTitle(int position) {
+        return TITLES[position];
     }
+
 }

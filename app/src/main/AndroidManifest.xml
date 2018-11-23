@@ -9,7 +9,7 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/aacloud_logo"
         android:supportsRtl="true"
-        android:theme="@style/Widget.AppCompat.ActionBar"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".MainActivity">
             <intent-filter>

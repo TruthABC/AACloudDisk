@@ -1,31 +1,18 @@
 package hk.hku.cs.aaclouddisk;
 
-import android.app.ActionBar;
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
-    // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
-    TabPagerAdapter mTabPagerAdapter;
-    ViewPager mTabPager;
-
-    //tab layout
-    private LinearLayout mTabRecent;
-    private LinearLayout mTabFiles;
-//    private LinearLayout mTabMusic;
-    private LinearLayout mTabMe;
-
-    //tab icon
-    private ImageButton mRecentImg;
-    private ImageButton mFilesImg;
-//    private ImageButton mMusicImg;
-    private ImageButton mMeImg;
+    private Toolbar mToolbar;
+    private TabLayout mTabLayout;
+    private ViewPager mViewPager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,60 +20,47 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
-        initEvents();
-        initActionBar();
-
-    }
-
-    private void initActionBar() {
-        // Get actionBar from activity
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-                // When the tab is selected, switch to the corresponding page in the ViewPager.
-                mTabPager.setCurrentItem(tab.getPosition());
-            }
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
-            }
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
-            }
-        };
-
-        // Add tabs, specifying the tab's text and TabListener
-        for (int i = 0; i < TabPagerAdapter.TITLES.length; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(TabPagerAdapter.TITLES[i])
-                            .setTabListener(tabListener));
-        }
+        initToolBar();
+        initFinal();
     }
 
     private void initViews() {
-        // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
-        mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
-        mTabPager = (ViewPager) findViewById(R.id.pager);
-        mTabPager.setAdapter(mTabPagerAdapter);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
     }
 
-    private void initEvents() {
-        mTabPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between pages, select the corresponding tab.
-                        getActionBar().setSelectedNavigationItem(position);
-                    }
-                });
+    private void initToolBar() {
+        // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
+        // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
+        TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(tabPagerAdapter);
+
+        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.bold7);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.folder99);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.user88);
+
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                mToolbar.setTitle(TabPagerAdapter.TITLES[tab.getPosition()]);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
+
+    private void initFinal() {
+        mToolbar.setTitle(TabPagerAdapter.TITLES[0]);
     }
 
 }
