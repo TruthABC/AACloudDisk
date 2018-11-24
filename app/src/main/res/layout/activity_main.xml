@@ -7,7 +7,6 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
-        style="@style/Theme.AppCompat.Light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top">
@@ -15,7 +14,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="@dimen/bar_height">
 
                 <ImageButton
                     android:id="@+id/left_top_button"

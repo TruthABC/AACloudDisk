@@ -1,10 +1,12 @@
-package hk.hku.cs.aaclouddisk;
+package hk.hku.cs.aaclouddisk.tasklist;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
+
+import hk.hku.cs.aaclouddisk.R;
 
 public class TaskListActivity extends AppCompatActivity {
 
