@@ -5,12 +5,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/image_height_huge"
+        android:layout_marginTop="@dimen/margin_small"
+        android:src="@drawable/aacloud_logo_bar_trans"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/line_height"
         android:layout_marginLeft="@dimen/margin_normal"
         android:layout_marginRight="@dimen/margin_normal"
-        android:layout_marginTop="@dimen/margin_huge">
+        android:layout_marginTop="@dimen/margin_normal"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <ImageView
             android:id="@+id/img_account"
@@ -108,7 +116,7 @@
         <CheckBox
             android:id="@+id/checkBox_password"
             android:padding="@dimen/margin_tiny"
-            android:textSize="@dimen/text_size_small"
+            android:textSize="@dimen/text_size_tiny"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_weight="1"
@@ -119,7 +127,7 @@
         <CheckBox
             android:id="@+id/checkBox_login"
             android:padding="@dimen/margin_tiny"
-            android:textSize="@dimen/text_size_small"
+            android:textSize="@dimen/text_size_tiny"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_weight="1"

@@ -9,6 +9,7 @@
     <dimen name="margin_large">75dip</dimen>
     <dimen name="margin_huge">100dip</dimen>
 
+    <dimen name="text_size_tiny">13sp</dimen>
     <dimen name="text_size_small">16sp</dimen>
     <dimen name="text_size_normal">18sp</dimen>
     <dimen name="text_size_title">20sp</dimen>
@@ -17,5 +18,6 @@
     <dimen name="image_height_small">20dip</dimen>
     <dimen name="image_height_normal">48dip</dimen>
     <dimen name="image_height_big">80dip</dimen>
+    <dimen name="image_height_huge">120dip</dimen>
 
 </resources>
