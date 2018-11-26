@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="@dimen/image_height_huge"
-        android:layout_marginTop="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_normal"
         android:src="@drawable/aacloud_logo_bar_trans"/>
 
     <RelativeLayout
