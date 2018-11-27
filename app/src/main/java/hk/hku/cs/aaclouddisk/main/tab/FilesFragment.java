@@ -7,12 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-
-import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
-import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
-import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 
 public class FilesFragment extends Fragment {
 
@@ -37,9 +32,6 @@ public class FilesFragment extends Fragment {
 
     private void initViews(View v) {
         mListViewFiles = (ListView) getActivity().findViewById(R.id.list_view_files);
-
-//        fileInfoListAdapter = new FileInfoListAdapter(getActivity(), R.layout.tab_files_item);
-//        mListViewFiles.setAdapter(fileInfoListAdapter);
     }
 
     private void initEvents() {

@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private TextView mTitle;
-    private ImageButton mLeftTopButton;
+//    private ImageButton mLeftTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
@@ -58,19 +59,19 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTitle = (TextView) findViewById(R.id.title);
-        mLeftTopButton = (ImageButton) findViewById(R.id.left_top_button);
+//        mLeftTopButton = (ImageButton) findViewById(R.id.left_top_button);
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mViewPager = (ViewPager) findViewById(R.id.pager);
     }
 
     private void initToolBar() {
-        mLeftTopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), TaskListActivity.class);
-                startActivityForResult(intent, 0);
-            }
-        });
+//        mLeftTopButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(v.getContext(), TaskListActivity.class);
+//                startActivityForResult(intent, 0);
+//            }
+//        });
 
         // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
         // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
@@ -87,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 mTitle.setText(TITLES[tab.getPosition()]);
                 if (tab.getPosition() == 1) {
-                    getFileInfoListAndResetAdaptor("");
+                    if (lastRelativePath.equals("!@#$%^&*()_+"))
+                        getFileInfoListAndResetAdaptor("");
                 }
             }
 
@@ -108,13 +110,23 @@ public class MainActivity extends AppCompatActivity {
         mTitle.setText(TITLES[0]);
     }
 
-    private void getFileInfoListAndResetAdaptor(final String relativePath) {
+    private String lastId = "!@#$%^&*()_+";
+    private String lastRelativePath = "!@#$%^&*()_+";
+    public void getFileInfoListAndResetAdaptor(final String relativePath) {
         //Use another thread to do server authentication
         Thread getByRelativePathRunnable = new Thread() {
             @Override
             public void run() {
                 //get user data
                 String id = sharedPreferences.getString("id","");
+
+                //if the same folder for same user, then skip
+                if (relativePath.equals(lastRelativePath) && id.equals(lastId)) {
+                    return;
+                } else {
+                    lastRelativePath = relativePath;
+                    lastId = id;
+                }
 
                 String url = HttpUtilsHttpURLConnection.BASE_URL + "/getFolderInfoByRelativePath";
                 Map<String, String> params = new HashMap<String, String>();
@@ -161,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 //apply changes and call adapter to change
                                 if (adapter == null) {
-                                    adapter = new FileInfoListAdapter(MainActivity.this, R.layout.tab_files_item);
+                                    adapter = new FileInfoListAdapter(MainActivity.this, R.layout.tab_files_item, MainActivity.this);
                                     adapter.addAll(response.getFileInfoList());
                                     listView.setAdapter(adapter);
                                     adapter.notifyDataSetChanged();
@@ -170,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
                                     adapter.addAll(response.getFileInfoList());
                                     adapter.notifyDataSetChanged();
                                 }
+
+                                reviseFragmentBar();
                             } else {
                                 showToast("Folder Info Get Failed: " + response.getErrmsg());
                             }
@@ -187,7 +201,50 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void showToast(final String msg) {
+    /**
+     * revise event and text of fragment bar of tab_files
+     *    called after response of server of FileInfoList of Folder
+     */
+    private void reviseFragmentBar() {
+        //get Views
+        TextView pathTextView = findViewById(R.id.tab_files_title);
+        ImageView backImageView = findViewById(R.id.tab_files_back);
+
+        //Revise Content
+        pathTextView.setText("AACloudDisk\\" + lastRelativePath + "\\");
+//        if (lastRelativePath.length()==0) {
+//            backImageView.setVisibility(View.INVISIBLE);
+//        } else {
+//            backImageView.setVisibility(View.VISIBLE);
+//        }
+
+        //Event
+        if (!backImageView.hasOnClickListeners()) {
+            backImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (lastRelativePath.length()==0) {
+                        showToast("Cannot Go Back More");
+                        return;
+                    }
+
+                    //"lastIndex" to check if it is jump with relative path ""
+                    String nextPath = "";
+                    int lastIndex = lastRelativePath.lastIndexOf("\\");
+                    if (lastIndex > 0) {
+                        nextPath = lastRelativePath.substring(0, lastIndex);
+                    }
+
+                    //back to last page
+                    getFileInfoListAndResetAdaptor(nextPath);
+                }
+            });
+        }
+    }
+
+    //
+
+    private void showToast(final String msg) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

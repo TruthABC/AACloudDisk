@@ -280,7 +280,7 @@ public class LoginActivity extends AppCompatActivity {
 //        finish();//close this page
     }
 
-    public void showToast(final String msg) {
+    private void showToast(final String msg) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

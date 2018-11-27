@@ -39,12 +39,14 @@
             android:layout_marginTop="@dimen/margin_tiny_half">
 
             <ImageView
+                android:id="@+id/rename_logo"
                 android:layout_width="@dimen/image_height_medium"
                 android:layout_height="@dimen/image_height_medium"
                 android:src="@drawable/edit"
                 android:contentDescription="Rename" />
 
             <ImageView
+                android:id="@+id/download_logo"
                 android:layout_width="@dimen/image_height_medium"
                 android:layout_height="@dimen/image_height_medium"
                 android:src="@drawable/download72"
@@ -52,6 +54,7 @@
                 android:contentDescription="Download" />
 
             <ImageView
+                android:id="@+id/delete_logo"
                 android:layout_width="@dimen/image_height_medium"
                 android:layout_height="@dimen/image_height_medium"
                 android:src="@drawable/opened7"
