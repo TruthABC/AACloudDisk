@@ -3,6 +3,7 @@
     <dimen name="bar_height">50dip</dimen>
     <dimen name="line_height">30dip</dimen>
 
+    <dimen name="margin_tiny_half">5dip</dimen>
     <dimen name="margin_tiny">10dip</dimen>
     <dimen name="margin_small">25dip</dimen>
     <dimen name="margin_normal">50dip</dimen>
@@ -16,6 +17,7 @@
 
     <dimen name="image_height_tiny">15dip</dimen>
     <dimen name="image_height_small">20dip</dimen>
+    <dimen name="image_height_medium">30dip</dimen>
     <dimen name="image_height_normal">48dip</dimen>
     <dimen name="image_height_big">80dip</dimen>
     <dimen name="image_height_huge">120dip</dimen>
