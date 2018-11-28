@@ -4,13 +4,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import hk.hku.cs.aaclouddisk.main.tab.RecentFragment;
+import hk.hku.cs.aaclouddisk.main.tab.MP3Fragment;
 import hk.hku.cs.aaclouddisk.main.tab.FilesFragment;
 import hk.hku.cs.aaclouddisk.main.tab.MeFragment;
 
 public class TabPagerAdapter extends FragmentPagerAdapter {
 
-    public static final String[] TITLES = {"Recent","Files","Me"};
+    public static final String[] TITLES = {"Files","Cloud MP3","Me"};
     Fragment[] fragments;
 
     public TabPagerAdapter(FragmentManager fm) {
@@ -27,8 +27,8 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         if (fragments[position] == null) {
             switch (position) {
-                case 0: fragments[position] = new RecentFragment(); break;
-                case 1: fragments[position] = new FilesFragment(); break;
+                case 0: fragments[position] = new FilesFragment(); break;
+                case 1: fragments[position] = new MP3Fragment(); break;
                 case 2: fragments[position] = new MeFragment(); break;
             }
         }

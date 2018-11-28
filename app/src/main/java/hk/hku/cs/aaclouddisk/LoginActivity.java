@@ -256,7 +256,7 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 showToast("Login Failed: " + response.getErrmsg());
                             }
-                        } catch (JsonSyntaxException e) {
+                        } catch (Exception e) {
                             showToast("Network error, plz contact maintenance.");
                         }
 

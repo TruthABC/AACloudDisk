@@ -119,8 +119,7 @@
             android:paddingTop="@dimen/margin_tiny"
             android:text="Upload"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size_normal"
-            android:visibility="gone"/>
+            android:textSize="@dimen/text_size_normal" />
 
         <TextView
             android:id="@+id/uploading_text"
@@ -129,9 +128,10 @@
             android:text="Uploading... Please Wait."
             android:textSize="@dimen/text_size_title"
             android:gravity="center"
-            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginTop="-40dip"
             android:layout_marginLeft="@dimen/margin_normal"
-            android:layout_marginRight="@dimen/margin_normal"/>
+            android:layout_marginRight="@dimen/margin_normal"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 

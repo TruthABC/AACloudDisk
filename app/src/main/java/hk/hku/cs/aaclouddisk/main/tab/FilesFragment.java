@@ -7,12 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 
 public class FilesFragment extends Fragment {
 
     private ListView mListViewFiles;
-//    private FileInfoListAdapter fileInfoListAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,11 +25,6 @@ public class FilesFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-    }
-
     private void initViews(View v) {
         mListViewFiles = (ListView) getActivity().findViewById(R.id.list_view_files);
     }
@@ -39,7 +34,8 @@ public class FilesFragment extends Fragment {
     }
 
     private void initFinal() {
-
+        String lastRelativePath = ((MainActivity)getActivity()).lastRelativePath;
+        ((MainActivity)getActivity()).getFileInfoListAndResetAdaptor(lastRelativePath);
     }
 
 }

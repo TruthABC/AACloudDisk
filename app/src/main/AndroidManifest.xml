@@ -36,6 +36,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".upload.FileUploadActivity" />
+        <receiver android:name=".receiver.DownloadReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

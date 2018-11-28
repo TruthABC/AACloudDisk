@@ -98,7 +98,6 @@ public class FileUploadActivity extends AppCompatActivity {
         mButtonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                uploadFileByAria();
                 uploadFileByHttpURLConnection();
             }
         });
@@ -175,7 +174,7 @@ public class FileUploadActivity extends AppCompatActivity {
                             } else {
                                 showToast("Upload Failed: " + response.getErrmsg());
                             }
-                        } catch (JsonSyntaxException e) {
+                        } catch (Exception e) {
                             showToast("Network error, plz contact maintenance.");
                         }
 
@@ -189,15 +188,13 @@ public class FileUploadActivity extends AppCompatActivity {
     }
 
     private void showLoading() {
-        mBackButton.setVisibility(View.GONE);
-        mButtonUpload.setVisibility(View.GONE);
+        mButtonUpload.setVisibility(View.INVISIBLE);
         mUploadingText.setVisibility(View.VISIBLE);
     }
 
     private void hideLoading() {
-        mBackButton.setVisibility(View.GONE);
         mButtonUpload.setVisibility(View.VISIBLE);
-        mUploadingText.setVisibility(View.GONE);
+        mUploadingText.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -246,6 +243,7 @@ public class FileUploadActivity extends AppCompatActivity {
         if (uri == null) {
             return;
         }
+        uri.getEncodedPath();
         String scheme = uri.getScheme();
         String path = null;
         //if the file is image or something, the process can be complicated as such

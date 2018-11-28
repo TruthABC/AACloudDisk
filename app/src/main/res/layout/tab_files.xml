@@ -61,6 +61,8 @@
         android:id="@+id/list_view_files"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_tiny"
+        android:layout_marginRight="@dimen/margin_tiny"
         android:layout_marginBottom="@dimen/margin_large"
         android:clickable="false" />
 

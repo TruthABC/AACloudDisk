@@ -1,8 +1,11 @@
 package hk.hku.cs.aaclouddisk;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
@@ -16,16 +19,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arialyy.annotations.Upload;
-import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.upload.UploadTask;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
@@ -36,7 +34,7 @@ import static hk.hku.cs.aaclouddisk.main.TabPagerAdapter.TITLES;
 public class MainActivity extends AppCompatActivity {
 
     //local cache
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
 
     private Toolbar mToolbar;
     private TextView mTitle;
@@ -52,9 +50,9 @@ public class MainActivity extends AppCompatActivity {
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
 
-        //Aria register (download framework)
-        Aria.download(this).register();
-        Aria.upload(this).register();
+        //Aria register (download framework) discard
+//        Aria.download(this).register();
+//        Aria.upload(this).register();
 
         initViews();
         initToolBar();
@@ -84,18 +82,14 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(tabPagerAdapter);
 
         mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.getTabAt(0).setIcon(R.drawable.bold7);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.folder99);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.folder99);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.music81);
         mTabLayout.getTabAt(2).setIcon(R.drawable.user88);
 
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mTitle.setText(TITLES[tab.getPosition()]);
-                if (tab.getPosition() == 1) {
-                    if (lastRelativePath.equals("!@#$%^&*()_+"))
-                        getFileInfoListAndResetAdaptor("");
-                }
             }
 
             @Override
@@ -116,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String lastId = "!@#$%^&*()_+";
-    private String lastRelativePath = "!@#$%^&*()_+";
+    public String lastRelativePath = "";
     public void getFileInfoListAndResetAdaptor(final String relativePath) {
         //Use another thread to do server authentication
         Thread getByRelativePathRunnable = new Thread() {
@@ -126,12 +120,12 @@ public class MainActivity extends AppCompatActivity {
                 String id = sharedPreferences.getString("id","");
 
                 //if the same folder for same user, then skip
-                if (relativePath.equals(lastRelativePath) && id.equals(lastId)) {
-                    return;
-                } else {
+//                if (relativePath.equals(lastRelativePath) && id.equals(lastId)) {
+//                    return;
+//                } else {
                     lastRelativePath = relativePath;
                     lastId = id;
-                }
+//                }
 
                 String url = HttpUtilsHttpURLConnection.BASE_URL + "/getFolderInfoByRelativePath";
                 Map<String, String> params = new HashMap<String, String>();
@@ -192,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
                                 showToast("Folder Info Get Failed: " + response.getErrmsg());
                             }
-                        } catch (JsonSyntaxException e) {
+                        } catch (Exception e) {
                             showToast("Network error, plz contact maintenance.");
                         }
 
@@ -261,31 +255,42 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //
+    /**
+     * Use DownloadManager to download
+     * @param url target url
+     * @param name filename
+     */
+    public void download(String url, String name) {
+        showToast("Download Started");
+        try {
+            //创建下载任务,downloadUrl就是下载链接
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+            //下载中和下载完后都显示通知栏
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            //指定下载路径和下载文件名
+            request.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS, name);
+            //通知栏标题
+            request.setTitle(name);
+            //通知栏描述信息
+            request.setDescription("DownLoad Complete");
+            //获取下载管理器
+            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            //将下载任务加入下载队列，否则不会进行下载
+            long downloadTaskId = downloadManager.enqueue(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToast("Start Downloading Failed");
+        }
 
-    private void showToast(final String msg) {
+    }
+
+    public void showToast(final String msg) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    /**
-     * Upload Finish Call back
-     * @param task
-     */
-    @Upload.onTaskComplete public void taskComplete(UploadTask task) {
-        String responseStr = task.getEntity().getResponseStr();
-        Gson gson = new Gson();
-        CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
-
-        if (response.getErrcode() == 0) {
-            showToast("Upload Successful");
-        } else {
-            showToast("Upload Failed");
-        }
     }
 
 }
