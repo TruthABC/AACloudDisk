@@ -224,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
                 params.put("id", id);
                 params.put("password", password);
 
-                String response = HttpUtilsHttpURLConnection.getContextByHttp(url,params);
+                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
 
                 //prepare handler bundle data
                 Message msg = new Message();

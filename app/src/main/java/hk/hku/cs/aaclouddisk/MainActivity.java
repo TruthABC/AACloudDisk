@@ -11,24 +11,25 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arialyy.annotations.Upload;
+import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.upload.UploadTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
+import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
-import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
+import hk.hku.cs.aaclouddisk.upload.FileUploadActivity;
 
 import static hk.hku.cs.aaclouddisk.main.TabPagerAdapter.TITLES;
 
@@ -50,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+
+        //Aria register (download framework)
+        Aria.download(this).register();
+        Aria.upload(this).register();
 
         initViews();
         initToolBar();
@@ -133,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 params.put("id", id);
                 params.put("relativePath", relativePath);
 
-                String response = HttpUtilsHttpURLConnection.getContextByHttp(url,params);
+                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
 
                 //prepare handler bundle data
                 Message msg = new Message();
@@ -209,16 +214,17 @@ public class MainActivity extends AppCompatActivity {
         //get Views
         TextView pathTextView = findViewById(R.id.tab_files_title);
         ImageView backImageView = findViewById(R.id.tab_files_back);
+        ImageView uploadFileImageView = findViewById(R.id.tab_files_uploadFile);
 
         //Revise Content
-        pathTextView.setText("AACloudDisk\\" + lastRelativePath + "\\");
+        pathTextView.setText("Path: AACloudDisk\\" + lastRelativePath + "\\");
 //        if (lastRelativePath.length()==0) {
 //            backImageView.setVisibility(View.INVISIBLE);
 //        } else {
 //            backImageView.setVisibility(View.VISIBLE);
 //        }
 
-        //Event
+        //Event - back
         if (!backImageView.hasOnClickListeners()) {
             backImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -240,6 +246,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        //Event - upload File
+        if (!uploadFileImageView.hasOnClickListeners()) {
+            uploadFileImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //go to upload file page
+                    Intent intent = new Intent(v.getContext(), FileUploadActivity.class);
+                    intent.putExtra("relativePath", lastRelativePath);
+                    startActivityForResult(intent, 0);
+                }
+            });
+        }
     }
 
     //
@@ -251,6 +270,22 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    /**
+     * Upload Finish Call back
+     * @param task
+     */
+    @Upload.onTaskComplete public void taskComplete(UploadTask task) {
+        String responseStr = task.getEntity().getResponseStr();
+        Gson gson = new Gson();
+        CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+
+        if (response.getErrcode() == 0) {
+            showToast("Upload Successful");
+        } else {
+            showToast("Upload Failed");
+        }
     }
 
 }
