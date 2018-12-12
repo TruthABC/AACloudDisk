@@ -21,8 +21,7 @@
                     android:layout_width="@dimen/image_height_normal"
                     android:layout_height="@dimen/image_height_normal"
                     android:background="@drawable/up16"
-                    android:clickable="false"
-                    android:visibility="gone"/>
+                    android:clickable="false" />
 
                 <TextView
                     android:id="@+id/title"

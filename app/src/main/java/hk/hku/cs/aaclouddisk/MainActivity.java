@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,13 +22,14 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
-import hk.hku.cs.aaclouddisk.upload.FileUploadActivity;
+import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
 import static hk.hku.cs.aaclouddisk.main.TabPagerAdapter.TITLES;
 
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private TextView mTitle;
-//    private ImageButton mLeftTopButton;
+    private ImageButton mLeftTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
@@ -62,19 +64,19 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTitle = (TextView) findViewById(R.id.title);
-//        mLeftTopButton = (ImageButton) findViewById(R.id.left_top_button);
+        mLeftTopButton = (ImageButton) findViewById(R.id.left_top_button);
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mViewPager = (ViewPager) findViewById(R.id.pager);
     }
 
     private void initToolBar() {
-//        mLeftTopButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(v.getContext(), TaskListActivity.class);
-//                startActivityForResult(intent, 0);
-//            }
-//        });
+        mLeftTopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), TaskListActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
 
         // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
         // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
@@ -246,10 +248,17 @@ public class MainActivity extends AppCompatActivity {
             uploadFileImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //go to upload file page
-                    Intent intent = new Intent(v.getContext(), FileUploadActivity.class);
-                    intent.putExtra("relativePath", lastRelativePath);
-                    startActivityForResult(intent, 0);
+                    //go to upload file page, could be web view
+//                    Intent intent = new Intent(v.getContext(), FileUploadActivity.class);
+//                    intent.putExtra("relativePath", lastRelativePath);
+//                    startActivityForResult(intent, 0);
+                    //go to upload file web page
+                    //get user data
+                    String id = sharedPreferences.getString("id","");
+                    String iii = HttpUtilsHttpURLConnection.BASE_URL + "/upload_file.html?id=" + URLEncoder.encode(id) + "&relativePath=" + URLEncoder.encode(lastRelativePath);
+                    Uri uri = Uri.parse(iii);
+                    Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
                 }
             });
         }

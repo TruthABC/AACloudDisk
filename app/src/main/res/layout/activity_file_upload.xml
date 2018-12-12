@@ -60,79 +60,84 @@
         android:layout_height="1dip"
         android:background="@color/gray_deep"/>
 
-    <LinearLayout
+    <WebView
+        android:id="@+id/upload_file_web_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/line_height"
-            android:text="Please Select File:"
-            android:textSize="@dimen/text_size_title"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:layout_marginRight="@dimen/margin_normal"/>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="vertical">-->
 
-        <EditText
-            android:id="@+id/et_local_path"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:maxLines="1"
-            android:textSize="@dimen/text_size_small"
-            android:editable="false"
-            android:hint="Click Me"
-            android:padding="@dimen/margin_tiny_half"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:layout_marginRight="@dimen/margin_normal"/>
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/line_height"-->
+            <!--android:text="Please Select File:"-->
+            <!--android:textSize="@dimen/text_size_title"-->
+            <!--android:layout_marginTop="@dimen/margin_normal"-->
+            <!--android:layout_marginLeft="@dimen/margin_normal"-->
+            <!--android:layout_marginRight="@dimen/margin_normal"/>-->
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dip"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:layout_marginRight="@dimen/margin_normal"
-            android:background="@color/gray_deep"/>
+        <!--<EditText-->
+            <!--android:id="@+id/et_local_path"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@null"-->
+            <!--android:maxLines="1"-->
+            <!--android:textSize="@dimen/text_size_small"-->
+            <!--android:editable="false"-->
+            <!--android:hint="Click Me"-->
+            <!--android:padding="@dimen/margin_tiny_half"-->
+            <!--android:layout_marginLeft="@dimen/margin_normal"-->
+            <!--android:layout_marginRight="@dimen/margin_normal"/>-->
 
-        <Button
-            android:id="@+id/btn_select"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_large"
-            android:layout_marginRight="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:paddingBottom="@dimen/margin_tiny"
-            android:paddingTop="@dimen/margin_tiny"
-            android:text="Select"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size_normal"
-            android:visibility="gone"/>
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dip"-->
+            <!--android:layout_marginLeft="@dimen/margin_normal"-->
+            <!--android:layout_marginRight="@dimen/margin_normal"-->
+            <!--android:background="@color/gray_deep"/>-->
 
-        <Button
-            android:id="@+id/btn_upload"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/margin_large"
-            android:layout_marginRight="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_normal"
-            android:paddingBottom="@dimen/margin_tiny"
-            android:paddingTop="@dimen/margin_tiny"
-            android:text="Upload"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size_normal" />
+        <!--<Button-->
+            <!--android:id="@+id/btn_select"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="@dimen/margin_large"-->
+            <!--android:layout_marginRight="@dimen/margin_large"-->
+            <!--android:layout_marginTop="@dimen/margin_normal"-->
+            <!--android:paddingBottom="@dimen/margin_tiny"-->
+            <!--android:paddingTop="@dimen/margin_tiny"-->
+            <!--android:text="Select"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="@dimen/text_size_normal"-->
+            <!--android:visibility="gone"/>-->
 
-        <TextView
-            android:id="@+id/uploading_text"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/line_height"
-            android:text="Uploading... Please Wait."
-            android:textSize="@dimen/text_size_title"
-            android:gravity="center"
-            android:layout_marginTop="-40dip"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:layout_marginRight="@dimen/margin_normal"
-            android:visibility="invisible"/>
+        <!--<Button-->
+            <!--android:id="@+id/btn_upload"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="@dimen/margin_large"-->
+            <!--android:layout_marginRight="@dimen/margin_large"-->
+            <!--android:layout_marginTop="@dimen/margin_normal"-->
+            <!--android:paddingBottom="@dimen/margin_tiny"-->
+            <!--android:paddingTop="@dimen/margin_tiny"-->
+            <!--android:text="Upload"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="@dimen/text_size_normal" />-->
 
-    </LinearLayout>
+        <!--<TextView-->
+            <!--android:id="@+id/uploading_text"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/line_height"-->
+            <!--android:text="Uploading... Please Wait."-->
+            <!--android:textSize="@dimen/text_size_title"-->
+            <!--android:gravity="center"-->
+            <!--android:layout_marginTop="-40dip"-->
+            <!--android:layout_marginLeft="@dimen/margin_normal"-->
+            <!--android:layout_marginRight="@dimen/margin_normal"-->
+            <!--android:visibility="invisible"/>-->
+
+    <!--</LinearLayout>-->
 
 </LinearLayout>
