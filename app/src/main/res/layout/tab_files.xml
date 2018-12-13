@@ -45,7 +45,25 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/gray_deep"/>
+        android:background="@color/gray_deep"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/new_folder_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_tiny_half"
+        android:textColor="@color/white"
+        android:background="@color/gray_deep"
+        android:text="Create New Folder"
+        android:textSize="@dimen/text_size_normal"
+        android:textAlignment="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@color/gray_deep"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/no_file_hint"
