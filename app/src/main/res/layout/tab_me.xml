@@ -12,7 +12,7 @@
         android:src="@drawable/aacloud_logo_bar_trans"/>
 
     <Button
-        android:id="@+id/btn_logout"
+        android:id="@+id/btn_change_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin_large"
@@ -20,8 +20,23 @@
         android:layout_marginTop="@dimen/margin_large"
         android:paddingBottom="@dimen/margin_tiny"
         android:paddingTop="@dimen/margin_tiny"
+        android:text="Change Password"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_size_normal"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_large"
+        android:layout_marginRight="@dimen/margin_large"
+        android:layout_marginTop="@dimen/margin_tiny"
+        android:paddingBottom="@dimen/margin_tiny"
+        android:paddingTop="@dimen/margin_tiny"
         android:text="Logout"
         android:textColor="@android:color/white"
         android:textSize="@dimen/text_size_normal"/>
+
+
 
 </LinearLayout>

@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/margin_tiny_half"
             android:layout_marginTop="@dimen/margin_tiny_half"
-            android:text="Path: AACloudDisk\"
+            android:text="Path: AACloudDisk\\"
             android:textSize="@dimen/text_size_normal"
             android:maxLines="2"
             android:layout_toEndOf="@+id/tab_files_back" />

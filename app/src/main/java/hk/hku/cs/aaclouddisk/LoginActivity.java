@@ -94,6 +94,13 @@ public class LoginActivity extends AppCompatActivity {
                 doAuthentication(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
             }
         });
+        //register button logic
+        mBtnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doRegister(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
+            }
+        });
         //checkboxes check logic
         mCheckBoxPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -271,6 +278,78 @@ public class LoginActivity extends AppCompatActivity {
             };
         };
         loginRunnable.start();
+    }
+
+    //register button logic
+    private void doRegister(final String id, final String password) {
+
+        //should not be empty
+        if (id.equals("")) {
+            showToast("Account cannot be empty");
+            return;
+        }
+        if (password.equals("")) {
+            showToast("Password cannot be empty");
+            return;
+        }
+
+        //Set button non-clickable
+        mBtnLogin.setClickable(false);
+        mBtnRegister.setClickable(false);
+
+        //Use another thread to do server authentication
+        Thread registerRunnable = new Thread() {
+            @Override
+            public void run() {
+                String url = HttpUtilsHttpURLConnection.BASE_URL + "/register";
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("id", id);
+                params.put("password", password);
+
+                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
+
+                //prepare handler bundle data
+                Message msg = new Message();
+                msg.what=0x21;
+                Bundle data=new Bundle();
+                data.putString("response",response);
+                msg.setData(data);
+
+                //use handler to handle server response
+                handler.sendMessage(msg);
+            }
+
+            Handler handler = new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    if (msg.what==0x21){
+                        Bundle data = msg.getData();
+                        String responseStr = data.getString("response");//returned json
+
+                        //from String to Object(Entity)
+                        try {
+                            Gson gson = new Gson();
+                            CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                            //register result
+                            if (response.getErrcode() == 0){
+                                showToast("Register Successful");
+                                ((EditText)findViewById(R.id.et_account)).setText("");
+                                ((EditText)findViewById(R.id.et_password)).setText("");
+                            } else {
+                                showToast("Register Failed: " + response.getErrmsg());
+                            }
+                        } catch (Exception e) {
+                            showToast("Network error, plz contact maintenance.");
+                        }
+
+                        //Set button back to clickable
+                        mBtnLogin.setClickable(true);
+                        mBtnRegister.setClickable(true);
+                    }
+                }
+            };
+        };
+        registerRunnable.start();
     }
 
     private void loginAndForward() {

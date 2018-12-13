@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mTitle.setText(TITLES[tab.getPosition()]);
+                if (tab.getPosition() == 0) {
+                    getFileInfoListAndResetAdaptor(lastRelativePath);
+                } else if (tab.getPosition() == 1) {
+                    getMP3InfoListAndResetAdaptor();
+                }
             }
 
             @Override
