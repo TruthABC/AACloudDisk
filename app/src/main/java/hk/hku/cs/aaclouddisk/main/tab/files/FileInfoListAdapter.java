@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import hk.hku.cs.aaclouddisk.HttpUtilsHttpURLConnection;
@@ -26,6 +25,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         this.resourceId = resourceId;
         this.activity = activity;
     }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent){
         final FileInfo fileInfo = getItem(position);
@@ -36,10 +36,10 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         fileName.setText(fileInfo.getName());
 
         // set file image logo and click event
-        LinearLayout rootView = v.findViewById(R.id.root_item);
         ImageView fileImage = v.findViewById (R.id.file_image);
         ImageView intoFolderLogo = v.findViewById(R.id.into_folder_logo);
         ImageView downLoadLogo = v.findViewById(R.id.download_logo);
+        // if is a folder
         if (fileInfo.getDir() == 1) {
             //Change to Folder Imamge
             fileImage.setImageResource(R.drawable.closed22);
@@ -47,12 +47,6 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
             downLoadLogo.setVisibility(View.GONE);
             //set(imitate) jump event when into_folder_logo is clicked
             intoFolderLogo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((MainActivity)activity).getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
-                }
-            });
-            rootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ((MainActivity)activity).getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
@@ -75,7 +69,8 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                     String realUrl = diskRootUrl + fileInfo.getRelativePath();
                     realUrl = realUrl.replace("\\","/");
 
-                    ((MainActivity)activity).download(realUrl, fileInfo.getName());
+                    ((MainActivity)activity).downloadInBrowser(realUrl);
+                    //((MainActivity)activity).download(realUrl, fileInfo.getName());
                 }
             });
         }

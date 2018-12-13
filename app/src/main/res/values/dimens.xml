@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="bar_height_large">70dip</dimen>
     <dimen name="bar_height">50dip</dimen>
     <dimen name="line_height">30dip</dimen>
 

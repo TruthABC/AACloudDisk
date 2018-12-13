@@ -12,8 +12,6 @@ import hk.hku.cs.aaclouddisk.R;
 
 public class FilesFragment extends Fragment {
 
-    private ListView mListViewFiles;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_files, container, false);
@@ -26,7 +24,7 @@ public class FilesFragment extends Fragment {
     }
 
     private void initViews(View v) {
-        mListViewFiles = (ListView) getActivity().findViewById(R.id.list_view_files);
+
     }
 
     private void initEvents() {

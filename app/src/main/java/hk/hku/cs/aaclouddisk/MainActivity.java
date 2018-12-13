@@ -1,11 +1,9 @@
 package hk.hku.cs.aaclouddisk;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
@@ -29,6 +27,7 @@ import java.util.Map;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
+import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
 import static hk.hku.cs.aaclouddisk.main.TabPagerAdapter.TITLES;
@@ -109,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initFinal() {
         mTitle.setText(TITLES[0]);
+        mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in next version :)
     }
 
     private String lastId = "!@#$%^&*()_+";
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                                     adapter.notifyDataSetChanged();
                                 }
 
-                                reviseFragmentBar();
+                                reviseFilesFragmentBar();
                             } else {
                                 showToast("Folder Info Get Failed: " + response.getErrmsg());
                             }
@@ -206,14 +206,19 @@ public class MainActivity extends AppCompatActivity {
      * revise event and text of fragment bar of tab_files
      *    called after response of server of FileInfoList of Folder
      */
-    private void reviseFragmentBar() {
+    private void reviseFilesFragmentBar() {
         //get Views
         TextView pathTextView = findViewById(R.id.tab_files_title);
         ImageView backImageView = findViewById(R.id.tab_files_back);
         ImageView uploadFileImageView = findViewById(R.id.tab_files_uploadFile);
 
         //Revise Content
-        pathTextView.setText("Path: AACloudDisk\\" + lastRelativePath + "\\");
+        if (lastRelativePath.length() == 0) {
+            pathTextView.setText("Path: AACloudDisk\\");
+        } else {
+            pathTextView.setText("Path: AACloudDisk\\" + lastRelativePath + "\\");
+        }
+
 //        if (lastRelativePath.length()==0) {
 //            backImageView.setVisibility(View.INVISIBLE);
 //        } else {
@@ -265,32 +270,86 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Use DownloadManager to download
+     * Use Browser to download
      * @param url target url
-     * @param name filename
      */
-    public void download(String url, String name) {
-        showToast("Download Started");
-        try {
-            //创建下载任务,downloadUrl就是下载链接
-            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-            //下载中和下载完后都显示通知栏
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            //指定下载路径和下载文件名
-            request.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS, name);
-            //通知栏标题
-            request.setTitle(name);
-            //通知栏描述信息
-            request.setDescription("DownLoad Complete");
-            //获取下载管理器
-            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-            //将下载任务加入下载队列，否则不会进行下载
-            long downloadTaskId = downloadManager.enqueue(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            showToast("Start Downloading Failed");
-        }
+    public void downloadInBrowser(String url) {
+        Uri uri = Uri.parse(url);
+        Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
 
+    public void getMP3InfoListAndResetAdaptor() {
+        //Use another thread to do server authentication
+        Thread getAllMP3InfoRunnable = new Thread() {
+            @Override
+            public void run() {
+                //get user data
+                String id = sharedPreferences.getString("id","");
+
+                String url = HttpUtilsHttpURLConnection.BASE_URL + "/getAllMP3InfoById";
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("id", id);
+
+                String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+
+                //prepare handler bundle data
+                Message msg = new Message();
+                msg.what = 0x13;
+                Bundle data = new Bundle();
+                data.putString("response", response);
+                msg.setData(data);
+
+                //use handler to handle server response
+                handler.sendMessage(msg);
+            }
+
+            Handler handler = new Handler(){
+                @Override
+                public void handleMessage(Message msg) {
+                    if (msg.what==0x13){
+                        Bundle data = msg.getData();
+                        String responseStr = data.getString("response");//returned json
+
+                        //from String to Object(Entity)
+                        try {
+                            Gson gson = new Gson();
+                            FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
+                            //Info result
+                            if (response.getErrcode() == 0){
+                                //find View and then its Adapter
+                                ListView listView = (ListView) findViewById(R.id.list_view_mp3);
+                                MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
+
+                                //if no File
+                                if (response.getFileInfoList().size() == 0) {
+                                    findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
+                                } else {
+                                    findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
+                                }
+
+                                //apply changes and call adapter to change
+                                if (adapter == null) {
+                                    adapter = new MP3InfoListAdapter(MainActivity.this, R.layout.tab_mp3_item, MainActivity.this);
+                                    adapter.addAll(response.getFileInfoList());
+                                    listView.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+                                } else {
+                                    adapter.clear();
+                                    adapter.addAll(response.getFileInfoList());
+                                    adapter.notifyDataSetChanged();
+                                }
+                            } else {
+                                showToast("MP3 Info Get Failed: " + response.getErrmsg());
+                            }
+                        } catch (Exception e) {
+                            showToast("Network error, plz contact maintenance.");
+                        }
+                    }
+                }
+            };
+        };
+        getAllMP3InfoRunnable.start();
     }
 
     public void showToast(final String msg) {
@@ -301,5 +360,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Warning: Discard: now use browser to do it
+     * Use DownloadManager to download
+     * @param url target url
+     * @param name filename
+     */
+//    public void download(String url, String name) {
+//        showToast("Download Started");
+//        try {
+//            //创建下载任务,downloadUrl就是下载链接
+//            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+//            //下载中和下载完后都显示通知栏
+//            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//            //指定下载路径和下载文件名
+//            request.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS, name);
+//            //通知栏标题
+//            request.setTitle(name);
+//            //通知栏描述信息
+//            request.setDescription("DownLoad Of AACloudDisk");
+//            //获取下载管理器
+//            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+//            //将下载任务加入下载队列，否则不会进行下载
+//            long downloadTaskId = downloadManager.enqueue(request);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            showToast("Start Downloading Failed");
+//        }
+//
+//    }
 
 }

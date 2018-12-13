@@ -59,48 +59,49 @@ public class HttpUtilsHttpURLConnection {
         return sb.toString();
     }
 
-    /* TODO
+    /*
+     * Warning: discard, now use web browser
      * urlStr: 网址
      * file: file to upload
      * return: Json String or Page(xml or html)
      */
-    public static String uploadByHttp(String urlStr, File file){
-        StringBuilder sb = new StringBuilder();
-        try{
-            URL url = new URL(urlStr);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setReadTimeout(5000);
-            connection.setConnectTimeout(5000);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setInstanceFollowRedirects(true);
-
-            OutputStream outputStream = connection.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
-//            writer.write(transformParams(parameters));
-
-            writer.flush();
-            writer.close();
-            outputStream.close();
-
-            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String temp;
-                while((temp = reader.readLine()) != null){
-                    sb.append(temp);
-                }
-                reader.close();
-            }else{
-                return "connection error:" + connection.getResponseCode();
-            }
-
-            connection.disconnect();
-        }catch (Exception e){
-            return e.toString();
-        }
-        return sb.toString();
-    }
+//    public static String uploadByHttp(String urlStr, File file){
+//        StringBuilder sb = new StringBuilder();
+//        try{
+//            URL url = new URL(urlStr);
+//            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+//            connection.setRequestMethod("POST");
+//            connection.setReadTimeout(5000);
+//            connection.setConnectTimeout(5000);
+//            connection.setDoInput(true);
+//            connection.setDoOutput(true);
+//            connection.setInstanceFollowRedirects(true);
+//
+//            OutputStream outputStream = connection.getOutputStream();
+//            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+////            writer.write(transformParams(parameters));
+//
+//            writer.flush();
+//            writer.close();
+//            outputStream.close();
+//
+//            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK){
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//                String temp;
+//                while((temp = reader.readLine()) != null){
+//                    sb.append(temp);
+//                }
+//                reader.close();
+//            }else{
+//                return "connection error:" + connection.getResponseCode();
+//            }
+//
+//            connection.disconnect();
+//        }catch (Exception e){
+//            return e.toString();
+//        }
+//        return sb.toString();
+//    }
 
     /**
      * transform map<K, V> to "key1=value1&key2=value2"

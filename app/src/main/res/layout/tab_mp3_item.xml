@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_item"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/margin_tiny"
+    android:clickable="false">
+
+    <ImageView
+        android:layout_width="@dimen/image_height_normal"
+        android:layout_height="@dimen/image_height_normal"
+        android:id="@+id/file_image"
+        android:src="@drawable/music111"
+        android:contentDescription="MP3"
+        android:layout_marginTop="@dimen/margin_tiny"
+        android:layout_marginBottom="@dimen/margin_tiny"
+        android:layout_marginLeft="@dimen/margin_small"
+        android:layout_marginRight="@dimen/margin_tiny"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="20dip"
+        android:layout_marginTop="@dimen/margin_tiny"
+        android:layout_marginRight="@dimen/margin_tiny">
+
+        <TextView
+            android:id="@+id/file_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MP3 Name"
+            android:maxLines="2"
+            android:textSize="@dimen/text_size_normal"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/margin_tiny_half">
+
+            <ImageView
+                android:id="@+id/rename_logo"
+                android:layout_width="@dimen/image_height_medium"
+                android:layout_height="@dimen/image_height_medium"
+                android:src="@drawable/edit"
+                android:contentDescription="Rename"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:id="@+id/delete_logo"
+                android:layout_width="@dimen/image_height_medium"
+                android:layout_height="@dimen/image_height_medium"
+                android:src="@drawable/opened7"
+                android:layout_marginLeft="@dimen/margin_normal"
+                android:tint="@android:color/holo_red_dark"
+                android:contentDescription="Delete"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:id="@+id/download_logo"
+                android:layout_width="@dimen/image_height_medium"
+                android:layout_height="@dimen/image_height_medium"
+                android:src="@drawable/download72"
+                android:layout_marginLeft="@dimen/margin_normal"
+                android:tint="@color/colorPrimary"
+                android:contentDescription="Download" />
+
+            <ImageView
+                android:id="@+id/into_folder_logo"
+                android:layout_width="@dimen/image_height_medium"
+                android:layout_height="@dimen/image_height_medium"
+                android:src="@drawable/right66"
+                android:layout_marginLeft="@dimen/margin_normal"
+                android:tint="@color/colorPrimary"
+                android:contentDescription="Into Folder"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
