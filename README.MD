@@ -5,9 +5,9 @@
 * Back-end Server: https://github.com/TruthABC/aacloud
 
 ## 1. Run
-* Platform (Recommended): The App is tested on "Xiaomi Redmi 5A (Android 7.1.2, API25)" through development.
+* Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"
 * Resolution (Recommended): W x H = 720 x 1280 (5-Inch)
-* Network: Thie App needs Internet to access its server. For example, to "login", access database and file storing system.
+* Network: Thie App needs Internet to access its server. For example, to "login", access database and file system.
 * Browser: This App needs to start implicit intent of HTTP-URI targeting browser application. For example, to "download", "preview" and "upload".
 * Downloader: This App could start implicit intent of HTTP-URI targeting downloader application (or download management application).
 
