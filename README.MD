@@ -1,6 +1,6 @@
 # AACloudDisk Android Client
 
-## 0. Online Project Repository
+## 0. Online Repository
 * Android Client: https://github.com/TruthABC/AACloudDisk/
 * Back-end Server: https://github.com/TruthABC/aacloud
 
