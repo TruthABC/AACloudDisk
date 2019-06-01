@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +31,6 @@ import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
-
-import static hk.hku.cs.aaclouddisk.main.TabPagerAdapter.TITLES;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mLeftTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+
+    private MainActivityHandler mHandler = new MainActivityHandler(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,10 +92,12 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                mTitle.setText(TITLES[tab.getPosition()]);
+                mTitle.setText(TabPagerAdapter.TITLES[tab.getPosition()]);
                 if (tab.getPosition() == 0) {
+                    Log.i("shijian", "onFileTabSelected");
                     getFileInfoListAndResetAdaptor(lastRelativePath);
                 } else if (tab.getPosition() == 1) {
+                    Log.i("shijian", "onMP3TabSelected");
                     getMP3InfoListAndResetAdaptor();
                 }
             }
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFinal() {
-        mTitle.setText(TITLES[0]);
+        mTitle.setText(TabPagerAdapter.TITLES[0]);
         mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in next version :)
     }
 
@@ -149,59 +153,9 @@ public class MainActivity extends AppCompatActivity {
                 msg.setData(data);
 
                 //use handler to handle server response
-                handler.sendMessage(msg);
+                mHandler.sendMessage(msg);
             }
 
-            Handler handler = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what==0x12){
-                        Bundle data = msg.getData();
-                        String responseStr = data.getString("response");//returned json
-
-                        //from String to Object(Entity)
-                        try {
-                            Gson gson = new Gson();
-                            FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
-                            //Folder Info result
-                            if (response.getErrcode() == 0){
-//                                showToast("Folder Info Get Successful");
-                                //find View and then its Adapter
-                                ListView listView = (ListView) findViewById(R.id.list_view_files);
-                                FileInfoListAdapter adapter = (FileInfoListAdapter) listView.getAdapter();
-
-                                //if no File
-                                if (response.getFileInfoList().size() == 0) {
-                                    findViewById(R.id.no_file_hint).setVisibility(View.VISIBLE);
-                                } else {
-                                    findViewById(R.id.no_file_hint).setVisibility(View.GONE);
-                                }
-
-                                //apply changes and call adapter to change
-                                if (adapter == null) {
-                                    adapter = new FileInfoListAdapter(MainActivity.this, R.layout.tab_files_item, MainActivity.this);
-                                    adapter.addAll(response.getFileInfoList());
-                                    listView.setAdapter(adapter);
-                                    adapter.notifyDataSetChanged();
-                                } else {
-                                    adapter.clear();
-                                    adapter.addAll(response.getFileInfoList());
-                                    adapter.notifyDataSetChanged();
-                                }
-
-                                reviseFilesFragmentBar();
-                            } else {
-                                showToast("Folder Info Get Failed: " + response.getErrmsg());
-                            }
-                        } catch (Exception e) {
-                            showToast("Network error, plz contact maintenance.");
-                        }
-
-                        //hide loading box
-//                        hideLoading();
-                    }
-                }
-            };
         };
         getByRelativePathRunnable.start();
 
@@ -284,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * called by MP3FragmentCreated or Tab Switched
+     */
     public void getMP3InfoListAndResetAdaptor() {
         //Use another thread to do server authentication
         Thread getAllMP3InfoRunnable = new Thread() {
@@ -306,94 +263,127 @@ public class MainActivity extends AppCompatActivity {
                 msg.setData(data);
 
                 //use handler to handle server response
-                handler.sendMessage(msg);
+                mHandler.sendMessage(msg);
             }
-
-            Handler handler = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what==0x13){
-                        Bundle data = msg.getData();
-                        String responseStr = data.getString("response");//returned json
-
-                        //from String to Object(Entity)
-                        try {
-                            Gson gson = new Gson();
-                            FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
-                            //Info result
-                            if (response.getErrcode() == 0){
-                                //find View and then its Adapter
-                                ListView listView = (ListView) findViewById(R.id.list_view_mp3);
-                                MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
-
-                                //if no File
-                                if (response.getFileInfoList().size() == 0) {
-                                    findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
-                                } else {
-                                    findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
-                                }
-
-                                //apply changes and call adapter to change
-                                if (adapter == null) {
-                                    adapter = new MP3InfoListAdapter(MainActivity.this, R.layout.tab_mp3_item, MainActivity.this);
-                                    adapter.addAll(response.getFileInfoList());
-                                    listView.setAdapter(adapter);
-                                    adapter.notifyDataSetChanged();
-                                } else {
-                                    adapter.clear();
-                                    adapter.addAll(response.getFileInfoList());
-                                    adapter.notifyDataSetChanged();
-                                }
-                            } else {
-                                showToast("MP3 Info Get Failed: " + response.getErrmsg());
-                            }
-                        } catch (Exception e) {
-                            showToast("Network error, plz contact maintenance.");
-                        }
-                    }
-                }
-            };
         };
+
         getAllMP3InfoRunnable.start();
     }
 
     public void showToast(final String msg) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        runOnUiThread(() -> {
                 Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
             }
-        });
+        );
     }
 
     /**
-     * Warning: Discard: now use browser to do it
-     * Use DownloadManager to download
-     * @param url target url
-     * @param name filename
+     * The Thread Message Handler (Should be "static", so "inner" class)
+     *  Eg. handling HTTP responses
+     *  Hint: Instances of static inner classes do not hold an implicit reference to their outer class.
+     *  Hint: In Java, non-static inner and anonymous classes hold an implicit reference to their outer class.
+     *        Static inner classes, on the other hand, do not.
      */
-//    public void download(String url, String name) {
-//        showToast("Download Started");
-//        try {
-//            //创建下载任务,downloadUrl就是下载链接
-//            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-//            //下载中和下载完后都显示通知栏
-//            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-//            //指定下载路径和下载文件名
-//            request.setDestinationInExternalFilesDir(MainActivity.this, Environment.DIRECTORY_DOWNLOADS, name);
-//            //通知栏标题
-//            request.setTitle(name);
-//            //通知栏描述信息
-//            request.setDescription("DownLoad Of AACloudDisk");
-//            //获取下载管理器
-//            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-//            //将下载任务加入下载队列，否则不会进行下载
-//            long downloadTaskId = downloadManager.enqueue(request);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            showToast("Start Downloading Failed");
-//        }
-//
-//    }
+    private static class MainActivityHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        public MainActivityHandler(MainActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity == null) {
+                // cannot be here
+                Log.e("shijian", "MainActivityHandler 'activity == null'");
+                return;
+            }
+            if (msg.what == 0x12) {
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
+                    //Folder Info result
+                    if (response.getErrcode() == 0){
+//                                showToast("Folder Info Get Successful");
+                        //find View and then its Adapter
+                        ListView listView = (ListView) activity.findViewById(R.id.list_view_files);
+                        FileInfoListAdapter adapter = (FileInfoListAdapter) listView.getAdapter();
+
+                        //if no File
+                        if (response.getFileInfoList().size() == 0) {
+                            activity.findViewById(R.id.no_file_hint).setVisibility(View.VISIBLE);
+                        } else {
+                            activity.findViewById(R.id.no_file_hint).setVisibility(View.GONE);
+                        }
+
+                        //apply changes and call adapter to change
+                        if (adapter == null) {
+                            adapter = new FileInfoListAdapter(activity, R.layout.tab_files_item, activity);
+                            adapter.addAll(response.getFileInfoList());
+                            listView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            adapter.clear();
+                            adapter.addAll(response.getFileInfoList());
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        activity.reviseFilesFragmentBar();
+                    } else {
+                        activity.showToast("Folder Info Get Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+
+                //hide loading box
+//                        hideLoading();
+            } else if (msg.what == 0x13) {
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
+                    //Info result
+                    if (response.getErrcode() == 0){
+                        //find View and then its Adapter
+                        ListView listView = (ListView) activity.findViewById(R.id.list_view_mp3);
+                        MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
+
+                        //if no File
+                        if (response.getFileInfoList().size() == 0) {
+                            activity.findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
+                        } else {
+                            activity.findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
+                        }
+
+                        //apply changes and call adapter to change
+                        if (adapter == null) {
+                            adapter = new MP3InfoListAdapter(activity, R.layout.tab_mp3_item, activity);
+                            adapter.addAll(response.getFileInfoList());
+                            listView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            adapter.clear();
+                            adapter.addAll(response.getFileInfoList());
+                            adapter.notifyDataSetChanged();
+                        }
+                    } else {
+                        activity.showToast("MP3 Info Get Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+            }
+
+        }
+    }// private static class MainActivityHandler extends Handler {}
 
 }

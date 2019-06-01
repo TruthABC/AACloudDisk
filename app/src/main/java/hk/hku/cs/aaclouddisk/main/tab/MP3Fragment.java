@@ -2,6 +2,7 @@ package hk.hku.cs.aaclouddisk.main.tab;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 
 public class MP3Fragment extends Fragment {
+
+    private MainActivity mActivity = (MainActivity)getActivity();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -22,6 +25,13 @@ public class MP3Fragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Hint: only ONE onCreateView & onResume is called even with multiple "Tab Switches"
+        Log.i("shijian", "onMp3FragmentResume");
+    }
+
     private void initViews(View v) {
 
     }
@@ -31,7 +41,9 @@ public class MP3Fragment extends Fragment {
     }
 
     private void initFinal() {
-        ((MainActivity)getActivity()).getMP3InfoListAndResetAdaptor();
+        Log.i("shijian", "onMp3FragmentCreated");
+        // Initialize music list at very beginning, even user not switched to this tab.
+        mActivity.getMP3InfoListAndResetAdaptor();
     }
 
 }

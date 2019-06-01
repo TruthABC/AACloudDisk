@@ -15,3 +15,6 @@
 * IDE: Android Studio
 * SDK Version: compileSdkVersion 28; targetSdkVersion 28; minSdkVersion 19;
 * Extra Dependency: gson:2.6.2
+
+## 3. Message Handler
+* 0x13 - "getAllMP3" for MP3Fragment

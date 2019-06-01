@@ -11,7 +11,7 @@ import hk.hku.cs.aaclouddisk.main.tab.MeFragment;
 public class TabPagerAdapter extends FragmentPagerAdapter {
 
     public static final String[] TITLES = {"Files","Cloud MP3","Me"};
-    Fragment[] fragments;
+    private Fragment[] fragments;
 
     public TabPagerAdapter(FragmentManager fm) {
         super(fm);
