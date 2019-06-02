@@ -57,7 +57,7 @@
                 android:layout_marginLeft="@dimen/margin_normal"
                 android:tint="@android:color/holo_red_dark"
                 android:contentDescription="Delete"
-                android:visibility="invisible"/>
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/download_logo"
@@ -69,14 +69,13 @@
                 android:contentDescription="Download" />
 
             <ImageView
-                android:id="@+id/into_folder_logo"
+                android:id="@+id/open_logo"
                 android:layout_width="@dimen/image_height_medium"
                 android:layout_height="@dimen/image_height_medium"
                 android:src="@drawable/right66"
                 android:layout_marginLeft="@dimen/margin_normal"
                 android:tint="@color/colorPrimary"
-                android:contentDescription="Into Folder"
-                android:visibility="gone"/>
+                android:contentDescription="open" />
 
         </LinearLayout>
 

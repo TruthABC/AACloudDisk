@@ -18,3 +18,7 @@
 
 ## 3. Message Handler
 * 0x13 - "getAllMP3" for MP3Fragment
+
+## Progress
+* 20180601 - Handler Memory Leak Fixed, MP3Fragment life cycle confirming
+* 20180602 - Research on Downloading while Playing & Music Player. (Decision: 1. Play only online Music, 2. Play Online or Downloaded either, 3. Downloaded + Download while playing)

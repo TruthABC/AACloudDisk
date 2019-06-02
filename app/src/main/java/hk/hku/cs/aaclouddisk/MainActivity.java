@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
-    private MainActivityHandler mHandler = new MainActivityHandler(this);
+    private MainActivityHandler mMainActivityHandler = new MainActivityHandler(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 msg.setData(data);
 
                 //use handler to handle server response
-                mHandler.sendMessage(msg);
+                mMainActivityHandler.sendMessage(msg);
             }
 
         };
@@ -239,6 +239,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Play and download music file at the same time (TODO: Research Phase, Hard refactor needed)
+     * @param url target url
+     */
+    public void openMusicFile(String url) {
+        showToast("[OJBK]" + url);
+    }
+
+    /**
      * called by MP3FragmentCreated or Tab Switched
      */
     public void getMP3InfoListAndResetAdaptor() {
@@ -263,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 msg.setData(data);
 
                 //use handler to handle server response
-                mHandler.sendMessage(msg);
+                mMainActivityHandler.sendMessage(msg);
             }
         };
 

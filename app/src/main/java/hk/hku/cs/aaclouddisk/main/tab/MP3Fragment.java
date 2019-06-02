@@ -12,8 +12,6 @@ import hk.hku.cs.aaclouddisk.R;
 
 public class MP3Fragment extends Fragment {
 
-    private MainActivity mActivity = (MainActivity)getActivity();
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_mp3, container, false);
@@ -43,7 +41,7 @@ public class MP3Fragment extends Fragment {
     private void initFinal() {
         Log.i("shijian", "onMp3FragmentCreated");
         // Initialize music list at very beginning, even user not switched to this tab.
-        mActivity.getMP3InfoListAndResetAdaptor();
+        ((MainActivity)getActivity()).getMP3InfoListAndResetAdaptor();
     }
 
 }
