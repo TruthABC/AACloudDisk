@@ -3,6 +3,8 @@ package hk.hku.cs.aaclouddisk;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -37,13 +40,21 @@ public class MainActivity extends AppCompatActivity {
     //local cache
     private SharedPreferences sharedPreferences;
 
+    //Views
     private Toolbar mToolbar;
     private TextView mTitle;
     private ImageButton mLeftTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
+    //Http Response handler
     private MainActivityHandler mMainActivityHandler = new MainActivityHandler(this);
+    //Message::what
+    private static final int FILE_INFO_LIST_RESP = 0x12;
+    private static final int MP3_INFO_LIST_RESP = 0x13;
+
+    //Playing Music
+    private MusicService.MusicServiceBinder mMusicServiceBinder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
                 String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
 
                 //prepare handler bundle data
-                Message msg = new Message();
-                msg.what=0x12;
+                Message msg = mMainActivityHandler.obtainMessage();
+                msg.what = FILE_INFO_LIST_RESP;
                 Bundle data=new Bundle();
                 data.putString("response",response);
                 msg.setData(data);
@@ -240,10 +251,24 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Play and download music file at the same time (TODO: Research Phase, Hard refactor needed)
+     * step1: single music play done
+     * step2: play all music in a service (TODO)
      * @param url target url
      */
-    public void openMusicFile(String url) {
-        showToast("[OJBK]" + url);
+    public void playMusicFile(String url) {
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepareAsync();
+            showShortToast("Loading Music...");
+            mediaPlayer.setOnPreparedListener((mp) -> {
+                mediaPlayer.start();
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            showToast("Online Music File not Available");
+        }
     }
 
     /**
@@ -264,8 +289,8 @@ public class MainActivity extends AppCompatActivity {
                 String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
 
                 //prepare handler bundle data
-                Message msg = new Message();
-                msg.what = 0x13;
+                Message msg = mMainActivityHandler.obtainMessage();
+                msg.what = MP3_INFO_LIST_RESP;
                 Bundle data = new Bundle();
                 data.putString("response", response);
                 msg.setData(data);
@@ -278,11 +303,16 @@ public class MainActivity extends AppCompatActivity {
         getAllMP3InfoRunnable.start();
     }
 
+    public void showShortToast(final String msg) {
+        runOnUiThread(() -> {
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+        });
+    }
+
     public void showToast(final String msg) {
         runOnUiThread(() -> {
-                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-            }
-        );
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+        });
     }
 
     /**
@@ -307,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("shijian", "MainActivityHandler 'activity == null'");
                 return;
             }
-            if (msg.what == 0x12) {
+            if (msg.what == FILE_INFO_LIST_RESP) {
                 Bundle data = msg.getData();
                 String responseStr = data.getString("response");//returned json
 
@@ -351,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //hide loading box
 //                        hideLoading();
-            } else if (msg.what == 0x13) {
+            } else if (msg.what == MP3_INFO_LIST_RESP) {
                 Bundle data = msg.getData();
                 String responseStr = data.getString("response");//returned json
 

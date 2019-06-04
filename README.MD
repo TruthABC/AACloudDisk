@@ -22,3 +22,5 @@
 ## Progress
 * 20180601 - Handler Memory Leak Fixed, MP3Fragment life cycle confirming
 * 20180602 - Research on Downloading while Playing & Music Player. (Decision: 1. Play only online Music, 2. Play Online or Downloaded either, 3. Downloaded + Download while playing)
+* 20180603 - Play single music done. MusicService added to Play all music (DOING).
+* 20180604 - Gap. (Do with Career Things)

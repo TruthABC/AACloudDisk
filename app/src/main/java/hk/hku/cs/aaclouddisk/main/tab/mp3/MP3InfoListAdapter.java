@@ -43,7 +43,7 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         //set open event when open_logo is clicked
         ImageView openLogo = v.findViewById(R.id.open_logo);
         openLogo.setOnClickListener((v1) -> {
-            mActivity.openMusicFile(getRealUrl(fileInfo));
+            mActivity.playMusicFile(getRealUrl(fileInfo));
         });
 
         return v;
