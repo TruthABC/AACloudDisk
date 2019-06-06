@@ -18,11 +18,6 @@ public class MusicService extends Service {
     public static final String TAG = "MusicService";
     public static final String DEBUG_TAG = "shijian";
 
-    //Const for mPlayingMode
-    public static final int ALL_CYCLE = 0;
-    public static final int SINGLE_CYCLE = 1;
-    public static final int ALL_RANDOM = 2;
-
     //Math util
     private Random mRandom;
 
@@ -39,6 +34,11 @@ public class MusicService extends Service {
 
     private int mPlayingMode;
     private MediaPlayer mMediaPlayer;
+    //Const for mPlayingMode
+    public static final int ALL_CYCLE = 0;
+    public static final int SINGLE_CYCLE = 1;
+    public static final int ALL_RANDOM = 2;
+
 
     @Override
     public void onCreate() {
@@ -108,6 +108,10 @@ public class MusicService extends Service {
             mOuterOnPreparedListener = onPreparedListener;
         }
 
+        public int getNowResourceIndex() {
+            return mNowResourceIndex;
+        }
+
         public void setResourceList(List<String> resourceList) {
             Log.d("TAG", "setResourceList() executed");
             mResourceList = resourceList;
@@ -171,7 +175,7 @@ public class MusicService extends Service {
                 Log.i(DEBUG_TAG, "next() 1. No or empty Resource List");
                 return;
             }
-            //2. Default: play the next music from beginning
+            //2. Default: jump next music
             // else
             {
                 Log.i(DEBUG_TAG, "next() 2. Default: play the next music from beginning");
@@ -180,7 +184,9 @@ public class MusicService extends Service {
                 } else {
                     jumpNextMusic();
                 }
-                playNowMusicFromBeginning();
+                if (mMediaPlayer.isPlaying()) {
+                    playNowMusicFromBeginning();
+                }
             }
         }
 
@@ -191,7 +197,7 @@ public class MusicService extends Service {
                 Log.i(DEBUG_TAG, "prev() 1. No or empty Resource List");
                 return;
             }
-            //2. Default: play the next music from beginning
+            //2. Default: jump prev music
             // else
             {
                 Log.i(DEBUG_TAG, "prev() 2. Default: play the previous music from beginning");
@@ -200,8 +206,18 @@ public class MusicService extends Service {
                 } else {
                     jumpPreviousMusic();
                 }
+                if (mMediaPlayer.isPlaying()) {
+                    playNowMusicFromBeginning();
+                }
+            }
+        }
+
+        public boolean jumpTo(int newIndex) {
+            boolean jumpSuccess = jumpToMusic(newIndex);
+            if (jumpSuccess && mMediaPlayer.isPlaying()) {
                 playNowMusicFromBeginning();
             }
+            return jumpSuccess;
         }
     }
 
@@ -224,6 +240,17 @@ public class MusicService extends Service {
         while (mNowResourceIndex == oldResourceIndex) {
             mNowResourceIndex = mRandom.nextInt(mResourceList.size());
         }
+    }
+
+    private boolean jumpToMusic(int newIndex) {
+        if (mResourceList == null) {
+            return false;
+        }
+        if (newIndex < 0 || newIndex >= mResourceList.size()) {
+            return false;
+        }
+        mNowResourceIndex = newIndex;
+        return true;
     }
 
     private void playNowMusicFromBeginning() {

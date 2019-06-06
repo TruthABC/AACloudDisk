@@ -1,12 +1,13 @@
 package hk.hku.cs.aaclouddisk;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -23,10 +24,11 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
@@ -35,7 +37,11 @@ import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ServiceConnection {
+
+    //Tag
+    public static final String TAG = "MainActivity";
+    public static final String DEBUG_TAG = "shijian";
 
     //local cache
     private SharedPreferences sharedPreferences;
@@ -55,11 +61,21 @@ public class MainActivity extends AppCompatActivity {
 
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
+    //for initializing mMusicServiceBinder;
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+    }
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.v(TAG, "onCreate");
 
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
@@ -70,7 +86,15 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         initToolBar();
+        initServiceBinder();
         initFinal();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(TAG, "onDestroy");
+        unbindService(this);
     }
 
     private void initViews() {
@@ -124,6 +148,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void initServiceBinder() {
+        Intent bindIntent = new Intent(this, MusicService.class);
+        bindService(bindIntent, this, BIND_AUTO_CREATE);
     }
 
     private void initFinal() {
@@ -256,19 +285,24 @@ public class MainActivity extends AppCompatActivity {
      * @param url target url
      */
     public void playMusicFile(String url) {
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.prepareAsync();
-            showShortToast("Loading Music...");
-            mediaPlayer.setOnPreparedListener((mp) -> {
-                mediaPlayer.start();
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-            showToast("Online Music File not Available");
-        }
+        //mMusicServiceBinder
+        List<String> singleResourceList = new ArrayList<>();
+        singleResourceList.add(url);
+        mMusicServiceBinder.setResourceList(singleResourceList);
+        mMusicServiceBinder.play();
+//        MediaPlayer mediaPlayer = new MediaPlayer();
+//        try {
+//            mediaPlayer.setDataSource(url);
+//            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//            mediaPlayer.prepareAsync();
+//            showShortToast("Loading Music...");
+//            mediaPlayer.setOnPreparedListener((mp) -> {
+//                mediaPlayer.start();
+//            });
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            showToast("Online Music File not Available");
+//        }
     }
 
     /**
