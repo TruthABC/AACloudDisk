@@ -19,6 +19,9 @@
 ## 3. Message Handler
 * 0x13 - "getAllMP3" for MP3Fragment
 
+## Implementation Logic Note
+* MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment
+
 ## Progress
 * 20180601 - Handler Memory Leak Fixed, MP3Fragment life cycle confirming
 * 20180602 - Research on Downloading while Playing & Music Player. (Decision: 1. Play only online Music, 2. Play Online or Downloaded either, 3. Downloaded + Download while playing)
@@ -26,16 +29,22 @@
 * 20180604 - Gap. (Do with Career Things)
 * 20180605 - MusicService done (to connect to activity). Back-end Mysql dependency removed.
 * 20180606 - Back-end better ways of Exception throwing, MusicService connect (bind) to MainActivity.
-* 20180607 - Gap.
-* 20180608 - Gap.
-* 20180609 - Gap.
-* 20180610 - Gap.
+* 20180607 - Gap. (Dragon Boat Festival 1)
+* 20180608 - Gap. (Dragon Boat Festival 2)
+* 20180609 - Gap. (Dragon Boat Festival 3)
+* 20180610 - Gap. (Flight Canceled for Weather.)
+* 20180611 - Gap. (Jet Lag and Recover)
+* 20180612 - Research on Material Design for Music Player. Research on Website Design for PJ.
 
 ## TODO list
-* .
-* MusicService select one and play all in list.
+* todo: PJ Website by 20190612.
+* revise: change song and auto-play.
+* todo: audio file multiple-select
+* todo: MusicService select one and play all in list.
+* todo: Activity separated for music playing.
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
 * Back-end: From "net.sf.json" to "Gson"
 * Use "Socket" to receive music (download while listening)
+* Can relate tag/note/comments on picture files.
 * future: Find a good Job :)
