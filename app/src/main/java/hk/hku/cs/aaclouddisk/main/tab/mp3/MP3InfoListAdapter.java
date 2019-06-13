@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import hk.hku.cs.aaclouddisk.HttpUtilsHttpURLConnection;
@@ -35,14 +36,14 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         fileName.setText(fileInfo.getName());
 
         //set download event when download_logo is clicked
-        ImageView downLoadLogo = v.findViewById(R.id.download_logo);
-        downLoadLogo.setOnClickListener((v1) -> {
+        ImageView browserLogo = v.findViewById(R.id.browser_logo);
+        browserLogo.setOnClickListener((v1) -> {
             mActivity.downloadInBrowser(getRealUrl(fileInfo));
         });
 
         //set open event when open_logo is clicked
-        ImageView openLogo = v.findViewById(R.id.open_logo);
-        openLogo.setOnClickListener((v1) -> {
+        RelativeLayout rootItem = v.findViewById(R.id.root_item);
+        rootItem.setOnClickListener((v1) -> {
             mActivity.playMusicFile(getRealUrl(fileInfo));
         });
 

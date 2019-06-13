@@ -184,9 +184,7 @@ public class MusicService extends Service {
                 } else {
                     jumpNextMusic();
                 }
-                if (mMediaPlayer.isPlaying()) {
-                    playNowMusicFromBeginning();
-                }
+                playNowMusicFromBeginning();
             }
         }
 
@@ -206,15 +204,13 @@ public class MusicService extends Service {
                 } else {
                     jumpPreviousMusic();
                 }
-                if (mMediaPlayer.isPlaying()) {
-                    playNowMusicFromBeginning();
-                }
+                playNowMusicFromBeginning();
             }
         }
 
         public boolean jumpTo(int newIndex) {
             boolean jumpSuccess = jumpToMusic(newIndex);
-            if (jumpSuccess && mMediaPlayer.isPlaying()) {
+            if (jumpSuccess) {
                 playNowMusicFromBeginning();
             }
             return jumpSuccess;

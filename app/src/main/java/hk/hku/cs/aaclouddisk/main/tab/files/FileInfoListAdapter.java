@@ -3,13 +3,11 @@ package hk.hku.cs.aaclouddisk.main.tab.files;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +67,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         // set file or folder image logo and click event (2/2)
         ImageView fileImage = v.findViewById (R.id.file_image);
         ImageView intoFolderLogo = v.findViewById(R.id.into_folder_logo);
-        ImageView downloadLogo = v.findViewById(R.id.download_logo);
+        ImageView downloadLogo = v.findViewById(R.id.browser_logo);
         // if is a folder
         if (fileInfo.getDir() == 1) {
             //Change to Folder Imamge
