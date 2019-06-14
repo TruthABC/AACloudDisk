@@ -5,20 +5,20 @@
 * Back-end Server: https://github.com/TruthABC/aacloud
 
 ## Progress
-* 20180601 - Handler Memory Leak Fixed, MP3Fragment life cycle confirming
-* 20180602 - Research on Downloading while Playing & Music Player. (Decision: 1. Play only online Music, 2. Play Online or Downloaded either, 3. Downloaded + Download while playing)
-* 20180603 - Play single music done. MusicService added to Play all music (DOING).
-* 20180604 - Gap. (Do with Career Things)
-* 20180605 - MusicService done (to connect to activity). Back-end Mysql dependency removed.
-* 20180606 - Back-end better ways of Exception throwing, MusicService connect (bind) to MainActivity.
-* 20180607 - Gap. (Dragon Boat Festival 1)
-* 20180608 - Gap. (Dragon Boat Festival 2)
-* 20180609 - Gap. (Dragon Boat Festival 3)
-* 20180610 - Gap. (Flight Canceled for Weather.)
-* 20180611 - Gap. ("Jet Lag" and Recover :))
-* 20180612 - Research on Material Design for Music Player. Research on Website Design for PJ.
-* 20180613 - Implement UI of "Material Design" principles for some layouts.
-* 20180614 - MSc web page
+* 20190601 - Handler Memory Leak Fixed, MP3Fragment life cycle confirming
+* 20190602 - Research on Downloading while Playing & Music Player. (Decision: 1. Play only online Music, 2. Play Online or Downloaded either, 3. Downloaded + Download while playing)
+* 20190603 - Play single music done. MusicService added to Play all music (DOING).
+* 20190604 - Gap. (Do with Career Things)
+* 20190605 - MusicService done (to connect to activity). Back-end Mysql dependency removed.
+* 20190606 - Back-end better ways of Exception throwing, MusicService connect (bind) to MainActivity.
+* 20190607 - Gap. (Dragon Boat Festival 1)
+* 20190608 - Gap. (Dragon Boat Festival 2)
+* 20190609 - Gap. (Dragon Boat Festival 3)
+* 20190610 - Gap. (Flight Canceled for Weather.)
+* 20190611 - Gap. ("Jet Lag" and Recover :))
+* 20190612 - Research on Material Design for Music Player. Research on Website Design for PJ.
+* 20190613 - Implement UI of "Material Design" principles for some layouts.
+* 20190614 - MSc web page
 
 ## 1. Run
 * Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"
