@@ -33,15 +33,18 @@
 * 20180608 - Gap. (Dragon Boat Festival 2)
 * 20180609 - Gap. (Dragon Boat Festival 3)
 * 20180610 - Gap. (Flight Canceled for Weather.)
-* 20180611 - Gap. (Jet Lag and Recover)
+* 20180611 - Gap. ("Jet Lag" and Recover :))
 * 20180612 - Research on Material Design for Music Player. Research on Website Design for PJ.
+* 20180613 - Implement UI of "Material Design" principles for some layouts.
+* 20180614 - MSc web page
 
 ## TODO list
-* todo: PJ Website by 20190616.
-* revise: change song and auto-play.
-* todo: audio file multiple-select
-* todo: MusicService select one and play all in list.
+* todo: PJ Website by 20190616. (2 days left)
+* todo: Theme and UI change
 * todo: Activity separated for music playing.
+* todo: MusicService select one and play all in list.
+* todo: file menu
+* todo: file multiple-select
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
 * Back-end: From "net.sf.json" to "Gson"
