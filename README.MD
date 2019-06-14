@@ -20,6 +20,20 @@
 * 20190613 - Implement UI of "Material Design" principles for some layouts.
 * 20190614 - MSc web page
 
+## TODO list
+* todo: PJ Website by 20190616. (2 days left)
+* todo: Theme and UI change
+* todo: Activity separated for music playing.
+* todo: MusicService select one and play all in list.
+* todo: file menu
+* todo: file multiple-select
+* User make, change, delete other lists.
+* Add music to list, remove music from list.
+* Back-end: From "net.sf.json" to "Gson"
+* Use "Socket" to receive music (download while listening)
+* Can relate tag/note/comments on picture files.
+* future: Find a good Job :)
+
 ## 1. Run
 * Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"
 * Resolution (Recommended): W x H = 720 x 1280 (5-Inch)
@@ -37,17 +51,3 @@
 
 ## Implementation Logic Note
 * MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment
-
-## TODO list
-* todo: PJ Website by 20190616. (2 days left)
-* todo: Theme and UI change
-* todo: Activity separated for music playing.
-* todo: MusicService select one and play all in list.
-* todo: file menu
-* todo: file multiple-select
-* User make, change, delete other lists.
-* Add music to list, remove music from list.
-* Back-end: From "net.sf.json" to "Gson"
-* Use "Socket" to receive music (download while listening)
-* Can relate tag/note/comments on picture files.
-* future: Find a good Job :)
