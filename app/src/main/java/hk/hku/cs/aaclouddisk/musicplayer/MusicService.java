@@ -1,4 +1,4 @@
-package hk.hku.cs.aaclouddisk;
+package hk.hku.cs.aaclouddisk.musicplayer;
 
 import android.app.Service;
 import android.content.Intent;
@@ -98,7 +98,7 @@ public class MusicService extends Service {
         return mMusicServiceBinder;
     }
 
-    class MusicServiceBinder extends Binder {
+    public class MusicServiceBinder extends Binder {
 
         public void clearOuterOnPreparedListener() {
             mOuterOnPreparedListener = null;

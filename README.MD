@@ -18,7 +18,8 @@
 * 20190611 - Gap. ("Jet Lag" and Recover :))
 * 20190612 - Research on Material Design for Music Player. Research on Website Design for PJ.
 * 20190613 - Implement UI of "Material Design" principles for some layouts.
-* 20190614 - MSc web page
+* 20190614 - MSc webpage ver.1.0
+* 20190615 - Theme changed.
 
 ## TODO list
 * todo: PJ Website by 20190616. (2 days left)

@@ -21,6 +21,7 @@
                     android:layout_width="@dimen/image_height_normal"
                     android:layout_height="@dimen/image_height_normal"
                     android:background="@drawable/up16"
+                    android:tint="@color/icons"
                     android:clickable="false" />
 
                 <TextView
@@ -30,7 +31,7 @@
                     android:layout_gravity="center"
                     android:singleLine="true"
                     android:textSize="20sp"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/icons"/>
 
         </android.support.v7.widget.Toolbar>
 

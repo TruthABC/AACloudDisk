@@ -35,6 +35,7 @@ import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
+import hk.hku.cs.aaclouddisk.musicplayer.MusicService;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
