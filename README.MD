@@ -19,13 +19,18 @@
 * 20190612 - Research on Material Design for Music Player. Research on Website Design for PJ.
 * 20190613 - Implement UI of "Material Design" principles for some layouts.
 * 20190614 - MSc webpage ver.1.0
-* 20190615 - Theme changed.
+* 20190615 - App theme change. Fixed ripple effect. Study & implement on Material Design. Implement "MusicPlayerActivity".
+* 20190615 - complete: MusicPlayerActivity: layouts (Top Bar, Control Bar, Footer), intent to get in, intent to go back.
+* 20190616 - TODO: To play music in MusicPlayerActivity, design body, design data structure for playing mode.
 
 ## TODO list
-* todo: PJ Website by 20190616. (2 days left)
-* todo: Theme and UI change
-* todo: Activity separated for music playing.
+* todo: finish Activity separated for music playing.
+* todo: layout, round icon, onclick luminance, on click change icon, on click switch flag.
+* layout (Top Bar, Body, Progress Bar, Control Bar, Footer)
+* todo: Music List Service
 * todo: MusicService select one and play all in list.
+* todo: background play when screen locked (a UI needed)
+* todo: a easy float button for user to stop music.
 * todo: file menu
 * todo: file multiple-select
 * User make, change, delete other lists.
@@ -44,11 +49,12 @@
 
 ## 2. Develop
 * IDE: Android Studio
-* SDK Version: compileSdkVersion 28; targetSdkVersion 28; minSdkVersion 19;
-* Extra Dependency: gson:2.6.2
+* SDK Version: compileSdkVersion 28; targetSdkVersion 28; minSdkVersion 21;
+* Extra Dependency: gson:2.8.2
 
 ## 3. Message Handler
 * 0x13 - "getAllMP3" for MP3Fragment
 
 ## Implementation Logic Note
 * MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment
+* MusicPlayerActivity (Top Bar, Body, Progress Bar, Control Bar, Footer)

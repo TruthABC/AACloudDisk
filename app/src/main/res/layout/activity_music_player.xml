@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [VBox] Music Player Root -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_deepest">
+
+    <!-- [HBox] Top Bar: back button, title, etc button (like, download, add to list) -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/music_player_topbar_height"
+        android:paddingStart="@dimen/music_player_side_margin"
+        android:paddingEnd="@dimen/music_player_side_margin"
+        android:layout_alignParentTop="true">
+        <!-- [Item] Left Top Button Wrapper -->
+        <RelativeLayout
+            android:id="@+id/music_player_left_top_button_wrapper"
+            android:layout_width="@dimen/music_player_topbar_left_top_button_wrapper"
+            android:layout_height="@dimen/music_player_topbar_left_top_button_wrapper"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/ripple_music_player_button"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="@dimen/music_player_topbar_left_top_button_image"
+                android:layout_height="@dimen/music_player_topbar_left_top_button_image"
+                android:src="@drawable/round_arrow_back_black_36"
+                android:tint="@color/white"/>
+        </RelativeLayout>
+        <!-- [Item] Top Title -->
+        <TextView
+            android:id="@+id/music_player_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/music_player_topbar_title_margin"
+            android:layout_marginEnd="@dimen/music_player_topbar_title_margin"
+            android:singleLine="true"
+            android:textSize="20sp"
+            android:textColor="@color/icons"
+            android:layout_centerInParent="true"
+            android:text="AACloud Music Player"/>
+    </RelativeLayout>
+
+    <!-- [HBox] Body: Animation+Album Cover & Lyrics (toggle) -->
+
+    <!-- [HBox] Progress Bar -->
+
+    <!-- [HBox] Control Bar -->
+    <RelativeLayout
+        android:id="@+id/music_player_control_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/music_player_control_bar_height"
+        android:paddingStart="@dimen/music_player_footer_height"
+        android:paddingEnd="@dimen/music_player_footer_height"
+        android:layout_above="@id/music_player_footer">
+        <!-- [Item] Music Player Button Wrapper -->
+        <RelativeLayout
+            android:id="@+id/music_player_control_button_wrapper_mode"
+            android:layout_width="@dimen/music_player_control_bar_button_height"
+            android:layout_height="@dimen/music_player_control_bar_button_height"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/ripple_music_player_button"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/music_player_button_repeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_repeat_black_36"
+                android:tint="@color/white"/>
+            <ImageView
+                android:id="@+id/music_player_button_repeat_one"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_repeat_one_black_36"
+                android:tint="@color/white"/>
+            <ImageView
+                android:id="@+id/music_player_button_shuffle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_shuffle_black_36"
+                android:tint="@color/white"/>
+        </RelativeLayout>
+        <!-- [VBox] Music Player Wrapper 234 Wrapper -->
+        <RelativeLayout
+            android:id="@+id/music_player_button_wrapper_outer234"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/music_player_control_bar_height"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+            <!-- Music Player Button Wrapper -->
+            <RelativeLayout
+                android:id="@+id/music_player_control_button_wrapper_prev"
+                android:layout_width="@dimen/music_player_control_bar_button_height"
+                android:layout_height="@dimen/music_player_control_bar_button_height"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/ripple_music_player_button"
+                android:layout_centerVertical="true"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/music_player_button_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_skip_previous_black_36"
+                    android:tint="@color/white"/>
+            </RelativeLayout>
+            <!-- Music Player Button Wrapper -->
+            <RelativeLayout
+                android:id="@+id/music_player_control_button_wrapper_play"
+                android:layout_width="@dimen/music_player_control_bar_height"
+                android:layout_height="@dimen/music_player_control_bar_height"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/ripple_music_player_button"
+                android:layout_toEndOf="@id/music_player_control_button_wrapper_prev"
+                android:layout_marginStart="@dimen/music_player_control_bar_button_margin"
+                android:layout_centerVertical="true"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/music_player_button_play"
+                    android:layout_width="@dimen/music_player_control_bar_button_height_big"
+                    android:layout_height="@dimen/music_player_control_bar_button_height_big"
+                    android:src="@drawable/baseline_play_arrow_black_48"
+                    android:tint="@color/white"/>
+                <ImageView
+                    android:id="@+id/music_player_button_pause"
+                    android:layout_width="@dimen/music_player_control_bar_button_height_big"
+                    android:layout_height="@dimen/music_player_control_bar_button_height_big"
+                    android:src="@drawable/baseline_pause_black_48"
+                    android:tint="@color/white"/>
+            </RelativeLayout>
+            <!-- Music Player Button Wrapper -->
+            <RelativeLayout
+                android:id="@+id/music_player_control_button_wrapper_next"
+                android:layout_width="@dimen/music_player_control_bar_button_height"
+                android:layout_height="@dimen/music_player_control_bar_button_height"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/ripple_music_player_button"
+                android:layout_toEndOf="@id/music_player_control_button_wrapper_play"
+                android:layout_marginStart="@dimen/music_player_control_bar_button_margin"
+                android:layout_centerVertical="true"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/music_player_button_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_skip_next_black_36"
+                    android:tint="@color/white"/>
+            </RelativeLayout>
+        </RelativeLayout>
+        <!-- [Item] Music Player Button Wrapper -->
+        <RelativeLayout
+            android:id="@+id/music_player_control_button_wrapper_list"
+            android:layout_width="@dimen/music_player_control_bar_button_height"
+            android:layout_height="@dimen/music_player_control_bar_button_height"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/ripple_music_player_button"
+            android:layout_alignParentEnd="true"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+            <ImageView
+                android:id="@+id/music_player_button_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_queue_music_black_36"
+                android:tint="@color/white"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <!-- [HBox] Footer -->
+    <RelativeLayout
+        android:id="@+id/music_player_footer"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/music_player_footer_height"
+        android:layout_alignParentBottom="true">
+    </RelativeLayout>
+</RelativeLayout>

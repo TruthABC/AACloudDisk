@@ -15,12 +15,16 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bar_height">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-                <ImageButton
+                <!-- Left Top Button -->
+                <ImageView
                     android:id="@+id/left_top_button"
                     android:layout_width="@dimen/image_height_normal"
                     android:layout_height="@dimen/image_height_normal"
-                    android:background="@drawable/up16"
+                    android:src="@drawable/up16"
                     android:tint="@color/icons"
                     android:clickable="false" />
 
@@ -31,8 +35,28 @@
                     android:layout_gravity="center"
                     android:singleLine="true"
                     android:textSize="20sp"
-                    android:textColor="@color/icons"/>
+                    android:textColor="@color/icons"
+                    android:layout_centerInParent="true"/>
 
+                <!-- Right Top Button Wrapper -->
+                <RelativeLayout
+                    android:id="@+id/right_top_button_wrapper"
+                    android:layout_width="@dimen/image_height_normal"
+                    android:layout_height="@dimen/image_height_normal"
+                    android:layout_marginEnd="@dimen/toolbar_margin"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/ripple_on_primary"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/round_audiotrack_black_36"
+                        android:tint="@color/icons"
+                        android:contentDescription="music player activity button" />
+                </RelativeLayout>
+            </RelativeLayout>
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>

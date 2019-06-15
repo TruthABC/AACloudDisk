@@ -16,9 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +35,7 @@ import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
+import hk.hku.cs.aaclouddisk.musicplayer.MusicPlayerActivity;
 import hk.hku.cs.aaclouddisk.musicplayer.MusicService;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
@@ -50,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     //Views
     private Toolbar mToolbar;
     private TextView mTitle;
-    private ImageButton mLeftTopButton;
+    private ImageView mLeftTopButton;
+    private RelativeLayout mRightTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
@@ -101,20 +103,21 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private void initViews() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mTitle = (TextView) findViewById(R.id.title);
-        mLeftTopButton = (ImageButton) findViewById(R.id.left_top_button);
+        mLeftTopButton = (ImageView) findViewById(R.id.left_top_button);
+        mRightTopButton = (RelativeLayout) findViewById(R.id.right_top_button_wrapper);
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
         mViewPager = (ViewPager) findViewById(R.id.pager);
     }
 
     private void initToolBar() {
-        mLeftTopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), TaskListActivity.class);
-                startActivityForResult(intent, 0);
-            }
+        mLeftTopButton.setOnClickListener((v) -> {
+            Intent intent = new Intent(v.getContext(), TaskListActivity.class);
+            startActivityForResult(intent, 0);
         });
-
+        mRightTopButton.setOnClickListener((v) -> {
+            Intent intent = new Intent(v.getContext(), MusicPlayerActivity.class);
+            startActivityForResult(intent, 0);
+        });
         // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
         // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());

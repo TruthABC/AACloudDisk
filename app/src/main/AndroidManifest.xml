@@ -22,12 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AACloudDisk"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <!-- Main Activity -->
         <activity android:name=".MainActivity">
-
         </activity>
-        <activity android:name=".tasklist.TaskListActivity">
 
-        </activity>
+        <!-- Login Activity -->
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,8 +35,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".upload.FileUploadActivity" />
+
+        <!-- Music Player -->
+        <activity android:name=".musicplayer.MusicPlayerActivity" />
         <service android:name=".musicplayer.MusicService" />
+        <service android:name=".musicplayer.MListService" />
+
+        <!-- Download & Upload management -->
+        <activity android:name=".tasklist.TaskListActivity"/>
+        <activity android:name=".upload.FileUploadActivity" />
+
         <receiver android:name=".receiver.DownloadReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
