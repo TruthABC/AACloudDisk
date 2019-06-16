@@ -21,7 +21,8 @@
 * 20190614 - MSc webpage ver.1.0
 * 20190615 - App theme change. Fixed ripple effect. Study & implement on Material Design. Implement "MusicPlayerActivity".
 * 20190615 - complete: MusicPlayerActivity: layouts (Top Bar, Control Bar, Footer), intent to get in, intent to go back.
-* 20190616 - TODO: To play music in MusicPlayerActivity, design body, design data structure for playing mode.
+* 20190616 - Ripple color & shape fixed. Round shape icon changed. UI design case studying.
+* 20190617 - TODO: To play music in MusicPlayerActivity, design body, design data structure for playing mode.
 
 ## TODO list
 * todo: finish Activity separated for music playing.
@@ -33,6 +34,10 @@
 * todo: a easy float button for user to stop music.
 * todo: file menu
 * todo: file multiple-select
+* do not show full path, only last layer enough.
+* File sub app bar use Backdrop design. Ref. But also to Baidu Net Disk.
+* Entering an item effect.
+* Launching Screen. Loading layer.
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
 * Back-end: From "net.sf.json" to "Gson"

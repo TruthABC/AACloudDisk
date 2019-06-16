@@ -16,6 +16,7 @@
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="gray_deep_half">#80808080</color>
     <color name="gray_deep">#808080</color>
     <color name="gray_deeper">#606060</color>
     <color name="gray_deepest">#404040</color>

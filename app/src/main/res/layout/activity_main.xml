@@ -46,7 +46,7 @@
                     android:layout_marginEnd="@dimen/toolbar_margin"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="@drawable/ripple_on_primary"
+                    android:background="@drawable/ripple_grey"
                     android:layout_alignParentEnd="true"
                     android:gravity="center">
                     <ImageView

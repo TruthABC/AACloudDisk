@@ -19,7 +19,7 @@
             android:layout_height="@dimen/music_player_topbar_left_top_button_wrapper"
             android:clickable="true"
             android:focusable="true"
-            android:background="@drawable/ripple_music_player_button"
+            android:background="@drawable/ripple_grey"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
             android:gravity="center">
@@ -62,7 +62,7 @@
             android:layout_height="@dimen/music_player_control_bar_button_height"
             android:clickable="true"
             android:focusable="true"
-            android:background="@drawable/ripple_music_player_button"
+            android:background="@drawable/ripple_grey"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
             android:gravity="center">
@@ -70,19 +70,19 @@
                 android:id="@+id/music_player_button_repeat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/baseline_repeat_black_36"
+                android:src="@drawable/round_repeat_black_36"
                 android:tint="@color/white"/>
             <ImageView
                 android:id="@+id/music_player_button_repeat_one"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/baseline_repeat_one_black_36"
+                android:src="@drawable/round_repeat_one_black_36"
                 android:tint="@color/white"/>
             <ImageView
                 android:id="@+id/music_player_button_shuffle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/baseline_shuffle_black_36"
+                android:src="@drawable/round_shuffle_black_36"
                 android:tint="@color/white"/>
         </RelativeLayout>
         <!-- [VBox] Music Player Wrapper 234 Wrapper -->
@@ -99,14 +99,14 @@
                 android:layout_height="@dimen/music_player_control_bar_button_height"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/ripple_music_player_button"
+                android:background="@drawable/ripple_grey"
                 android:layout_centerVertical="true"
                 android:gravity="center">
                 <ImageView
                     android:id="@+id/music_player_button_previous"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/baseline_skip_previous_black_36"
+                    android:src="@drawable/round_skip_previous_black_36"
                     android:tint="@color/white"/>
             </RelativeLayout>
             <!-- Music Player Button Wrapper -->
@@ -116,7 +116,7 @@
                 android:layout_height="@dimen/music_player_control_bar_height"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/ripple_music_player_button"
+                android:background="@drawable/ripple_grey"
                 android:layout_toEndOf="@id/music_player_control_button_wrapper_prev"
                 android:layout_marginStart="@dimen/music_player_control_bar_button_margin"
                 android:layout_centerVertical="true"
@@ -125,13 +125,13 @@
                     android:id="@+id/music_player_button_play"
                     android:layout_width="@dimen/music_player_control_bar_button_height_big"
                     android:layout_height="@dimen/music_player_control_bar_button_height_big"
-                    android:src="@drawable/baseline_play_arrow_black_48"
+                    android:src="@drawable/round_play_arrow_black_48"
                     android:tint="@color/white"/>
                 <ImageView
                     android:id="@+id/music_player_button_pause"
                     android:layout_width="@dimen/music_player_control_bar_button_height_big"
                     android:layout_height="@dimen/music_player_control_bar_button_height_big"
-                    android:src="@drawable/baseline_pause_black_48"
+                    android:src="@drawable/round_pause_black_48"
                     android:tint="@color/white"/>
             </RelativeLayout>
             <!-- Music Player Button Wrapper -->
@@ -141,7 +141,7 @@
                 android:layout_height="@dimen/music_player_control_bar_button_height"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/ripple_music_player_button"
+                android:background="@drawable/ripple_grey"
                 android:layout_toEndOf="@id/music_player_control_button_wrapper_play"
                 android:layout_marginStart="@dimen/music_player_control_bar_button_margin"
                 android:layout_centerVertical="true"
@@ -150,7 +150,7 @@
                     android:id="@+id/music_player_button_next"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/baseline_skip_next_black_36"
+                    android:src="@drawable/round_skip_next_black_36"
                     android:tint="@color/white"/>
             </RelativeLayout>
         </RelativeLayout>
@@ -161,7 +161,7 @@
             android:layout_height="@dimen/music_player_control_bar_button_height"
             android:clickable="true"
             android:focusable="true"
-            android:background="@drawable/ripple_music_player_button"
+            android:background="@drawable/ripple_grey"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
             android:gravity="center">
@@ -169,7 +169,7 @@
                 android:id="@+id/music_player_button_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/baseline_queue_music_black_36"
+                android:src="@drawable/round_queue_music_black_36"
                 android:tint="@color/white"/>
         </RelativeLayout>
     </RelativeLayout>
