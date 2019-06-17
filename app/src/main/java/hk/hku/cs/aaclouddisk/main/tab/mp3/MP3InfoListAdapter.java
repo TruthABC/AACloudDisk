@@ -44,7 +44,7 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         //set open event when open_logo is clicked
         RelativeLayout rootItem = v.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
-            mActivity.playMusicFile(getRealUrl(fileInfo));
+//            mActivity.playMusicFile(getRealUrl(fileInfo)); TODO: add to multi select
         });
 
         return v;

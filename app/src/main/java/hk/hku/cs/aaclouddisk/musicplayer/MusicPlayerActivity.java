@@ -13,7 +13,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 
 public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
@@ -102,6 +104,35 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             setResult(RESULT_OK, intent);
             finish();
         });
+        mPlayPauseButtonWrapper.setOnClickListener((v) -> {
+            if (mMusicServiceBinder.getMediaPlayer().isPlaying()) {
+                mMusicServiceBinder.pause();
+                mPlayImageView.setVisibility(View.VISIBLE);
+                mPauseImageView.setVisibility(View.INVISIBLE);
+                showShortToast("[pause]");
+            } else {
+                mMusicServiceBinder.play();
+                mPlayImageView.setVisibility(View.INVISIBLE);
+                mPauseImageView.setVisibility(View.VISIBLE);
+                showShortToast("[play]");
+            }
+        });
+        mPreviousButtonWrapper.setOnClickListener((v) -> {
+            mMusicServiceBinder.prev();
+            showShortToast("[last music]");
+        });
+        mNextButtonWrapper.setOnClickListener((v) -> {
+            mMusicServiceBinder.next();
+            showShortToast("[next music]");
+        });
+        mModeButtonWrapper.setOnClickListener((v) -> {
+            mMusicServiceBinder.changePlayingMode();
+            refreshControlBar();
+            showShortToast("[mode changed]");
+        });
+        mMusicListButtonWrapper.setOnClickListener((v) -> {
+            showShortToast("TODO");
+        });
     }
 
     private void initFinal() {
@@ -126,5 +157,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             mPlayImageView.setVisibility(View.VISIBLE);
             mPauseImageView.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public void showShortToast(final String msg) {
+        runOnUiThread(() -> {
+            Toast.makeText(MusicPlayerActivity.this, msg, Toast.LENGTH_SHORT).show();
+        });
     }
 }

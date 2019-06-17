@@ -22,21 +22,20 @@
 * 20190615 - App theme change. Fixed ripple effect. Study & implement on Material Design. Implement "MusicPlayerActivity".
 * 20190615 - complete: MusicPlayerActivity: layouts (Top Bar, Control Bar, Footer), intent to get in, intent to go back.
 * 20190616 - Ripple color & shape fixed. Round shape icon changed. UI design case studying.
-* 20190617 - TODO: To play music in MusicPlayerActivity, design body, design data structure for playing mode.
+* 20190617 - Can Play all music in a list in MusicPlayerActivity.
+* 20190618 - TODO: MusicPlayerActivity, progressbar, refine resource list, adapt title, design body.
 
 ## TODO list
-* todo: finish Activity separated for music playing.
-* todo: layout, round icon, onclick luminance, on click change icon, on click switch flag.
+* music play play from beginning, if it is the same music. (do not need to prepare, use loop)
+* confirm music service bind and set resource list not pending on UI thread. (e.g. initialize service binder on Launcher/Login Activity, try thread.sleep())
 * layout (Top Bar, Body, Progress Bar, Control Bar, Footer)
 * todo: Music List Service
-* todo: MusicService select one and play all in list.
-* todo: background play when screen locked (a UI needed)
+* todo: a UI needed when background play screen locked
 * todo: a easy float button for user to stop music.
-* todo: file menu
-* todo: file multiple-select
+* todo: file multiple-select, file menu
 * do not show full path, only last layer enough.
-* File sub app bar use Backdrop design. Ref. But also to Baidu Net Disk.
-* Entering an item effect.
+* File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
+* Entering an item effect. (layered expand)
 * Launching Screen. Loading layer.
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
@@ -58,7 +57,8 @@
 * Extra Dependency: gson:2.8.2
 
 ## 3. Message Handler
-* 0x13 - "getAllMP3" for MP3Fragment
+* 0x12 - onFileGet for FileFragment
+* 0x13 - onAllMP3Get for MP3Fragment
 
 ## Implementation Logic Note
 * MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
@@ -451,10 +452,34 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             adapter.addAll(response.getFileInfoList());
                             adapter.notifyDataSetChanged();
                         }
+
+                        //TODO: refactor me, e.g. research on whether UI thread pending
+                        //Try to set MusicService Resource List
+                        if (activity.mMusicServiceBinder != null) {
+                            Log.i(DEBUG_TAG, "MusicService Ready.");
+                            if (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0) {
+                                Log.i(DEBUG_TAG, "Set resource List.");
+                                List<String> resourceList = new ArrayList<>();
+                                for (FileInfo fileInfo: response.getFileInfoList()) {
+                                    SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+                                    String id = sharedPreferences.getString("id", "");
+
+                                    String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
+                                    String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
+                                    String realUrl = diskRootUrl + fileInfo.getRelativePath();
+
+                                    resourceList.add(realUrl);
+                                }
+                                activity.mMusicServiceBinder.setResourceList(resourceList);
+                            }
+                        } else {
+                            Log.i(DEBUG_TAG, "MusicService not Ready, but needed by set resource List.");
+                        }
                     } else {
                         activity.showToast("MP3 Info Get Failed: " + response.getErrmsg());
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     activity.showToast("Network error, plz contact maintenance.");
                 }
             }

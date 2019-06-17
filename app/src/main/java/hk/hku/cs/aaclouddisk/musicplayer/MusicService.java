@@ -112,6 +112,11 @@ public class MusicService extends Service {
             return mNowResourceIndex;
         }
 
+        public List<String> getResourceList() {
+            Log.d("TAG", "getResourceList() executed");
+            return mResourceList;
+        }
+
         public void setResourceList(List<String> resourceList) {
             Log.d("TAG", "setResourceList() executed");
             mResourceList = resourceList;
