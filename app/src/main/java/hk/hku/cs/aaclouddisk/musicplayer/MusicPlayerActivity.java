@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,7 +16,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 
 public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
@@ -43,6 +43,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     //Views
     private RelativeLayout mLeftTopButtonWrapper;
     private TextView mTitle;
+
+    private RecyclerView mMusicListRecyclerView;
+
     private RelativeLayout mModeButtonWrapper;
     private RelativeLayout mPreviousButtonWrapper;
     private RelativeLayout mPlayPauseButtonWrapper;
@@ -84,6 +87,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private void initViews() {
         mLeftTopButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_left_top_button_wrapper);
         mTitle = (TextView) findViewById(R.id.music_player_title);
+
+        mMusicListRecyclerView = (RecyclerView) findViewById(R.id.music_player_list);
+
         mModeButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_mode);
         mPreviousButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_prev);
         mPlayPauseButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_play);
