@@ -38,7 +38,7 @@
             android:layout_marginStart="@dimen/music_player_topbar_title_margin"
             android:layout_marginEnd="@dimen/music_player_topbar_title_margin"
             android:singleLine="true"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textColor="@color/icons"
             android:layout_centerInParent="true"
             android:text="AACloud Music Player"/>

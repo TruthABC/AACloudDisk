@@ -42,6 +42,10 @@ public class MusicPlayerListAdaptor extends RecyclerView.Adapter<MusicPlayerList
         return mResourceList.size();
     }
 
+    public List<String> getResourceList() {
+        return mResourceList;
+    }
+
     class MusicPlayerBodyItemViewHolder extends RecyclerView.ViewHolder {
         RelativeLayout rootItem;
         TextView mResourceNameTextView;

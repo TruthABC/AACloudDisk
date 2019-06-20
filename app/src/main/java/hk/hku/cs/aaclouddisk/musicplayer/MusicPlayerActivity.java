@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import hk.hku.cs.aaclouddisk.R;
 
@@ -27,24 +30,13 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     //local cache
     private SharedPreferences sharedPreferences;
 
-    //Playing Music
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
-    //for initializing mMusicServiceBinder;
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
-        refreshControlBar();
-    }
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-
-    }
-
     //Views
     private RelativeLayout mLeftTopButtonWrapper;
     private TextView mTitle;
 
     private RecyclerView mMusicListRecyclerView;
+    private RecyclerView.LayoutManager mRecyclerViewManager;
+    private MusicPlayerListAdaptor mRecyclerViewAdaptor;
 
     private RelativeLayout mModeButtonWrapper;
     private RelativeLayout mPreviousButtonWrapper;
@@ -57,6 +49,29 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private ImageView mPlayImageView;
     private ImageView mPauseImageView;
 
+    //Playing Music
+    private MusicService.MusicServiceBinder mMusicServiceBinder;
+
+    //for initializing mMusicServiceBinder;
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+
+        mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
+        mRecyclerViewAdaptor.notifyDataSetChanged();
+
+        mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
+            showShortToast("[playing start]");
+            mPlayPauseButtonWrapper.setClickable(true);
+        });
+
+        refreshControlBar();
+    }
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,16 +81,25 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
 
-        initServiceBinder();
         initViews();
+        initServiceBinder();
         initEvents();
         initFinal();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMusicServiceBinder != null) {
+            refreshControlBar();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "onDestroy");
+        mMusicServiceBinder.clearOuterOnPreparedListener();
         unbindService(this);
     }
 
@@ -88,7 +112,13 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mLeftTopButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_left_top_button_wrapper);
         mTitle = (TextView) findViewById(R.id.music_player_title);
 
+        //Music Player List (Body)
+        mRecyclerViewManager = new LinearLayoutManager(this);
+        ((LinearLayoutManager)mRecyclerViewManager).setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerViewAdaptor = new MusicPlayerListAdaptor(this, new ArrayList<>());
         mMusicListRecyclerView = (RecyclerView) findViewById(R.id.music_player_list);
+        mMusicListRecyclerView.setLayoutManager(mRecyclerViewManager);
+        mMusicListRecyclerView.setAdapter(mRecyclerViewAdaptor);
 
         mModeButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_mode);
         mPreviousButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_prev);
@@ -120,16 +150,25 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
                 mMusicServiceBinder.play();
                 mPlayImageView.setVisibility(View.INVISIBLE);
                 mPauseImageView.setVisibility(View.VISIBLE);
+                if (!mMusicServiceBinder.isHalfMusicPlayed()) {
+                    mPlayPauseButtonWrapper.setClickable(false);
+                }
                 showShortToast("[play]");
             }
         });
         mPreviousButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.prev();
             showShortToast("[last music]");
+            mPlayImageView.setVisibility(View.INVISIBLE);
+            mPauseImageView.setVisibility(View.VISIBLE);
+            mPlayPauseButtonWrapper.setClickable(false);
         });
         mNextButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.next();
             showShortToast("[next music]");
+            mPlayImageView.setVisibility(View.INVISIBLE);
+            mPauseImageView.setVisibility(View.VISIBLE);
+            mPlayPauseButtonWrapper.setClickable(false);
         });
         mModeButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.changePlayingMode();

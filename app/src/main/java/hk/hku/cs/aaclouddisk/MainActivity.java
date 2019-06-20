@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     getFileInfoListAndResetAdaptor(lastRelativePath);
                 } else if (tab.getPosition() == 1) {
                     Log.i("shijian", "onMP3TabSelected");
-                    getMP3InfoListAndResetAdaptor();
+//                    getMP3InfoListAndResetAdaptor();
                 }
             }
 
@@ -284,34 +284,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * Play and download music file at the same time (TODO: Research Phase, Hard refactor needed)
-     * step1: single music play done
-     * step2: play all music in a service (TODO)
-     * @param url target url
-     */
-    public void playMusicFile(String url) {
-        //mMusicServiceBinder
-        List<String> singleResourceList = new ArrayList<>();
-        singleResourceList.add(url);
-        mMusicServiceBinder.setResourceList(singleResourceList);
-        mMusicServiceBinder.play();
-//        MediaPlayer mediaPlayer = new MediaPlayer();
-//        try {
-//            mediaPlayer.setDataSource(url);
-//            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            mediaPlayer.prepareAsync();
-//            showShortToast("Loading Music...");
-//            mediaPlayer.setOnPreparedListener((mp) -> {
-//                mediaPlayer.start();
-//            });
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            showToast("Online Music File not Available");
-//        }
-    }
-
-    /**
-     * called by MP3FragmentCreated or Tab Switched
+     * called by MP3FragmentCreated
      */
     public void getMP3InfoListAndResetAdaptor() {
         //Use another thread to do server authentication
@@ -482,9 +455,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     e.printStackTrace();
                     activity.showToast("Network error, plz contact maintenance.");
                 }
-            }
-
-        }
-    }// private static class MainActivityHandler extends Handler {}
+            }// if (msg.what == MP3_INFO_LIST_RESP)
+        }// MainActivityHandler.handleMessage(Message msg)
+    }// MainActivityHandler
 
 }

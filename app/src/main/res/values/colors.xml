@@ -15,6 +15,9 @@
     <color name="divider">#BDBDBD</color>
 
     <color name="white">#FFFFFF</color>
+    <color name="white_e">#EEEEEE</color>
+    <color name="white_d">#DDDDDD</color>
+    <color name="white_c">#CCCCCC</color>
     <color name="black">#000000</color>
     <color name="gray_deep_half">#80808080</color>
     <color name="gray_deep">#808080</color>

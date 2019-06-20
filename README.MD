@@ -24,7 +24,8 @@
 * 20190616 - Ripple color & shape fixed. Round shape icon changed. UI design case studying.
 * 20190617 - Can Play all music in a list in MusicPlayerActivity.
 * 20190618 - progressbar (to bind), body - RecyclerView (to bind).
-* 20190619 - TODO: MusicPlayerActivity, refine resource list, adapt title, design body.
+* 20190619 - Progress report.
+* 20190620 - TODO: MusicPlayerActivity, refine resource list, adapt title, design body.
 
 ## TODO list
 * music play play from beginning, if it is the same music. (do not need to prepare, use loop)
