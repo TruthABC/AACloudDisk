@@ -39,7 +39,6 @@ public class MusicService extends Service {
     public static final int SINGLE_CYCLE = 1;
     public static final int ALL_RANDOM = 2;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -66,8 +65,8 @@ public class MusicService extends Service {
         mMediaPlayer.setOnCompletionListener((mp)->{
             Log.i(DEBUG_TAG, "OnCompletion");
             switch (mPlayingMode) {
-                case ALL_CYCLE: jumpNextMusic(); //NO break;
-                case SINGLE_CYCLE: playNowMusicFromBeginning(); break;
+                case ALL_CYCLE: jumpNextMusic(); playNowMusicFromBeginning(); break;
+                case SINGLE_CYCLE:  break; //Do nothing
                 case ALL_RANDOM: jumpRandomMusic(); //NO break;
                 default: playNowMusicFromBeginning();
             }
@@ -136,6 +135,11 @@ public class MusicService extends Service {
             mPlayingMode++;
             if (mPlayingMode > 2) {
                 mPlayingMode = 0;
+            }
+            if (mPlayingMode == SINGLE_CYCLE) {
+                mMediaPlayer.setLooping(true);
+            } else {
+                mMediaPlayer.setLooping(false);
             }
         }
 

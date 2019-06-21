@@ -24,26 +24,29 @@
 * 20190616 - Ripple color & shape fixed. Round shape icon changed. UI design case studying.
 * 20190617 - Can Play all music in a list in MusicPlayerActivity.
 * 20190618 - progressbar (to bind), body - RecyclerView (to bind).
-* 20190619 - Progress report.
-* 20190620 - TODO: MusicPlayerActivity, refine resource list, adapt title, design body.
+* 20190619 - Progress report meeting.
+* 20190620 - MusicPlayerActivity: body, music list added, adapted, effect refined.
+* 20190621 - MusicPlayerActivity: seek bar synchronize(get). Quicker single cycle mode (no prepare again).
+* 20190622 - TODO: MusicPlayerActivity: seek bar synchronize(set and buffer), refine resource list with name(get), adapt title, isPlaying effect, click jump music(set), music not there exception, over-scroll refresh on music list.
 
 ## TODO list
 * music play play from beginning, if it is the same music. (do not need to prepare, use loop)
 * confirm music service bind and set resource list not pending on UI thread. (e.g. initialize service binder on Launcher/Login Activity, try thread.sleep())
 * layout (Top Bar, Body, Progress Bar, Control Bar, Footer)
-* todo: Music List Service
-* todo: a UI needed when background play screen locked
-* todo: a easy float button for user to stop music.
-* todo: file multiple-select, file menu
+* Backdrop design on music lists select.
+* User make, change, delete other lists.
+* Add music to list, remove music from list.
+* Music List Local, Online, inApp design
+* a UI needed when background play screen locked
+* a easy float button for user to stop music.
+* file multiple-select, file menu
 * do not show full path, only last layer enough.
 * File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
 * Entering an item effect. (layered expand)
 * Launching Screen. Loading layer.
-* User make, change, delete other lists.
-* Add music to list, remove music from list.
 * Back-end: From "net.sf.json" to "Gson"
 * Use "Socket" to receive music (download while listening)
-* Can relate tag/note/comments on picture files.
+* Can relate tag/note/comments on music files.
 * future: Find a good Job :)
 
 ## 1. Run

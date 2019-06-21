@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     //local cache
     private SharedPreferences sharedPreferences;
 
+    //Handler
+    private Handler mHandler;
+
     //Views
     private RelativeLayout mLeftTopButtonWrapper;
     private TextView mTitle;
@@ -37,6 +42,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private RecyclerView mMusicListRecyclerView;
     private RecyclerView.LayoutManager mRecyclerViewManager;
     private MusicPlayerListAdaptor mRecyclerViewAdaptor;
+
+    private TextView mMusicTimeText;
+    private SeekBar mMusicSeekBar;
+    private TextView mMusicEndTimeText;
+    private boolean isSeeking = false;
 
     private RelativeLayout mModeButtonWrapper;
     private RelativeLayout mPreviousButtonWrapper;
@@ -61,8 +71,19 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mRecyclerViewAdaptor.notifyDataSetChanged();
 
         mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-            showShortToast("[playing start]");
+            showShortToast("[playing start]" + mMusicServiceBinder.getMediaPlayer().getDuration() / 1000);
             mPlayPauseButtonWrapper.setClickable(true);
+            mMusicTimeText.setText("00:00");
+            int maxPosition = mMusicServiceBinder.getMediaPlayer().getDuration() / 1000;
+            String min = "" + maxPosition/60;
+            String sec = "" + maxPosition%60;
+            if (min.length() == 1)
+                min = "0" + min;
+            if (sec.length() == 1)
+                sec = "0" + sec;
+            mMusicSeekBar.setMax(maxPosition);
+            mMusicSeekBar.setProgress(0);
+            mMusicEndTimeText.setText(min + ":" + sec);
         });
 
         refreshControlBar();
@@ -80,10 +101,12 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+        mHandler = new Handler();
 
         initViews();
         initServiceBinder();
         initEvents();
+        initSeekBarSynchronization();
         initFinal();
     }
 
@@ -119,6 +142,10 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mMusicListRecyclerView = (RecyclerView) findViewById(R.id.music_player_list);
         mMusicListRecyclerView.setLayoutManager(mRecyclerViewManager);
         mMusicListRecyclerView.setAdapter(mRecyclerViewAdaptor);
+
+        mMusicTimeText = (TextView) findViewById(R.id.music_player_progress_bar_time);
+        mMusicSeekBar = (SeekBar) findViewById(R.id.music_player_progress_seekBar);
+        mMusicEndTimeText = (TextView) findViewById(R.id.music_player_progress_bar_end_time);
 
         mModeButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_mode);
         mPreviousButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_prev);
@@ -177,6 +204,26 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         });
         mMusicListButtonWrapper.setOnClickListener((v) -> {
             showShortToast("TODO");
+        });
+    }
+
+    private void initSeekBarSynchronization() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mMusicServiceBinder != null && mMusicServiceBinder.getMediaPlayer().isPlaying()) {
+                    int currentPosition = mMusicServiceBinder.getMediaPlayer().getCurrentPosition() / 1000;
+                    String min = "" + currentPosition/60;
+                    String sec = "" + currentPosition%60;
+                    if (min.length() == 1)
+                        min = "0" + min;
+                    if (sec.length() == 1)
+                        sec = "0" + sec;
+                    mMusicTimeText.setText(min + ":" + sec);
+                    mMusicSeekBar.setProgress(currentPosition);
+                }
+                mHandler.postDelayed(this, 100);
+            }
         });
     }
 
