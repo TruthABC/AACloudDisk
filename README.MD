@@ -28,9 +28,11 @@
 * 20190620 - MusicPlayerActivity: body, music list added, adapted, effect refined.
 * 20190621 - MusicPlayerActivity: seek bar synchronize(get). Quicker single cycle mode (no prepare again).
 * 20190622 - Bug fix on race of NetworkResponse & MusicServiceReady.
-* 20190622 - TODO: MusicPlayerActivity: seek bar synchronize(set and buffer, onActivityInit), refine resource list with name(get), adapt title, isPlaying effect, click jump music(set), music not there exception, over-scroll refresh on music list.
+* 20190623 - MusicPlayerActivity: seek bar synchronize(set, buffer, every time when go in MusicPlayerActivity, do synchronization with service)
+* 20190624 - TODO: refine resource list with name(get), adapt title, isPlaying effect, click jump music(set), music not there exception, over-scroll refresh on music list.
 
 ## TODO list
+* to Fix: MultiActivity Launched when click fast.
 * music play play from beginning, if it is the same music. (do not need to prepare, use loop)
 * confirm music service bind and set resource list not pending on UI thread. (e.g. initialize service binder on Launcher/Login Activity, try thread.sleep())
 * layout (Top Bar, Body, Progress Bar, Control Bar, Footer)

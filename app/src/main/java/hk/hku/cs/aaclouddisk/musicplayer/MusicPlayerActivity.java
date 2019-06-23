@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,9 +22,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.R;
 
-public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
+public class MusicPlayerActivity extends AppCompatActivity implements
+        ServiceConnection,
+        SeekBar.OnSeekBarChangeListener{
 
     //Tag
     public static final String TAG = "MusicPlayerActivity";
@@ -62,32 +66,54 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
 
+    //for seek bar
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        final String progressInText = GlobalTool.secondToMinSecText(progress);
+        runOnUiThread(() -> {
+            mMusicTimeText.setText(progressInText);
+        });
+    }
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        isSeeking = true;
+    }
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        isSeeking = false;
+        int progress = seekBar.getProgress();
+        if(mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed() && progress >= 0 && progress <= seekBar.getMax()){
+            mMusicServiceBinder.getMediaPlayer().seekTo(progress * 1000);
+        }
+    }
+
     //for initializing mMusicServiceBinder;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
 
+        //Body (Music List as Body)
         mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
         mRecyclerViewAdaptor.notifyDataSetChanged();
 
+        //Progress Bar
+        refreshMusicBufferPercent();
+        refreshMusicProgressMaxSecond();
         mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-            showShortToast("[playing start]" + mMusicServiceBinder.getMediaPlayer().getDuration() / 1000);
+            showShortToast("playing start");
             mPlayPauseButtonWrapper.setClickable(true);
-            mMusicTimeText.setText("00:00");
-            int maxPosition = mMusicServiceBinder.getMediaPlayer().getDuration() / 1000;
-            String min = "" + maxPosition/60;
-            String sec = "" + maxPosition%60;
-            if (min.length() == 1)
-                min = "0" + min;
-            if (sec.length() == 1)
-                sec = "0" + sec;
-            mMusicSeekBar.setMax(maxPosition);
-            mMusicSeekBar.setProgress(0);
-            mMusicEndTimeText.setText(min + ":" + sec);
+            refreshMusicProgressMaxSecond();
+        });
+        mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
+            runOnUiThread(() -> {
+                mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
+            });
         });
 
+        //Control Bar
         refreshControlBar();
     }
+
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
@@ -111,18 +137,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (mMusicServiceBinder != null) {
-            refreshControlBar();
-        }
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "onDestroy");
-        mMusicServiceBinder.clearOuterOnPreparedListener();
+        mMusicServiceBinder.setOuterOnPreparedListener(null);
+        mMusicServiceBinder.setOuterOnBufferingUpdateListener(null);
         unbindService(this);
     }
 
@@ -172,27 +191,39 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
                 mMusicServiceBinder.pause();
                 mPlayImageView.setVisibility(View.VISIBLE);
                 mPauseImageView.setVisibility(View.INVISIBLE);
-                showShortToast("[pause]");
+                showShortToast("pause");
             } else {
                 mMusicServiceBinder.play();
                 mPlayImageView.setVisibility(View.INVISIBLE);
                 mPauseImageView.setVisibility(View.VISIBLE);
                 if (!mMusicServiceBinder.isHalfMusicPlayed()) {
+                    mMusicSeekBar.setProgress(0);
+                    mMusicSeekBar.setSecondaryProgress(0);
+                    mMusicSeekBar.setMax(0);
+                    mMusicEndTimeText.setText("00:00");
                     mPlayPauseButtonWrapper.setClickable(false);
                 }
-                showShortToast("[play]");
+                showShortToast("play");
             }
         });
         mPreviousButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.prev();
-            showShortToast("[last music]");
+            mMusicSeekBar.setProgress(0);
+            mMusicSeekBar.setSecondaryProgress(0);
+            mMusicSeekBar.setMax(0);
+            mMusicEndTimeText.setText("00:00");
+            showShortToast("last music");
             mPlayImageView.setVisibility(View.INVISIBLE);
             mPauseImageView.setVisibility(View.VISIBLE);
             mPlayPauseButtonWrapper.setClickable(false);
         });
         mNextButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.next();
-            showShortToast("[next music]");
+            mMusicSeekBar.setProgress(0);
+            mMusicSeekBar.setSecondaryProgress(0);
+            mMusicSeekBar.setMax(0);
+            mMusicEndTimeText.setText("00:00");
+            showShortToast("next music");
             mPlayImageView.setVisibility(View.INVISIBLE);
             mPauseImageView.setVisibility(View.VISIBLE);
             mPlayPauseButtonWrapper.setClickable(false);
@@ -200,7 +231,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mModeButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.changePlayingMode();
             refreshControlBar();
-            showShortToast("[mode changed]");
+            showShortToast("mode changed");
         });
         mMusicListButtonWrapper.setOnClickListener((v) -> {
             showShortToast("TODO");
@@ -208,27 +239,41 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     }
 
     private void initSeekBarSynchronization() {
+        mMusicSeekBar.setOnSeekBarChangeListener(this);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mMusicServiceBinder != null && mMusicServiceBinder.getMediaPlayer().isPlaying()) {
-                    int currentPosition = mMusicServiceBinder.getMediaPlayer().getCurrentPosition() / 1000;
-                    String min = "" + currentPosition/60;
-                    String sec = "" + currentPosition%60;
-                    if (min.length() == 1)
-                        min = "0" + min;
-                    if (sec.length() == 1)
-                        sec = "0" + sec;
-                    mMusicTimeText.setText(min + ":" + sec);
-                    mMusicSeekBar.setProgress(currentPosition);
+                //Warning: when music not prepared (not HalfPlayed), cause completion (and go next music)
+                if (!isSeeking && mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed()) {
+                    mMusicSeekBar.setProgress(mMusicServiceBinder.getMediaPlayer().getCurrentPosition() / 1000);
                 }
                 mHandler.postDelayed(this, 100);
             }
         });
     }
 
-    private void initFinal() {
+    private void initFinal() {}
 
+    /**
+     * refresh Seek Bar Secondary Progress of music Buffer percent
+     */
+    private void refreshMusicBufferPercent() {
+        mMusicSeekBar.setSecondaryProgress((mMusicServiceBinder.getBufferingPercent() * mMusicSeekBar.getMax()) / 100);
+    }
+
+    /**
+     * refresh Right Text and Seek Bar Max Value
+     */
+    private void refreshMusicProgressMaxSecond() {
+        if (mMusicServiceBinder.isHalfMusicPlayed()) {
+            int duration = mMusicServiceBinder.getMediaPlayer().getDuration();
+            duration /= 1000;
+            mMusicSeekBar.setMax(duration);
+            mMusicEndTimeText.setText(GlobalTool.secondToMinSecText(duration));
+        } else {
+            mMusicSeekBar.setMax(0);
+            mMusicEndTimeText.setText("00:00");
+        }
     }
 
     /**

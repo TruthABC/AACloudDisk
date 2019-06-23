@@ -26,13 +26,14 @@ public class MusicService extends Service {
 
     //Listener For Outer Event
     private MediaPlayer.OnPreparedListener mOuterOnPreparedListener;
+    private MediaPlayer.OnBufferingUpdateListener mOuterOnBufferingUpdateListener;
 
     //For MediaPlayer
     private List<String> mResourceList;
     private int mNowResourceIndex;
     private boolean mHalfMusicPlayed;
-
     private int mPlayingMode;
+    private int mBufferingPercent;
     private MediaPlayer mMediaPlayer;
     //Const for mPlayingMode
     public static final int ALL_CYCLE = 0;
@@ -48,14 +49,16 @@ public class MusicService extends Service {
         mRandom.setSeed(new Date().getTime());
         mMusicServiceBinder = new MusicServiceBinder();
         mOuterOnPreparedListener = null;
+        mOuterOnBufferingUpdateListener = null;
 
         mResourceList = null;
         mNowResourceIndex = -1;
         mHalfMusicPlayed = false;
         mPlayingMode = ALL_CYCLE;
+        mBufferingPercent = 0;
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnPreparedListener((mp) -> {
-            Log.i(DEBUG_TAG, "OnPrepared");
+            Log.i(TAG, "OnPrepared");
             mMediaPlayer.start();
             mHalfMusicPlayed = true;
             if (mOuterOnPreparedListener != null) {
@@ -63,12 +66,18 @@ public class MusicService extends Service {
             }
         });
         mMediaPlayer.setOnCompletionListener((mp)->{
-            Log.i(DEBUG_TAG, "OnCompletion");
+            Log.i(TAG, "OnCompletion");
             switch (mPlayingMode) {
                 case ALL_CYCLE: jumpNextMusic(); playNowMusicFromBeginning(); break;
                 case SINGLE_CYCLE:  break; //Do nothing
                 case ALL_RANDOM: jumpRandomMusic(); //NO break;
                 default: playNowMusicFromBeginning();
+            }
+        });
+        mMediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
+            mBufferingPercent = percent;
+            if (mOuterOnBufferingUpdateListener != null) {
+                mOuterOnBufferingUpdateListener.onBufferingUpdate(mp, percent);
             }
         });
     }
@@ -99,12 +108,12 @@ public class MusicService extends Service {
 
     public class MusicServiceBinder extends Binder {
 
-        public void clearOuterOnPreparedListener() {
-            mOuterOnPreparedListener = null;
-        }
-
         public void setOuterOnPreparedListener(MediaPlayer.OnPreparedListener onPreparedListener) {
             mOuterOnPreparedListener = onPreparedListener;
+        }
+
+        public void setOuterOnBufferingUpdateListener(MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener) {
+            mOuterOnBufferingUpdateListener = onBufferingUpdateListener;
         }
 
         public int getNowResourceIndex() {
@@ -121,10 +130,15 @@ public class MusicService extends Service {
             mResourceList = resourceList;
             mNowResourceIndex = 0;
             mHalfMusicPlayed = false;
+            mBufferingPercent = 0;
         }
 
         public boolean isHalfMusicPlayed() {
             return mHalfMusicPlayed;
+        }
+
+        public int getBufferingPercent () {
+            return mBufferingPercent;
         }
 
         public int getPlayingMode() {
@@ -151,12 +165,12 @@ public class MusicService extends Service {
             Log.d("TAG", "play() executed");
             //1. No or empty Resource List
             if (mResourceList == null || mResourceList.size() == 0) {
-                Log.i(DEBUG_TAG, "play() 1. No or empty Resource List");
+                Log.i(TAG, "play() 1. No or empty Resource List");
                 return;
             }
             //2. Continue to Play unfinished music
             if (mHalfMusicPlayed) {
-                Log.i(DEBUG_TAG, "play() 2. Continue to Play unfinished music");
+                Log.i(TAG, "play() 2. Continue to Play unfinished music");
                 if (!mMediaPlayer.isPlaying()) {
                     mMediaPlayer.start();
                 }
@@ -165,7 +179,7 @@ public class MusicService extends Service {
             //3. Default: play the music
             // if (!mHalfMusicPlayed)
             {
-                Log.i(DEBUG_TAG, "play() 3. Default: play the music");
+                Log.i(TAG, "play() 3. Default: play the music");
                 playNowMusicFromBeginning();
             }
         }
@@ -181,13 +195,13 @@ public class MusicService extends Service {
             Log.d("TAG", "next() executed");
             //1. No or empty Resource List
             if (mResourceList == null || mResourceList.size() == 0) {
-                Log.i(DEBUG_TAG, "next() 1. No or empty Resource List");
+                Log.i(TAG, "next() 1. No or empty Resource List");
                 return;
             }
             //2. Default: jump next music
             // else
             {
-                Log.i(DEBUG_TAG, "next() 2. Default: play the next music from beginning");
+                Log.i(TAG, "next() 2. Default: play the next music from beginning");
                 if (mPlayingMode == ALL_RANDOM) {
                     jumpRandomMusic();
                 } else {
@@ -201,13 +215,13 @@ public class MusicService extends Service {
             Log.d("TAG", "prev() executed");
             //1. No or empty Resource List
             if (mResourceList == null || mResourceList.size() == 0) {
-                Log.i(DEBUG_TAG, "prev() 1. No or empty Resource List");
+                Log.i(TAG, "prev() 1. No or empty Resource List");
                 return;
             }
             //2. Default: jump prev music
             // else
             {
-                Log.i(DEBUG_TAG, "prev() 2. Default: play the previous music from beginning");
+                Log.i(TAG, "prev() 2. Default: play the previous music from beginning");
                 if (mPlayingMode == ALL_RANDOM) {
                     jumpRandomMusic();
                 } else {
@@ -264,15 +278,17 @@ public class MusicService extends Service {
         }
         mMediaPlayer.reset();
         mHalfMusicPlayed = false;
+        mBufferingPercent = 0;
         try {
             mMediaPlayer.setDataSource(mResourceList.get(mNowResourceIndex));
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepareAsync();
-            Log.i(DEBUG_TAG, "Doing prepareAsync()");
+            Log.i(TAG, "Doing prepareAsync()");
         } catch (Exception e) {
             e.printStackTrace();
             mHalfMusicPlayed = false;
-            Log.i(DEBUG_TAG, "Exception Caught in playNowMusicFromBeginning()");
+            mBufferingPercent = 0;
+            Log.i(TAG, "Exception Caught in playNowMusicFromBeginning()");
         }
     }
 
