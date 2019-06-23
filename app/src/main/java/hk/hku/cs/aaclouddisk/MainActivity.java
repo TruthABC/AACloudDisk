@@ -65,10 +65,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
+    public List<String> mTempResourceList = null;
     //for initializing mMusicServiceBinder;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+        if (mTempResourceList != null) {
+            Log.i(DEBUG_TAG, "MusicService Ready, but after ResourceListReady.");
+            mMusicServiceBinder.setResourceList(mTempResourceList);
+        }
     }
     @Override
     public void onServiceDisconnected(ComponentName name) {
@@ -312,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         };
 
+        mTempResourceList = null;
         getAllMP3InfoRunnable.start();
     }
 
@@ -428,22 +434,23 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                         //TODO: refactor me, e.g. research on whether UI thread pending
                         //Try to set MusicService Resource List
+                        List<String> resourceList = new ArrayList<>();
+                        for (FileInfo fileInfo: response.getFileInfoList()) {
+                            SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+                            String id = sharedPreferences.getString("id", "");
+
+                            String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
+                            String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
+                            String realUrl = diskRootUrl + fileInfo.getRelativePath();
+
+                            resourceList.add(realUrl);
+                        }
+                        activity.mTempResourceList = resourceList;
                         if (activity.mMusicServiceBinder != null) {
                             Log.i(DEBUG_TAG, "MusicService Ready.");
                             if (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0) {
                                 Log.i(DEBUG_TAG, "Set resource List.");
-                                List<String> resourceList = new ArrayList<>();
-                                for (FileInfo fileInfo: response.getFileInfoList()) {
-                                    SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-                                    String id = sharedPreferences.getString("id", "");
-
-                                    String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
-                                    String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
-                                    String realUrl = diskRootUrl + fileInfo.getRelativePath();
-
-                                    resourceList.add(realUrl);
-                                }
-                                activity.mMusicServiceBinder.setResourceList(resourceList);
+                                activity.mMusicServiceBinder.setResourceList(activity.mTempResourceList);
                             }
                         } else {
                             Log.i(DEBUG_TAG, "MusicService not Ready, but needed by set resource List.");

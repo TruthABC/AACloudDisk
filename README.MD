@@ -27,7 +27,8 @@
 * 20190619 - Progress report meeting.
 * 20190620 - MusicPlayerActivity: body, music list added, adapted, effect refined.
 * 20190621 - MusicPlayerActivity: seek bar synchronize(get). Quicker single cycle mode (no prepare again).
-* 20190622 - TODO: MusicPlayerActivity: seek bar synchronize(set and buffer), refine resource list with name(get), adapt title, isPlaying effect, click jump music(set), music not there exception, over-scroll refresh on music list.
+* 20190622 - Bug fix on race of NetworkResponse & MusicServiceReady.
+* 20190622 - TODO: MusicPlayerActivity: seek bar synchronize(set and buffer, onActivityInit), refine resource list with name(get), adapt title, isPlaying effect, click jump music(set), music not there exception, over-scroll refresh on music list.
 
 ## TODO list
 * music play play from beginning, if it is the same music. (do not need to prepare, use loop)
