@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
+
 public class MusicService extends Service {
 
     //Tag
@@ -29,7 +31,7 @@ public class MusicService extends Service {
     private MediaPlayer.OnBufferingUpdateListener mOuterOnBufferingUpdateListener;
 
     //For MediaPlayer
-    private List<String> mResourceList;
+    private List<ResourceInfo> mResourceList;
     private int mNowResourceIndex;
     private boolean mHalfMusicPlayed;
     private int mPlayingMode;
@@ -120,12 +122,12 @@ public class MusicService extends Service {
             return mNowResourceIndex;
         }
 
-        public List<String> getResourceList() {
+        public List<ResourceInfo> getResourceList() {
             Log.d("TAG", "getResourceList() executed");
             return mResourceList;
         }
 
-        public void setResourceList(List<String> resourceList) {
+        public void setResourceList(List<ResourceInfo> resourceList) {
             Log.d("TAG", "setResourceList() executed");
             mResourceList = resourceList;
             mNowResourceIndex = 0;
@@ -277,10 +279,15 @@ public class MusicService extends Service {
             mMediaPlayer.stop();
         }
         mMediaPlayer.reset();
+        if (mPlayingMode == SINGLE_CYCLE) {
+            mMediaPlayer.setLooping(true);
+        } else {
+            mMediaPlayer.setLooping(false);
+        }
         mHalfMusicPlayed = false;
         mBufferingPercent = 0;
         try {
-            mMediaPlayer.setDataSource(mResourceList.get(mNowResourceIndex));
+            mMediaPlayer.setDataSource(mResourceList.get(mNowResourceIndex).getOnlineUrl());
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepareAsync();
             Log.i(TAG, "Doing prepareAsync()");

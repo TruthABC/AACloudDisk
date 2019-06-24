@@ -10,9 +10,9 @@
     android:background="@drawable/ripple_grey_mask_white">
 
     <ImageView
+        android:id="@+id/front_image"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:id="@+id/file_image"
         android:src="@drawable/round_audiotrack_black_24"
         android:tint="@color/white_c"
         android:contentDescription="MP3"
@@ -27,12 +27,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/white_c"
-        android:text="MP3 Name is short or loooooo ooooo oooo oooo o o o o o o oooo ooooog"
+        android:text="MP3 Name is short or loooooo ooooo o o o o o o o o o o o o o o g"
         android:maxLines="1"
         android:textSize="14sp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_toEndOf="@id/file_image"
+        android:layout_toEndOf="@id/front_image"
+        android:layout_toStartOf="@id/back_image"
         android:layout_centerVertical="true"/>
+
+    <ImageView
+        android:id="@+id/back_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/round_audiotrack_black_24"
+        android:tint="@color/white_c"
+        android:contentDescription="MP3"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"/>
 
 </RelativeLayout>

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,9 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.R;
+import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
 public class MusicPlayerActivity extends AppCompatActivity implements
         ServiceConnection,
@@ -92,15 +93,24 @@ public class MusicPlayerActivity extends AppCompatActivity implements
     public void onServiceConnected(ComponentName name, IBinder service) {
         mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
 
+        //Title
+        int index = mMusicServiceBinder.getNowResourceIndex();
+        List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
+        if (index >= 0 && index < resourceList.size()) {
+            mTitle.setText(resourceList.get(index).getName());
+        }
+
         //Body (Music List as Body)
+        mRecyclerViewAdaptor.setMusicServiceBinder(mMusicServiceBinder);
         mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
         mRecyclerViewAdaptor.notifyDataSetChanged();
+        mRecyclerViewManager.scrollToPosition(index);
 
-        //Progress Bar
+        //Progress Bar & call back
         refreshMusicBufferPercent();
         refreshMusicProgressMaxSecond();
         mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-            showShortToast("playing start");
+            mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
             mPlayPauseButtonWrapper.setClickable(true);
             refreshMusicProgressMaxSecond();
         });
@@ -191,7 +201,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements
                 mMusicServiceBinder.pause();
                 mPlayImageView.setVisibility(View.VISIBLE);
                 mPauseImageView.setVisibility(View.INVISIBLE);
-                showShortToast("pause");
+                showShortToast("paused");
             } else {
                 mMusicServiceBinder.play();
                 mPlayImageView.setVisibility(View.INVISIBLE);
@@ -203,7 +213,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements
                     mMusicEndTimeText.setText("00:00");
                     mPlayPauseButtonWrapper.setClickable(false);
                 }
-                showShortToast("play");
+                showShortToast("starting");
             }
         });
         mPreviousButtonWrapper.setOnClickListener((v) -> {
@@ -212,7 +222,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements
             mMusicSeekBar.setSecondaryProgress(0);
             mMusicSeekBar.setMax(0);
             mMusicEndTimeText.setText("00:00");
-            showShortToast("last music");
+            showShortToast("previous track");
             mPlayImageView.setVisibility(View.INVISIBLE);
             mPauseImageView.setVisibility(View.VISIBLE);
             mPlayPauseButtonWrapper.setClickable(false);
@@ -223,7 +233,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements
             mMusicSeekBar.setSecondaryProgress(0);
             mMusicSeekBar.setMax(0);
             mMusicEndTimeText.setText("00:00");
-            showShortToast("next music");
+            showShortToast("next track");
             mPlayImageView.setVisibility(View.INVISIBLE);
             mPauseImageView.setVisibility(View.VISIBLE);
             mPlayPauseButtonWrapper.setClickable(false);
@@ -231,10 +241,15 @@ public class MusicPlayerActivity extends AppCompatActivity implements
         mModeButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.changePlayingMode();
             refreshControlBar();
-            showShortToast("mode changed");
+            switch (mMusicServiceBinder.getPlayingMode()) {
+                case MusicService.ALL_CYCLE: showShortToast("All Cycle"); break;
+                case MusicService.SINGLE_CYCLE: showShortToast("Single Cycle"); break;
+                case MusicService.ALL_RANDOM: showShortToast("All Random"); break;
+            }
+
         });
         mMusicListButtonWrapper.setOnClickListener((v) -> {
-            showShortToast("TODO");
+            showShortToast("TODO - show other music lists");
         });
     }
 
