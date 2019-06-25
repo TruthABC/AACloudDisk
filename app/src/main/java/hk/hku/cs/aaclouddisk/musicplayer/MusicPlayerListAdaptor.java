@@ -19,7 +19,6 @@ public class MusicPlayerListAdaptor extends RecyclerView.Adapter<MusicPlayerList
     private MusicPlayerActivity mActivity;
     private List<ResourceInfo> mResourceList;
     private MusicService.MusicServiceBinder mMusicServiceBinder;
-    private int lastPosition = 0;
 
     public MusicPlayerListAdaptor(MusicPlayerActivity activity, List<ResourceInfo> resourceList) {
         mActivity = activity;
@@ -40,8 +39,6 @@ public class MusicPlayerListAdaptor extends RecyclerView.Adapter<MusicPlayerList
         holder.rootItem.setOnClickListener((v) -> {
             mActivity.showShortToast("[" + s + "]");
             mMusicServiceBinder.jumpTo(position);
-//            holder.frontImage.setVisibility(View.VISIBLE);
-            lastPosition = position;
         });
     }
 
@@ -71,5 +68,4 @@ public class MusicPlayerListAdaptor extends RecyclerView.Adapter<MusicPlayerList
             backImage = (ImageView) itemView.findViewById(R.id.back_image);
         }
     }
-
 }

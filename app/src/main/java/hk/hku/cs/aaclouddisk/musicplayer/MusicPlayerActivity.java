@@ -26,9 +26,7 @@ import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
-public class MusicPlayerActivity extends AppCompatActivity implements
-        ServiceConnection,
-        SeekBar.OnSeekBarChangeListener{
+public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
 
     //Tag
     public static final String TAG = "MusicPlayerActivity";
@@ -67,68 +65,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
 
-    //for seek bar
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        final String progressInText = GlobalTool.secondToMinSecText(progress);
-        runOnUiThread(() -> {
-            mMusicTimeText.setText(progressInText);
-        });
-    }
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        isSeeking = true;
-    }
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        isSeeking = false;
-        int progress = seekBar.getProgress();
-        if(mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed() && progress >= 0 && progress <= seekBar.getMax()){
-            mMusicServiceBinder.getMediaPlayer().seekTo(progress * 1000);
-        }
-    }
-
-    //for initializing mMusicServiceBinder;
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
-
-        //Title
-        int index = mMusicServiceBinder.getNowResourceIndex();
-        List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
-        if (index >= 0 && index < resourceList.size()) {
-            mTitle.setText(resourceList.get(index).getName());
-        }
-
-        //Body (Music List as Body)
-        mRecyclerViewAdaptor.setMusicServiceBinder(mMusicServiceBinder);
-        mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
-        mRecyclerViewAdaptor.notifyDataSetChanged();
-        mRecyclerViewManager.scrollToPosition(index);
-
-        //Progress Bar & call back
-        refreshMusicBufferPercent();
-        refreshMusicProgressMaxSecond();
-        mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-            mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
-            mPlayPauseButtonWrapper.setClickable(true);
-            refreshMusicProgressMaxSecond();
-        });
-        mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
-            runOnUiThread(() -> {
-                mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
-            });
-        });
-
-        //Control Bar
-        refreshControlBar();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,25 +82,12 @@ public class MusicPlayerActivity extends AppCompatActivity implements
         initFinal();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.v(TAG, "onDestroy");
-        mMusicServiceBinder.setOuterOnPreparedListener(null);
-        mMusicServiceBinder.setOuterOnBufferingUpdateListener(null);
-        unbindService(this);
-    }
-
-    private void initServiceBinder() {
-        Intent bindIntent = new Intent(this, MusicService.class);
-        bindService(bindIntent, this, BIND_AUTO_CREATE);
-    }
-
     private void initViews() {
+        //Title Bar
         mLeftTopButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_left_top_button_wrapper);
         mTitle = (TextView) findViewById(R.id.music_player_title);
 
-        //Music Player List (Body)
+        //Body (Music Player List)
         mRecyclerViewManager = new LinearLayoutManager(this);
         ((LinearLayoutManager)mRecyclerViewManager).setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerViewAdaptor = new MusicPlayerListAdaptor(this, new ArrayList<>());
@@ -172,22 +95,28 @@ public class MusicPlayerActivity extends AppCompatActivity implements
         mMusicListRecyclerView.setLayoutManager(mRecyclerViewManager);
         mMusicListRecyclerView.setAdapter(mRecyclerViewAdaptor);
 
+        //Progress Bar (Seek Bar & Text)
         mMusicTimeText = (TextView) findViewById(R.id.music_player_progress_bar_time);
         mMusicSeekBar = (SeekBar) findViewById(R.id.music_player_progress_seekBar);
         mMusicEndTimeText = (TextView) findViewById(R.id.music_player_progress_bar_end_time);
 
+        //Control Bar
         mModeButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_mode);
         mPreviousButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_prev);
         mPlayPauseButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_play);
         mNextButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_next);
         mMusicListButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_control_button_wrapper_list);
-
         mModesImageView = new ImageView[3];
         mModesImageView[0] = (ImageView) findViewById(R.id.music_player_button_repeat);
         mModesImageView[1] = (ImageView) findViewById(R.id.music_player_button_repeat_one);
         mModesImageView[2] = (ImageView) findViewById(R.id.music_player_button_shuffle);
         mPlayImageView = (ImageView) findViewById(R.id.music_player_button_play);
         mPauseImageView = (ImageView) findViewById(R.id.music_player_button_pause);
+    }
+
+    private void initServiceBinder() {
+        Intent bindIntent = new Intent(this, MusicService.class);
+        bindService(bindIntent, this, BIND_AUTO_CREATE);
     }
 
     private void initEvents() {
@@ -254,11 +183,33 @@ public class MusicPlayerActivity extends AppCompatActivity implements
     }
 
     private void initSeekBarSynchronization() {
-        mMusicSeekBar.setOnSeekBarChangeListener(this);
+        //when seek bar pushing forward or dragged
+        mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                final String progressInText = GlobalTool.secondToMinSecText(progress);
+                runOnUiThread(() -> {
+                    mMusicTimeText.setText(progressInText);
+                });
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeeking = true;
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                isSeeking = false;
+                int progress = seekBar.getProgress();
+                if(mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed() && progress >= 0 && progress <= seekBar.getMax()){
+                    mMusicServiceBinder.getMediaPlayer().seekTo(progress * 1000);
+                }
+            }
+        });
+        //every 100ms, try update seek bar's progress
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //Warning: when music not prepared (not HalfPlayed), cause completion (and go next music)
+                //Warning: when music not prepared (not HalfPlayed), cause onCompletion (and go next music)
                 if (!isSeeking && mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed()) {
                     mMusicSeekBar.setProgress(mMusicServiceBinder.getMediaPlayer().getCurrentPosition() / 1000);
                 }
@@ -268,6 +219,82 @@ public class MusicPlayerActivity extends AppCompatActivity implements
     }
 
     private void initFinal() {}
+
+    //for initializing mMusicServiceBinder and UI
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+
+        //Title
+        int index = mMusicServiceBinder.getNowResourceIndex();
+        List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
+        if (index >= 0 && index < resourceList.size()) {
+            mTitle.setText(resourceList.get(index).getName());
+        }
+
+        //Body (Music List as Body)
+        mRecyclerViewAdaptor.setMusicServiceBinder(mMusicServiceBinder);
+        mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
+        mRecyclerViewAdaptor.notifyDataSetChanged();
+        mRecyclerViewManager.scrollToPosition(index);
+        refreshMusicListHighlight();
+
+        //Progress Bar & call back
+        refreshMusicBufferPercent();
+        refreshMusicProgressMaxSecond();
+        mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
+            mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
+            mPlayPauseButtonWrapper.setClickable(true);
+            refreshMusicListHighlight();
+            refreshMusicProgressMaxSecond();
+        });
+        mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
+            runOnUiThread(() -> {
+                mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
+            });
+        });
+
+        //Control Bar
+        refreshControlBar();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(TAG, "onDestroy");
+        mMusicServiceBinder.setOuterOnPreparedListener(null);
+        mMusicServiceBinder.setOuterOnBufferingUpdateListener(null);
+        unbindService(this);
+    }
+
+    /**
+     * refresh Body (MusicList) Highlight (playing) Item
+     */
+    private void refreshMusicListHighlight() {
+        //Highlight NowPlaying
+        int index = mMusicServiceBinder.getNowResourceIndex();
+        if (index != -1) {
+            MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder vh = (MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder) mMusicListRecyclerView.findViewHolderForAdapterPosition(index);
+            if (vh != null) {
+                ImageView frontImage = vh.frontImage;
+//                frontImage.setVisibility(View.VISIBLE);
+            }
+        }
+        //De-highlight LastPlaying
+        index = mMusicServiceBinder.getLastResourceIndex();
+        if (index != -1) {
+            MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder vh = (MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder) mMusicListRecyclerView.findViewHolderForAdapterPosition(index);
+            if (vh != null) {
+                ImageView frontImage = vh.frontImage;
+//                frontImage.setVisibility(View.GONE);
+            }
+        }
+    }
 
     /**
      * refresh Seek Bar Secondary Progress of music Buffer percent

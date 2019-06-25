@@ -30,9 +30,11 @@
 * 20190622 - Bug fix on race of NetworkResponse & MusicServiceReady.
 * 20190623 - MusicPlayerActivity: seek bar synchronize(set, buffer, every time when go in MusicPlayerActivity, do synchronization with service)
 * 20190624 - MusicPlayerActivity: refine resource list with name(get), adapt title, click jump music(set), bug fix on single cycle mode,
-* 20190625 - TODO: improve isPlaying effect, new progress color. Week 2 progress report.
+* 20190625 - MusicPlayerActivity: Refactor; MusicService: in Random mode, when click Prev, go back last played track. ("isPlaying effect" failed)
+* 20190626 - TODO: improve isPlaying effect, new progress color. Week 2 progress report.
 
 ## TODO list
+* Loading layer.
 * GIF DISK BODY.
 * offline or online music not there exception.
 * Music Tab over-scroll refresh on music list.
@@ -50,7 +52,7 @@
 * do not show full path, only last layer enough.
 * File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
 * Entering an item effect. (layered expand)
-* Launching Screen. Loading layer.
+* Launching Screen.
 * Back-end: From "net.sf.json" to "Gson"
 * Use "Socket" to receive music (download while listening)
 * Can relate tag/note/comments on music files.

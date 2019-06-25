@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -33,6 +34,8 @@ public class MusicService extends Service {
     //For MediaPlayer
     private List<ResourceInfo> mResourceList;
     private int mNowResourceIndex;
+    private List<Integer> mHistoryResourceIndex;
+    private int mLastResourceIndex;
     private boolean mHalfMusicPlayed;
     private int mPlayingMode;
     private int mBufferingPercent;
@@ -55,6 +58,8 @@ public class MusicService extends Service {
 
         mResourceList = null;
         mNowResourceIndex = -1;
+        mHistoryResourceIndex = new ArrayList<>();
+        mLastResourceIndex = -1;
         mHalfMusicPlayed = false;
         mPlayingMode = ALL_CYCLE;
         mBufferingPercent = 0;
@@ -122,6 +127,14 @@ public class MusicService extends Service {
             return mNowResourceIndex;
         }
 
+        public List<Integer> getHistoryResourceIndex() {
+            return mHistoryResourceIndex;
+        }
+
+        public int getLastResourceIndex() {
+            return mLastResourceIndex;
+        }
+
         public List<ResourceInfo> getResourceList() {
             Log.d("TAG", "getResourceList() executed");
             return mResourceList;
@@ -131,6 +144,8 @@ public class MusicService extends Service {
             Log.d("TAG", "setResourceList() executed");
             mResourceList = resourceList;
             mNowResourceIndex = 0;
+            mHistoryResourceIndex = new ArrayList<>();
+            mLastResourceIndex = -1;
             mHalfMusicPlayed = false;
             mBufferingPercent = 0;
         }
@@ -225,7 +240,16 @@ public class MusicService extends Service {
             {
                 Log.i(TAG, "prev() 2. Default: play the previous music from beginning");
                 if (mPlayingMode == ALL_RANDOM) {
-                    jumpRandomMusic();
+                    int size = mHistoryResourceIndex.size();
+                    if (size == 0) {
+                        jumpRandomMusic();
+                    } else {
+                        boolean jumpSuccessful = jumpTo(mHistoryResourceIndex.get(size-1));
+                        if (jumpSuccessful) {// this will make actual size++
+                            mHistoryResourceIndex.remove(size);
+                        }
+                        mHistoryResourceIndex.remove(size-1);
+                    }
                 } else {
                     jumpPreviousMusic();
                 }
@@ -243,6 +267,8 @@ public class MusicService extends Service {
     }
 
     private void jumpNextMusic() {
+        mHistoryResourceIndex.add(mNowResourceIndex);
+        mLastResourceIndex = mNowResourceIndex;
         mNowResourceIndex++;
         if (mNowResourceIndex >= mResourceList.size()) {
             mNowResourceIndex = 0;
@@ -250,6 +276,8 @@ public class MusicService extends Service {
     }
 
     private void jumpPreviousMusic() {
+        mHistoryResourceIndex.add(mNowResourceIndex);
+        mLastResourceIndex = mNowResourceIndex;
         mNowResourceIndex--;
         if (mNowResourceIndex < 0) {
             mNowResourceIndex = mResourceList.size() - 1;
@@ -257,6 +285,8 @@ public class MusicService extends Service {
     }
 
     private void jumpRandomMusic() {
+        mHistoryResourceIndex.add(mNowResourceIndex);
+        mLastResourceIndex = mNowResourceIndex;
         int oldResourceIndex = mNowResourceIndex;
         while (mNowResourceIndex == oldResourceIndex) {
             mNowResourceIndex = mRandom.nextInt(mResourceList.size());
@@ -264,12 +294,20 @@ public class MusicService extends Service {
     }
 
     private boolean jumpToMusic(int newIndex) {
+        //boundary
         if (mResourceList == null) {
             return false;
         }
         if (newIndex < 0 || newIndex >= mResourceList.size()) {
             return false;
         }
+        //should not be the same index
+        if (newIndex == mNowResourceIndex) {
+            return false;
+        }
+        //jump OK
+        mHistoryResourceIndex.add(mNowResourceIndex);
+        mLastResourceIndex = mNowResourceIndex;
         mNowResourceIndex = newIndex;
         return true;
     }
