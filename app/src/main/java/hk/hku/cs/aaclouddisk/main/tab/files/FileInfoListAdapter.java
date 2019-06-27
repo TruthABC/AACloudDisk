@@ -6,9 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -30,27 +29,30 @@ import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
 
 public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
 
-    private int resourceId;
-    private AppCompatActivity activity;
+    private int mResourceId;
+    private MainActivity mActivity;
 
-    public FileInfoListAdapter(Context context, int resourceId, AppCompatActivity activity) {
-        super(context, resourceId);
-        this.resourceId = resourceId;
-        this.activity = activity;
+    public FileInfoListAdapter(Context context, int itemResourceId, MainActivity activity) {
+        super(context, itemResourceId);
+        this.mResourceId = itemResourceId;
+        this.mActivity = activity;
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent){
-        final FileInfo fileInfo = getItem(position);
-        View v = LayoutInflater.from (getContext()).inflate (resourceId, parent, false);
+    public View getView(int position, View convertView, @NonNull ViewGroup container){
+        if (convertView == null) {
+            convertView = mActivity.getLayoutInflater().inflate(mResourceId, container, false);
+        }
+        FileInfo fileInfo = getItem(position);
 
         // set file name
-        TextView fileName = v.findViewById (R.id.file_name);
+        TextView fileName = convertView.findViewById (R.id.file_name);
         fileName.setText(fileInfo.getName());
 
         // set file or folder image logo and click event (1/2)
-        ImageView deleteLogo = v.findViewById(R.id.delete_logo);
-        ImageView renameLogo = v.findViewById(R.id.rename_logo);
+        ImageView deleteLogo = convertView.findViewById(R.id.delete_logo);
+        ImageView renameLogo = convertView.findViewById(R.id.rename_logo);
         deleteLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,9 +67,9 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         });
 
         // set file or folder image logo and click event (2/2)
-        ImageView fileImage = v.findViewById (R.id.file_image);
-        ImageView intoFolderLogo = v.findViewById(R.id.into_folder_logo);
-        ImageView downloadLogo = v.findViewById(R.id.browser_logo);
+        ImageView fileImage = convertView.findViewById (R.id.file_image);
+        ImageView intoFolderLogo = convertView.findViewById(R.id.into_folder_logo);
+        ImageView downloadLogo = convertView.findViewById(R.id.browser_logo);
         // if is a folder
         if (fileInfo.getDir() == 1) {
             //Change to Folder Imamge
@@ -78,7 +80,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
             intoFolderLogo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((MainActivity)activity).getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
+                    mActivity.getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
                 }
             });
         } else { // if not a folder
@@ -89,7 +91,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                 @Override
                 public void onClick(View v) {
                     //get user id
-                    SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
                     String id = sharedPreferences.getString("id", "");
 
                     //Construct real url
@@ -98,17 +100,17 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                     String realUrl = diskRootUrl + fileInfo.getRelativePath();
                     realUrl = realUrl.replace("\\","/");
 
-                    ((MainActivity)activity).downloadInBrowser(realUrl);
-                    //((MainActivity)activity).download(realUrl, fileInfo.getName());
+                    mActivity.downloadInBrowser(realUrl);
+                    //mActivity.download(realUrl, fileInfo.getName());
                 }
             });
         }
 
-        return v;
+        return convertView;
     }
 
     private void deleteConfirm(final FileInfo fileInfo) {
-        final AlertDialog.Builder normalDialog = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder normalDialog = new AlertDialog.Builder(mActivity);
         normalDialog.setIcon(R.drawable.opened7);
         normalDialog.setTitle("Confirm Delete");
         normalDialog.setMessage("The deletion cannot recover.");
@@ -130,10 +132,10 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
     }
 
     private void inputNewName(final FileInfo fileInfo) {
-        final EditText editText = new EditText(activity);
+        final EditText editText = new EditText(mActivity);
 
         AlertDialog.Builder inputDialog =
-                new AlertDialog.Builder(activity);
+                new AlertDialog.Builder(mActivity);
         inputDialog.setTitle("Input New Name").setView(editText);
         inputDialog.setPositiveButton("Confirm",
                 new DialogInterface.OnClickListener() {
@@ -154,7 +156,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
 
     private void doDelete(final FileInfo fileInfo){
         //get user id
-        SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
         final String id = sharedPreferences.getString("id", "");
 
         //Use another thread to do server work
@@ -193,7 +195,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                             //change password result
                             if (response.getErrcode() == 0){
                                 showToast("Delete File Successful");
-                                ((MainActivity)activity).getFileInfoListAndResetAdaptor(((MainActivity)activity).lastRelativePath);
+                                mActivity.getFileInfoListAndResetAdaptor(mActivity.lastRelativePath);
                             } else {
                                 showToast("Delete File Failed: " + response.getErrmsg());
                             }
@@ -209,7 +211,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
 
     private void doRename(final FileInfo fileInfo, final String newName) {
         //get user id
-        SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
         final String id = sharedPreferences.getString("id", "");
 
         //Use another thread to do server work
@@ -219,7 +221,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                 String url = HttpUtilsHttpURLConnection.BASE_URL + "/rename_file";
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("id", id);
-                params.put("relativePath", ((MainActivity)activity).lastRelativePath);
+                params.put("relativePath", mActivity.lastRelativePath);
                 params.put("oldName", fileInfo.getName());
                 params.put("newName", newName);
 
@@ -251,7 +253,7 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                             //change password result
                             if (response.getErrcode() == 0){
                                 showToast("Rename File Successful");
-                                ((MainActivity)activity).getFileInfoListAndResetAdaptor(((MainActivity)activity).lastRelativePath);
+                                mActivity.getFileInfoListAndResetAdaptor(mActivity.lastRelativePath);
                             } else {
                                 showToast("Rename File Failed: " + response.getErrmsg());
                             }
@@ -266,12 +268,11 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
     }
 
     private void showToast(final String msg) {
-        activity.runOnUiThread(new Runnable() {
+        mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(activity, msg, Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity, msg, Toast.LENGTH_LONG).show();
             }
         });
     }
-
 }

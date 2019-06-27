@@ -287,8 +287,7 @@ public class MusicService extends Service {
     private void jumpRandomMusic() {
         mHistoryResourceIndex.add(mNowResourceIndex);
         mLastResourceIndex = mNowResourceIndex;
-        int oldResourceIndex = mNowResourceIndex;
-        while (mNowResourceIndex == oldResourceIndex) {
+        while (mNowResourceIndex == mLastResourceIndex) {
             mNowResourceIndex = mRandom.nextInt(mResourceList.size());
         }
     }

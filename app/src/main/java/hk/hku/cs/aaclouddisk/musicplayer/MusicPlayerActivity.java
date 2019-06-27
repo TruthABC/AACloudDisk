@@ -9,17 +9,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import hk.hku.cs.aaclouddisk.GlobalTool;
@@ -42,9 +40,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private RelativeLayout mLeftTopButtonWrapper;
     private TextView mTitle;
 
-    private RecyclerView mMusicListRecyclerView;
-    private RecyclerView.LayoutManager mRecyclerViewManager;
-    private MusicPlayerListAdaptor mRecyclerViewAdaptor;
+    private ListView mPlayerBodyListView;
+    private MusicPlayerBodyListAdaptor mPlayerBodyListAdaptor;
 
     private TextView mMusicTimeText;
     private SeekBar mMusicSeekBar;
@@ -88,12 +85,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mTitle = (TextView) findViewById(R.id.music_player_title);
 
         //Body (Music Player List)
-        mRecyclerViewManager = new LinearLayoutManager(this);
-        ((LinearLayoutManager)mRecyclerViewManager).setOrientation(LinearLayoutManager.VERTICAL);
-        mRecyclerViewAdaptor = new MusicPlayerListAdaptor(this, new ArrayList<>());
-        mMusicListRecyclerView = (RecyclerView) findViewById(R.id.music_player_list);
-        mMusicListRecyclerView.setLayoutManager(mRecyclerViewManager);
-        mMusicListRecyclerView.setAdapter(mRecyclerViewAdaptor);
+        mPlayerBodyListAdaptor = new MusicPlayerBodyListAdaptor(this, R.layout.activity_music_player_body_item, this);
+        mPlayerBodyListView = (ListView) findViewById(R.id.music_player_list);
+        mPlayerBodyListView.setAdapter(mPlayerBodyListAdaptor);
 
         //Progress Bar (Seek Bar & Text)
         mMusicTimeText = (TextView) findViewById(R.id.music_player_progress_bar_time);
@@ -233,10 +227,10 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         }
 
         //Body (Music List as Body)
-        mRecyclerViewAdaptor.setMusicServiceBinder(mMusicServiceBinder);
-        mRecyclerViewAdaptor.getResourceList().addAll(mMusicServiceBinder.getResourceList());
-        mRecyclerViewAdaptor.notifyDataSetChanged();
-        mRecyclerViewManager.scrollToPosition(index);
+        mPlayerBodyListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
+        mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
+        mPlayerBodyListAdaptor.notifyDataSetChanged();
+        mPlayerBodyListView.smoothScrollToPosition(index);
         refreshMusicListHighlight();
 
         //Progress Bar & call back
@@ -278,21 +272,17 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private void refreshMusicListHighlight() {
         //Highlight NowPlaying
         int index = mMusicServiceBinder.getNowResourceIndex();
-        if (index != -1) {
-            MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder vh = (MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder) mMusicListRecyclerView.findViewHolderForAdapterPosition(index);
-            if (vh != null) {
-                ImageView frontImage = vh.frontImage;
-//                frontImage.setVisibility(View.VISIBLE);
-            }
+        index = index - mPlayerBodyListView.getFirstVisiblePosition();
+        RelativeLayout rootItem = (RelativeLayout) mPlayerBodyListView.getChildAt(index);
+        if (rootItem != null) {
+            rootItem.findViewById(R.id.front_image).setVisibility(View.VISIBLE);
         }
-        //De-highlight LastPlaying
+        //De-Highlight LastPlaying
         index = mMusicServiceBinder.getLastResourceIndex();
-        if (index != -1) {
-            MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder vh = (MusicPlayerListAdaptor.MusicPlayerBodyItemViewHolder) mMusicListRecyclerView.findViewHolderForAdapterPosition(index);
-            if (vh != null) {
-                ImageView frontImage = vh.frontImage;
-//                frontImage.setVisibility(View.GONE);
-            }
+        index = index - mPlayerBodyListView.getFirstVisiblePosition();
+        rootItem = (RelativeLayout) mPlayerBodyListView.getChildAt(index);
+        if (rootItem != null) {
+            rootItem.findViewById(R.id.front_image).setVisibility(View.GONE);
         }
     }
 

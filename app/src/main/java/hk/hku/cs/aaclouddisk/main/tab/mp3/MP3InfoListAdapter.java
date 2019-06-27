@@ -2,7 +2,7 @@ package hk.hku.cs.aaclouddisk.main.tab.mp3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.view.LayoutInflater;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,34 +20,36 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
     private int mResourceId;
     private MainActivity mActivity;
 
-    public MP3InfoListAdapter(Context context, int resourceId, MainActivity activity) {
-        super(context, resourceId);
-        this.mResourceId = resourceId;
+    public MP3InfoListAdapter(Context context, int itemResourceId, MainActivity activity) {
+        super(context, itemResourceId);
+        this.mResourceId = itemResourceId;
         this.mActivity = activity;
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent){
-        final FileInfo fileInfo = getItem(position);
-        View v = LayoutInflater.from(getContext()).inflate(mResourceId, parent, false);
+    public View getView(int position, View convertView, @NonNull ViewGroup container){
+        if (convertView == null) {
+            convertView = mActivity.getLayoutInflater().inflate(mResourceId, container, false);
+        }
+        FileInfo fileInfo = getItem(position);
 
-        // set file name
-        TextView fileName = v.findViewById (R.id.file_name);
+        //set file name
+        TextView fileName = convertView.findViewById (R.id.file_name);
         fileName.setText(fileInfo.getName());
 
         //set download event when download_logo is clicked
-        ImageView browserLogo = v.findViewById(R.id.browser_logo);
+        ImageView browserLogo = convertView.findViewById(R.id.browser_logo);
         browserLogo.setOnClickListener((v1) -> {
             mActivity.downloadInBrowser(getRealUrl(fileInfo));
         });
 
         //set open event when open_logo is clicked
-        RelativeLayout rootItem = v.findViewById(R.id.root_item);
+        RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
-//            mActivity.playMusicFile(getRealUrl(fileInfo)); TODO: add to multi select
+            //mActivity.playMusicFile(getRealUrl(fileInfo)); TODO: add to multi select
         });
-
-        return v;
+        return convertView;
     }
 
     /**
@@ -67,5 +69,4 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         realUrl = realUrl.replace("\\","/");
         return realUrl;
     }
-
 }

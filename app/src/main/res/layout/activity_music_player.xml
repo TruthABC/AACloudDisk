@@ -55,7 +55,7 @@
         android:paddingBottom="@dimen/music_player_body_bottom_margin"
         android:layout_below="@id/music_player_topBar"
         android:layout_above="@id/music_player_progress_bar">
-        <android.support.v7.widget.RecyclerView
+        <ListView
             android:id="@+id/music_player_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

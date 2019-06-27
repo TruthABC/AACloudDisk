@@ -31,10 +31,15 @@
 * 20190623 - MusicPlayerActivity: seek bar synchronize(set, buffer, every time when go in MusicPlayerActivity, do synchronization with service)
 * 20190624 - MusicPlayerActivity: refine resource list with name(get), adapt title, click jump music(set), bug fix on single cycle mode,
 * 20190625 - MusicPlayerActivity: Refactor; MusicService: in Random mode, when click Prev, go back last played track. ("isPlaying effect" failed)
-* 20190626 - TODO: improve isPlaying effect, new progress color. Week 2 progress report.
+* 20190626 - Week 2 progress report.
+* 20190627 - refactor RecyclerView as ListView, improve all ListView resource usage and fluency.
+* 201906xx - TODO: improve isPlaying effect, divider, new progress color.
+* 201906xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
+* 201906xx - TODO: On click MultiSelect & Menu.
 
 ## TODO list
 * Loading layer.
+* can reset "all music" scan range and expanded name.
 * GIF DISK BODY.
 * offline or online music not there exception.
 * Music Tab over-scroll refresh on music list.
