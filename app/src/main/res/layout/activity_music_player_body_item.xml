@@ -11,16 +11,16 @@
 
     <ImageView
         android:id="@+id/front_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/round_audiotrack_black_24"
-        android:tint="@color/white_c"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/round_volume_up_black_24"
+        android:tint="@color/primary_light"
         android:contentDescription="MP3"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="18dp"
         android:layout_alignParentStart="true"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <TextView
         android:id="@+id/resource_name"
@@ -30,8 +30,8 @@
         android:text="MP3 Name is short or loooooo ooooo o o o o o o o o o o o o o o g"
         android:maxLines="1"
         android:textSize="14sp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
         android:layout_toEndOf="@id/front_image"
         android:layout_toStartOf="@id/back_image"
         android:layout_centerVertical="true"/>

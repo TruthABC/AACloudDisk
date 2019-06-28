@@ -74,35 +74,33 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         if (fileInfo.getDir() == 1) {
             //Change to Folder Imamge
             fileImage.setImageResource(R.drawable.closed22);
-            //Hide Download logo
+            //Hide/Un-hide Download/Into logo
             downloadLogo.setVisibility(View.GONE);
+            intoFolderLogo.setVisibility(View.VISIBLE);
             //set(imitate) jump event when into_folder_logo is clicked
-            intoFolderLogo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mActivity.getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
-                }
+            intoFolderLogo.setOnClickListener((v) -> {
+                mActivity.getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
             });
         } else { // if not a folder
-            //Hide IntoFolder logo
+            //Change to File Imamge
+            fileImage.setImageResource(R.drawable.file77);
+            //Hide/Un-hide Download/Into logo
+            downloadLogo.setVisibility(View.VISIBLE);
             intoFolderLogo.setVisibility(View.GONE);
             //set download event when download_logo is clicked
-            downloadLogo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //get user id
-                    SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-                    String id = sharedPreferences.getString("id", "");
+            downloadLogo.setOnClickListener((v) -> {
+                //get user id
+                SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+                String id = sharedPreferences.getString("id", "");
 
-                    //Construct real url
-                    String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
-                    String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
-                    String realUrl = diskRootUrl + fileInfo.getRelativePath();
-                    realUrl = realUrl.replace("\\","/");
+                //Construct real url
+                String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
+                String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
+                String realUrl = diskRootUrl + fileInfo.getRelativePath();
+                realUrl = realUrl.replace("\\","/");
 
-                    mActivity.downloadInBrowser(realUrl);
-                    //mActivity.download(realUrl, fileInfo.getName());
-                }
+                mActivity.downloadInBrowser(realUrl);
+                //mActivity.download(realUrl, fileInfo.getName());
             });
         }
 

@@ -33,11 +33,12 @@
 * 20190625 - MusicPlayerActivity: Refactor; MusicService: in Random mode, when click Prev, go back last played track. ("isPlaying effect" failed)
 * 20190626 - Week 2 progress report.
 * 20190627 - refactor RecyclerView as ListView, improve all ListView resource usage and fluency.
-* 201906xx - TODO: improve isPlaying effect, divider, new progress color.
+* 20190628 - bug on folder/file image fixed, improve isPlaying effect, new progress color, divider.
 * 201906xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 * 201906xx - TODO: On click MultiSelect & Menu.
 
 ## TODO list
+* status bar color change.
 * Loading layer.
 * can reset "all music" scan range and expanded name.
 * GIF DISK BODY.

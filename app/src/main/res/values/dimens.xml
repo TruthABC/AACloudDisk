@@ -14,7 +14,7 @@
     <dimen name="music_player_body_side_margin">0dp</dimen>
     <dimen name="music_player_body_top_margin">0dp</dimen>
     <dimen name="music_player_body_bottom_margin">0dp</dimen>
-    <dimen name="music_player_body_inner_side_margin">12dp</dimen>
+    <dimen name="music_player_body_music_list_side_margin">16dp</dimen>
 
     <dimen name="music_player_progress_bar_side_margin">12dp</dimen>
     <dimen name="music_player_progress_bar_height">56dp</dimen>

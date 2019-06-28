@@ -238,6 +238,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         refreshMusicProgressMaxSecond();
         mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
             mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
+            mPlayImageView.setVisibility(View.INVISIBLE);
+            mPauseImageView.setVisibility(View.VISIBLE);
             mPlayPauseButtonWrapper.setClickable(true);
             refreshMusicListHighlight();
             refreshMusicProgressMaxSecond();
@@ -276,6 +278,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         RelativeLayout rootItem = (RelativeLayout) mPlayerBodyListView.getChildAt(index);
         if (rootItem != null) {
             rootItem.findViewById(R.id.front_image).setVisibility(View.VISIBLE);
+            ((TextView)rootItem.findViewById(R.id.resource_name)).setTextColor(getResources().getColor(R.color.primary_light));
         }
         //De-Highlight LastPlaying
         index = mMusicServiceBinder.getLastResourceIndex();
@@ -283,6 +286,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         rootItem = (RelativeLayout) mPlayerBodyListView.getChildAt(index);
         if (rootItem != null) {
             rootItem.findViewById(R.id.front_image).setVisibility(View.GONE);
+            ((TextView)rootItem.findViewById(R.id.resource_name)).setTextColor(getResources().getColor(R.color.white_c));
         }
     }
 

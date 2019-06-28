@@ -45,10 +45,13 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         resourceName.setText(name);
 
         //set resource name
+        TextView textView = convertView.findViewById(R.id.resource_name);
         ImageView frontImage = convertView.findViewById(R.id.front_image);
         if (mMusicServiceBinder.getNowResourceIndex() == position) {
+            textView.setTextColor(mActivity.getResources().getColor(R.color.primary_light));
             frontImage.setVisibility(View.VISIBLE);
         } else {
+            textView.setTextColor(mActivity.getResources().getColor(R.color.white_c));
             frontImage.setVisibility(View.GONE);
         }
 

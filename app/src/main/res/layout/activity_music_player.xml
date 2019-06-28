@@ -28,7 +28,7 @@
                 android:layout_width="@dimen/music_player_topbar_left_top_button_image"
                 android:layout_height="@dimen/music_player_topbar_left_top_button_image"
                 android:src="@drawable/round_arrow_back_black_36"
-                android:tint="@color/white"/>
+                android:tint="@color/white_e"/>
         </RelativeLayout>
         <!-- [Item] Top Title -->
         <TextView
@@ -58,7 +58,13 @@
         <ListView
             android:id="@+id/music_player_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/music_player_body_music_list_side_margin"
+            android:paddingEnd="@dimen/music_player_body_music_list_side_margin"
+            android:divider="@color/gray_deep_half"
+            android:dividerHeight="1dp"
+            android:headerDividersEnabled="true"
+            android:footerDividersEnabled="true"/>
     </RelativeLayout>
 
     <!-- [HBox] Progress Bar -->
@@ -73,7 +79,7 @@
             android:id="@+id/music_player_progress_bar_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/white_e"
             android:textSize="@dimen/music_player_progress_bar_text_size"
             android:text="00:00"
             android:layout_alignParentStart="true"
@@ -84,12 +90,15 @@
             android:layout_height="@dimen/music_player_progress_bar_height"
             android:layout_toEndOf="@id/music_player_progress_bar_time"
             android:layout_toStartOf="@id/music_player_progress_bar_end_time"
+            android:thumbTint="@color/primary_light"
+            android:progressTint="@color/primary_light"
+            android:secondaryProgressTint="@color/white_c"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/music_player_progress_bar_end_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
+            android:textColor="@color/white_e"
             android:textSize="@dimen/music_player_progress_bar_text_size"
             android:text="00:00"
             android:layout_alignParentEnd="true"
@@ -120,19 +129,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/round_repeat_black_36"
-                android:tint="@color/white"/>
+                android:tint="@color/white_e"/>
             <ImageView
                 android:id="@+id/music_player_button_repeat_one"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/round_repeat_one_black_36"
-                android:tint="@color/white"/>
+                android:tint="@color/white_e"/>
             <ImageView
                 android:id="@+id/music_player_button_shuffle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/round_shuffle_black_36"
-                android:tint="@color/white"/>
+                android:tint="@color/white_e"/>
         </RelativeLayout>
         <!-- [VBox] Music Player Wrapper 234 Wrapper -->
         <RelativeLayout
@@ -156,7 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/round_skip_previous_black_36"
-                    android:tint="@color/white"/>
+                    android:tint="@color/white_e"/>
             </RelativeLayout>
             <!-- Music Player Button Wrapper -->
             <RelativeLayout
@@ -175,13 +184,13 @@
                     android:layout_width="@dimen/music_player_control_bar_button_height_big"
                     android:layout_height="@dimen/music_player_control_bar_button_height_big"
                     android:src="@drawable/round_play_arrow_black_48"
-                    android:tint="@color/white"/>
+                    android:tint="@color/white_e"/>
                 <ImageView
                     android:id="@+id/music_player_button_pause"
                     android:layout_width="@dimen/music_player_control_bar_button_height_big"
                     android:layout_height="@dimen/music_player_control_bar_button_height_big"
                     android:src="@drawable/round_pause_black_48"
-                    android:tint="@color/white"/>
+                    android:tint="@color/white_e"/>
             </RelativeLayout>
             <!-- Music Player Button Wrapper -->
             <RelativeLayout
@@ -200,7 +209,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/round_skip_next_black_36"
-                    android:tint="@color/white"/>
+                    android:tint="@color/white_e"/>
             </RelativeLayout>
         </RelativeLayout>
         <!-- [Item] Music Player Button Wrapper -->
@@ -219,7 +228,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/round_queue_music_black_36"
-                android:tint="@color/white"/>
+                android:tint="@color/white_e"/>
         </RelativeLayout>
     </RelativeLayout>
 
