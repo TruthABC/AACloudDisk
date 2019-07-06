@@ -10,6 +10,7 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,19 +18,30 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.HttpUtilsHttpURLConnection;
+import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
+import hk.hku.cs.aaclouddisk.musicplayer.MusicService;
 
 public class MeFragment extends Fragment {
 
+    //Tag
+    public static final String TAG = "MeFragment";
+    public static final String DEBUG_TAG = "shijian";
+
+    //Views
     private Button mBtnLogout;
     private Button mBtnChangePw;
+    private Button mBtnClrCache;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -37,7 +49,6 @@ public class MeFragment extends Fragment {
 
         initViews(rootView);
         initEvents();
-        initFinal();
 
         return rootView;
     }
@@ -45,27 +56,24 @@ public class MeFragment extends Fragment {
     private void initViews(View v) {
         mBtnLogout = v.findViewById(R.id.btn_logout);
         mBtnChangePw = v.findViewById(R.id.btn_change_password);
+        mBtnClrCache = v.findViewById(R.id.btn_clear_cache);
     }
 
     private void initEvents() {
-        mBtnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logoutAndForward();
-            }
+        mBtnLogout.setOnClickListener((v) -> {
+            logoutAndForward();
         });
-        mBtnChangePw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                inputPassword();
-            }
+        mBtnChangePw.setOnClickListener((v) -> {
+            inputPassword();
+        });
+        mBtnClrCache.setOnClickListener((v) -> {
+            clearConfirm();
         });
     }
 
-    private void initFinal() {
-
-    }
-
+    /**
+     * go to login view
+     */
     private void logoutAndForward() {
         getActivity().finish();
     }
@@ -172,12 +180,43 @@ public class MeFragment extends Fragment {
         changePasswordRunnable.start();
     }
 
+    /**
+     * Confirmation of clear music cache
+     */
+    private void clearConfirm() {
+        final AlertDialog.Builder normalDialog = new AlertDialog.Builder(getActivity());
+        normalDialog.setIcon(R.drawable.opened7);
+        normalDialog.setTitle("Clear Music Cache");
+        normalDialog.setMessage("The music cache clearance cannot be recovered.");
+        normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
+            clearMusicCache();
+        });
+        normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            //do nothing
+        });
+        normalDialog.show();
+    }
+
+    /**
+     * clear music cache
+     */
+    private void clearMusicCache() {
+        MainActivity activity = (MainActivity) getActivity();
+        MusicService.MusicServiceBinder musicServiceBinder = activity.mMusicServiceBinder;
+        if (musicServiceBinder == null) {
+            showToast("Cache Service not ready, please wait a moment.");
+            return;
+        }
+        HttpProxyCacheServer proxy = musicServiceBinder.getProxy();
+        File cacheRoot = GlobalTool.getIndividualCacheDirectory(activity);
+        Log.i(TAG, "Cache Root: " + cacheRoot.getAbsolutePath());
+        GlobalTool.deleteDir(cacheRoot);
+        showToast("Music Cache Cleared.");
+    }
+
     private void showToast(final String msg) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-            }
+        getActivity().runOnUiThread(() -> {
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
         });
     }
 }

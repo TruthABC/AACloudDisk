@@ -65,14 +65,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private static final int MP3_INFO_LIST_RESP = 0x13;
 
     //Playing Music
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
+    public MusicService.MusicServiceBinder mMusicServiceBinder;
     public List<ResourceInfo> mTempResourceList = null;
     //for initializing mMusicServiceBinder;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
-        if (mTempResourceList != null) {
-            Log.i(DEBUG_TAG, "MusicService Ready, but after ResourceListReady.");
+        // if 1.ServiceLateReady(ServerResponseFirst) && ALWAYS_TRUE(2.don't have resourceList || 3. resourceList empty)
+        if (mTempResourceList != null && (mMusicServiceBinder.getResourceList() == null || mMusicServiceBinder.getResourceList().size() == 0)) {
+            Log.i(TAG, "MusicService Ready, but after ResourceListReady.");
             mMusicServiceBinder.setResourceList(mTempResourceList);
         }
     }
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             Intent intent = new Intent(v.getContext(), TaskListActivity.class);
             startActivityForResult(intent, 0);
         });
+        mRightTopButton.setVisibility(View.INVISIBLE);
         mRightTopButton.setOnClickListener((v) -> {
             Intent intent = new Intent(v.getContext(), MusicPlayerActivity.class);
             startActivityForResult(intent, 0);
@@ -131,32 +133,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mViewPager.setAdapter(tabPagerAdapter);
 
         mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.getTabAt(0).setIcon(R.drawable.folder99);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.music81);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.music81);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.folder99);
         mTabLayout.getTabAt(2).setIcon(R.drawable.user88);
 
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                mTitle.setText(TabPagerAdapter.TITLES[tab.getPosition()]);
-                if (tab.getPosition() == 0) {
-                    Log.i("shijian", "onFileTabSelected");
-                    getFileInfoListAndResetAdaptor(lastRelativePath);
-                } else if (tab.getPosition() == 1) {
-                    Log.i("shijian", "onMP3TabSelected");
-//                    getMP3InfoListAndResetAdaptor();
-                }
+                mTitle.setText("AA Cloud " + TabPagerAdapter.TITLES[tab.getPosition()]);
             }
-
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
+            public void onTabUnselected(TabLayout.Tab tab) {}
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
     }
@@ -359,107 +348,130 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             if (msg.what == FILE_INFO_LIST_RESP) {
                 Bundle data = msg.getData();
                 String responseStr = data.getString("response");//returned json
-
-                //from String to Object(Entity)
-                try {
-                    Gson gson = new Gson();
-                    FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
-                    //Folder Info result
-                    if (response.getErrcode() == 0){
+                Thread handleResponseThread = new Thread(() -> {
+                    Log.i(TAG, "FILE_INFO_LIST_RESP ThreadName: " + Thread.currentThread().getName());
+                    //from String to Object(Entity)
+                    try {
+                        Gson gson = new Gson();
+                        FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
+                        //Folder Info result
+                        if (response.getErrcode() == 0){
 //                                showToast("Folder Info Get Successful");
-                        //find View and then its Adapter
-                        ListView listView = (ListView) activity.findViewById(R.id.list_view_files);
-                        FileInfoListAdapter adapter = (FileInfoListAdapter) listView.getAdapter();
+                            //find View and then its Adapter
+                            ListView listView = (ListView) activity.findViewById(R.id.list_view_files);
+                            FileInfoListAdapter adapter = (FileInfoListAdapter) listView.getAdapter();
 
-                        //if no File
-                        if (response.getFileInfoList().size() == 0) {
-                            activity.findViewById(R.id.no_file_hint).setVisibility(View.VISIBLE);
+                            //if no File
+                            if (response.getFileInfoList().size() == 0) {
+                                activity.runOnUiThread(() -> {
+                                    activity.findViewById(R.id.no_file_hint).setVisibility(View.VISIBLE);
+                                });
+                            } else {
+                                activity.runOnUiThread(() -> {
+                                    activity.findViewById(R.id.no_file_hint).setVisibility(View.GONE);
+                                });
+                            }
+
+                            //apply changes and call adapter to change
+                            if (adapter == null) {
+                                adapter = new FileInfoListAdapter(activity, R.layout.tab_files_item, activity);
+                                adapter.addAll(response.getFileInfoList());
+                                FileInfoListAdapter finalAdapter = adapter;
+                                activity.runOnUiThread(() -> {
+                                    listView.setAdapter(finalAdapter);
+                                    finalAdapter.notifyDataSetChanged();
+                                });
+                            } else {
+                                FileInfoListAdapter finalAdapter = adapter;
+                                activity.runOnUiThread(() -> {
+                                    finalAdapter.clear();
+                                    finalAdapter.addAll(response.getFileInfoList());
+                                    finalAdapter.notifyDataSetChanged();
+                                });
+                            }
+                            activity.runOnUiThread(activity::reviseFilesFragmentBar);
                         } else {
-                            activity.findViewById(R.id.no_file_hint).setVisibility(View.GONE);
+                            activity.showToast("Folder Info Get Failed: " + response.getErrmsg());
                         }
-
-                        //apply changes and call adapter to change
-                        if (adapter == null) {
-                            adapter = new FileInfoListAdapter(activity, R.layout.tab_files_item, activity);
-                            adapter.addAll(response.getFileInfoList());
-                            listView.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            adapter.clear();
-                            adapter.addAll(response.getFileInfoList());
-                            adapter.notifyDataSetChanged();
-                        }
-
-                        activity.reviseFilesFragmentBar();
-                    } else {
-                        activity.showToast("Folder Info Get Failed: " + response.getErrmsg());
+                    } catch (Exception e) {
+                        activity.showToast("Network error, plz contact maintenance.");
                     }
-                } catch (Exception e) {
-                    activity.showToast("Network error, plz contact maintenance.");
-                }
-
-                //hide loading box
-//                        hideLoading();
+                });
+                handleResponseThread.start();
             } else if (msg.what == MP3_INFO_LIST_RESP) {
                 Bundle data = msg.getData();
                 String responseStr = data.getString("response");//returned json
+                Thread handleResponseThread = new Thread(() -> {
+                    Log.i(TAG, "MP3_INFO_LIST_RESP ThreadName: " + Thread.currentThread().getName());
+                    //from String to Object(Entity)
+                    try {
+                        Gson gson = new Gson();
+                        FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
+                        //Info result
+                        if (response.getErrcode() == 0){
+                            //find View and then its Adapter
+                            ListView listView = (ListView) activity.findViewById(R.id.list_view_mp3);
+                            MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
 
-                //from String to Object(Entity)
-                try {
-                    Gson gson = new Gson();
-                    FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
-                    //Info result
-                    if (response.getErrcode() == 0){
-                        //find View and then its Adapter
-                        ListView listView = (ListView) activity.findViewById(R.id.list_view_mp3);
-                        MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
+                            //if no File
+                            if (response.getFileInfoList().size() == 0) {
+                                activity.runOnUiThread(() -> {
+                                    activity.findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
+                                });
+                            } else {
+                                activity.runOnUiThread(() -> {
+                                    activity.mRightTopButton.setVisibility(View.VISIBLE);
+                                    activity.findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
+                                });
+                            }
 
-                        //if no File
-                        if (response.getFileInfoList().size() == 0) {
-                            activity.findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
+                            //apply changes and call adapter to change
+                            if (adapter == null) {
+                                adapter = new MP3InfoListAdapter(activity, R.layout.tab_mp3_item, activity);
+                                adapter.addAll(response.getFileInfoList());
+                                MP3InfoListAdapter finalAdapter = adapter;
+                                activity.runOnUiThread(() -> {
+                                    listView.setAdapter(finalAdapter);
+                                    finalAdapter.notifyDataSetChanged();
+                                });
+                            } else {
+                                MP3InfoListAdapter finalAdapter = adapter;
+                                activity.runOnUiThread(() -> {
+                                    finalAdapter.clear();
+                                    finalAdapter.addAll(response.getFileInfoList());
+                                    finalAdapter.notifyDataSetChanged();
+                                });
+                            }
+
+                            //Try to set MusicService Resource List
+                            List<ResourceInfo> resourceList = new ArrayList<>();
+                            for (FileInfo fileInfo: response.getFileInfoList()) {
+                                SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+                                String id = sharedPreferences.getString("id", "");
+
+                                String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
+                                String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
+                                String realUrl = diskRootUrl + fileInfo.getRelativePath();
+
+                                resourceList.add(new ResourceInfo(fileInfo.getName(), realUrl, false, null));
+                            }
+                            activity.mTempResourceList = resourceList;//backup resourceList for else situation, then can be used when Service Initialized
+                            // if 1.ServiceReady && (2.don't have resourceList || 3. resourceList empty)
+                            if (activity.mMusicServiceBinder != null && (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0)) {
+                                Log.i(TAG, "MusicService Ready. Set resource List.");
+                                activity.mMusicServiceBinder.setResourceList(activity.mTempResourceList);
+                            } else {
+                                Log.i(TAG, "MusicService not Ready, but needed by set resource List.");
+                            }
                         } else {
-                            activity.findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
+                            activity.showToast("MP3 Info Get Failed: " + response.getErrmsg());
                         }
-
-                        //apply changes and call adapter to change
-                        if (adapter == null) {
-                            adapter = new MP3InfoListAdapter(activity, R.layout.tab_mp3_item, activity);
-                            adapter.addAll(response.getFileInfoList());
-                            listView.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            adapter.clear();
-                            adapter.addAll(response.getFileInfoList());
-                            adapter.notifyDataSetChanged();
-                        }
-
-                        //TODO: refactor me, e.g. research on whether UI thread pending
-                        //Try to set MusicService Resource List
-                        List<ResourceInfo> resourceList = new ArrayList<>();
-                        for (FileInfo fileInfo: response.getFileInfoList()) {
-                            SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-                            String id = sharedPreferences.getString("id", "");
-
-                            String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
-                            String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
-                            String realUrl = diskRootUrl + fileInfo.getRelativePath();
-
-                            resourceList.add(new ResourceInfo(fileInfo.getName(), realUrl, false, null));
-                        }
-                        activity.mTempResourceList = resourceList;
-                        if (activity.mMusicServiceBinder != null && (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0)) {
-                            Log.i(DEBUG_TAG, "MusicService Ready. Set resource List.");
-                            activity.mMusicServiceBinder.setResourceList(activity.mTempResourceList);
-                        } else {
-                            Log.i(DEBUG_TAG, "MusicService not Ready, but needed by set resource List.");
-                        }
-                    } else {
-                        activity.showToast("MP3 Info Get Failed: " + response.getErrmsg());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        activity.showToast("Network error, plz contact maintenance.");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    activity.showToast("Network error, plz contact maintenance.");
-                }
+                });
+                handleResponseThread.start();
             }// if (msg.what == MP3_INFO_LIST_RESP)
         }// MainActivityHandler.handleMessage(Message msg)
     }// MainActivityHandler

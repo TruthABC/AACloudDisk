@@ -10,7 +10,7 @@ import hk.hku.cs.aaclouddisk.main.tab.MeFragment;
 
 public class TabPagerAdapter extends FragmentPagerAdapter {
 
-    public static final String[] TITLES = {"Files","Cloud MP3","Me"};
+    public static final String[] TITLES = {"Music", "Files", "Me"};
     private Fragment[] fragments;
 
     public TabPagerAdapter(FragmentManager fm) {
@@ -27,8 +27,8 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         if (fragments[position] == null) {
             switch (position) {
-                case 0: fragments[position] = new FilesFragment(); break;
-                case 1: fragments[position] = new MP3Fragment(); break;
+                case 0: fragments[position] = new MP3Fragment(); break;
+                case 1: fragments[position] = new FilesFragment(); break;
                 case 2: fragments[position] = new MeFragment(); break;
             }
         }

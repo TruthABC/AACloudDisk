@@ -13,7 +13,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/file_image"
-        android:src="@drawable/music111"
+        android:src="@drawable/round_headset_black_48"
         android:tint="@color/gray_deep"
         android:contentDescription="MP3"
         android:layout_marginTop="8dp"

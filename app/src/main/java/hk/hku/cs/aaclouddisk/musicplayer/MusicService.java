@@ -8,11 +8,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.danikula.videocache.HttpProxyCacheServer;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
 public class MusicService extends Service {
@@ -40,6 +44,7 @@ public class MusicService extends Service {
     private int mPlayingMode;
     private int mBufferingPercent;
     private MediaPlayer mMediaPlayer;
+    private HttpProxyCacheServer proxy = null;
     //Const for mPlayingMode
     public static final int ALL_CYCLE = 0;
     public static final int SINGLE_CYCLE = 1;
@@ -82,9 +87,17 @@ public class MusicService extends Service {
             }
         });
         mMediaPlayer.setOnBufferingUpdateListener((mp, percent) -> {
-            mBufferingPercent = percent;
+            if (getProxy().isCached(mResourceList.get(mNowResourceIndex).getOnlineUrl())) {
+                mBufferingPercent = 100;
+            } else {
+                mBufferingPercent = percent;
+            }
             if (mOuterOnBufferingUpdateListener != null) {
-                mOuterOnBufferingUpdateListener.onBufferingUpdate(mp, percent);
+                if (getProxy().isCached(mResourceList.get(mNowResourceIndex).getOnlineUrl())) {
+                    mOuterOnBufferingUpdateListener.onBufferingUpdate(mp, 100);
+                } else {
+                    mOuterOnBufferingUpdateListener.onBufferingUpdate(mp, percent);
+                }
             }
         });
     }
@@ -99,6 +112,10 @@ public class MusicService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        if (proxy != null) {
+            proxy.shutdown();
+            proxy = null;
+        }
         if (mMediaPlayer != null) {
             if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.stop();
@@ -264,6 +281,10 @@ public class MusicService extends Service {
             }
             return jumpSuccess;
         }
+
+        public HttpProxyCacheServer getProxy() {
+            return MusicService.this.getProxy();
+        }
     }
 
     private void jumpNextMusic() {
@@ -324,7 +345,14 @@ public class MusicService extends Service {
         mHalfMusicPlayed = false;
         mBufferingPercent = 0;
         try {
-            mMediaPlayer.setDataSource(mResourceList.get(mNowResourceIndex).getOnlineUrl());
+            HttpProxyCacheServer proxy = getProxy();
+            boolean isCached = proxy.isCached(mResourceList.get(mNowResourceIndex).getOnlineUrl());
+            if (isCached) {
+                mBufferingPercent = 100;
+            }
+            Log.i(TAG, "isCached(" + mResourceList.get(mNowResourceIndex).getName() + ")=" + isCached);
+            String proxyUrl = proxy.getProxyUrl(mResourceList.get(mNowResourceIndex).getOnlineUrl());
+            mMediaPlayer.setDataSource(proxyUrl);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepareAsync();
             Log.i(TAG, "Doing prepareAsync()");
@@ -334,6 +362,15 @@ public class MusicService extends Service {
             mBufferingPercent = 0;
             Log.i(TAG, "Exception Caught in playNowMusicFromBeginning()");
         }
+    }
+
+    private synchronized HttpProxyCacheServer getProxy() {
+        if (proxy == null) {
+            File cacheRoot = GlobalTool.getIndividualCacheDirectory(this);
+            Log.i(DEBUG_TAG, "Cache Root: " + cacheRoot.getAbsolutePath());
+            proxy = new HttpProxyCacheServer(this);
+        }
+        return proxy;
     }
 
 }

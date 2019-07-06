@@ -124,41 +124,25 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
                 mMusicServiceBinder.pause();
                 mPlayImageView.setVisibility(View.VISIBLE);
                 mPauseImageView.setVisibility(View.INVISIBLE);
-                showShortToast("paused");
+                showShortToast("Pause");
             } else {
                 mMusicServiceBinder.play();
                 mPlayImageView.setVisibility(View.INVISIBLE);
                 mPauseImageView.setVisibility(View.VISIBLE);
                 if (!mMusicServiceBinder.isHalfMusicPlayed()) {
-                    mMusicSeekBar.setProgress(0);
-                    mMusicSeekBar.setSecondaryProgress(0);
-                    mMusicSeekBar.setMax(0);
-                    mMusicEndTimeText.setText("00:00");
                     mPlayPauseButtonWrapper.setClickable(false);
                 }
-                showShortToast("starting");
+                showShortToast("Start");
             }
         });
         mPreviousButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.prev();
-            mMusicSeekBar.setProgress(0);
-            mMusicSeekBar.setSecondaryProgress(0);
-            mMusicSeekBar.setMax(0);
-            mMusicEndTimeText.setText("00:00");
-            showShortToast("previous track");
-            mPlayImageView.setVisibility(View.INVISIBLE);
-            mPauseImageView.setVisibility(View.VISIBLE);
+            showShortToast("Prev");
             mPlayPauseButtonWrapper.setClickable(false);
         });
         mNextButtonWrapper.setOnClickListener((v) -> {
             mMusicServiceBinder.next();
-            mMusicSeekBar.setProgress(0);
-            mMusicSeekBar.setSecondaryProgress(0);
-            mMusicSeekBar.setMax(0);
-            mMusicEndTimeText.setText("00:00");
-            showShortToast("next track");
-            mPlayImageView.setVisibility(View.INVISIBLE);
-            mPauseImageView.setVisibility(View.VISIBLE);
+            showShortToast("Next");
             mPlayPauseButtonWrapper.setClickable(false);
         });
         mModeButtonWrapper.setOnClickListener((v) -> {
@@ -234,8 +218,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         refreshMusicListHighlight();
 
         //Progress Bar & call back
-        refreshMusicBufferPercent();
         refreshMusicProgressMaxSecond();
+        refreshMusicBufferPercent();
         mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
             mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
             mPlayImageView.setVisibility(View.INVISIBLE);
@@ -243,6 +227,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             mPlayPauseButtonWrapper.setClickable(true);
             refreshMusicListHighlight();
             refreshMusicProgressMaxSecond();
+            refreshMusicBufferPercent();
         });
         mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
             runOnUiThread(() -> {
@@ -294,7 +279,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
      * refresh Seek Bar Secondary Progress of music Buffer percent
      */
     private void refreshMusicBufferPercent() {
-        mMusicSeekBar.setSecondaryProgress((mMusicServiceBinder.getBufferingPercent() * mMusicSeekBar.getMax()) / 100);
+        mMusicSeekBar.setSecondaryProgress(((mMusicServiceBinder.getBufferingPercent() * mMusicSeekBar.getMax()) / 100));
     }
 
     /**

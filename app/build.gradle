@@ -27,6 +27,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'
     implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.danikula:videocache:2.7.1'
 //    implementation 'com.arialyy.aria:aria-core:3.5.1'
 //    annotationProcessor 'com.arialyy.aria:aria-compiler:3.5.1'
 

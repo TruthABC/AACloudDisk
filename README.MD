@@ -34,10 +34,24 @@
 * 20190626 - Week 2 progress report.
 * 20190627 - refactor RecyclerView as ListView, improve all ListView resource usage and fluency.
 * 20190628 - bug on folder/file image fixed, improve isPlaying effect, new progress color, divider.
-* 201906xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
-* 201906xx - TODO: On click MultiSelect & Menu.
+* 20190629 - Holiday.
+* 20190630 - Holiday.
+* 20190701 - Holiday.
+* 20190702 - Holiday Lag, and continued next few days :D
+* 20190703 - Week 3 progress report. Project Report Writing Course.
+* 20190704 - Project Presentation Course.
+* 20190705 - Big Progress: Caching while Listening Available.
+    Todo: 3、添加“主动缓存”，下载后歌名附加图标(isCached=true存入本地数据库)（主动缓存前即使被动缓存完毕也不自动触发，但可以依赖于被动缓存，测试“未播放，不触发被动，仅主动缓存”后的play），主动缓存后存入与被动缓存不同本地文件夹(Next: 为其专门开设Local List)。
+          4、只能删除已经“主动缓存”过、isCached=true、有小图标的音乐，删除后被动缓存依然存在，可以[清空“被动缓存”]。
+          5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
+* 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
+* 201907xx - TODO: Offline Mode.
+* 201907xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
+* 201907xx - TODO: On click MultiSelect & Menu.
 
 ## TODO list
+* 读取列表完毕后再显示右上角按钮。
+* Main Activity file last path delete it please.
 * status bar color change.
 * Loading layer.
 * can reset "all music" scan range and expanded name.
@@ -79,6 +93,13 @@
 ## 3. Message Handler
 * 0x12 - onFileGet for FileFragment
 * 0x13 - onAllMP3Get for MP3Fragment
+* 0x22 - onChangePassword
+
+## Music Passive Cache
+Basic: When listen to music, download it from the "playing stream" with no extra network cost.
+Over-drag: Wait download all in middle.
+Net-cut: Available until when net cut, after restart also available.
+No Network: When no passive cache, stop play and no hint.
 
 ## Implementation Logic Note
 * MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment

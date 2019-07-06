@@ -14,8 +14,6 @@
         android:gravity="center_vertical"
         android:visibility="invisible">
 
-        <!-- TODO: make it player-alike -->
-
     </RelativeLayout>
 
     <View
