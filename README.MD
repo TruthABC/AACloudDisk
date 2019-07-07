@@ -46,46 +46,44 @@
           5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
 * 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed. File RootItem Onclick. New Icons.
-* 201907xx - TODO: Offline Mode.
-* 201907xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
-* 201907xx - TODO: On click MultiSelect & Menu.
+* 20190708 - "Backdrop Design -> Bottom Sheet" Finished. TODO: Music List -> Serializable -> isCached Icon -> List Item
+* 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
-## TODO list
-* handler activity leak fix.
-* music not there exception.
+## Future Work
+* Backdrop design on music lists select.
+* User make, change, delete other lists.
+* Add music to list, remove music from list.
+* Music List Local, Online, inApp design
+* Offline Mode.
+* file multiple-select, file menu
 * (minor) status bar color change.
 * (minor) Loading layer.
 * (minor) can reset "all music" scan/ignore range and expanded name.
 * (minor) GIF DISK BODY.
 * (minor) Music Tab over-scroll refresh on music list.
 * (minor) to Fix: MultiActivity Launched when click fast.
-* Backdrop design on music lists select.
-* User make, change, delete other lists.
-* Add music to list, remove music from list.
-* Music List Local, Online, inApp design
-* a UI needed when background play screen locked
-* a easy float button for user to stop music.
-* file multiple-select, file menu
-* do not show full path, only last layer enough.
-* File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
-* Entering an item effect. (layered expand)
-* Launching Screen.
-* Back-end: From "net.sf.json" to "Gson"
-* Use "Socket" to receive music (download while listening)
-* Can relate tag/note/comments on music files.
-* future: Find a good Job :)
+* handler activity leak fix.
+* music not there exception.
+* (minor) a UI needed when background play screen locked
+* (minor) a easy float button for user to stop music.
+* (minor) do not show full path, only last layer enough.
+* (minor) File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
+* (minor) Entering an item effect. (layered expand)
+* (minor) Launching Screen.
+* (minor) Back-end: From "net.sf.json" to "Gson"
+* (minor) Can relate tag/note/comments on music files.
 
 ## 1. Run
 * Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"
 * Resolution (Recommended): W x H = 720 x 1280 (5-Inch)
-* Network: Thie App needs Internet to access its server. For example, to "login", access database and file system.
+* Network: Thie App needs Internet to access its server. For example, to "login", access file system.
 * Browser: This App needs to start implicit intent of HTTP-URI targeting browser application. For example, to "download", "preview" and "upload".
 * Downloader: This App could start implicit intent of HTTP-URI targeting downloader application (or download management application).
 
 ## 2. Develop
 * IDE: Android Studio
 * SDK Version: compileSdkVersion 28; targetSdkVersion 28; minSdkVersion 21;
-* Extra Dependency: gson:2.8.2
+* Extra Dependency: 'com.google.code.gson:gson:2.8.2', 'com.danikula:videocache:2.7.1'
 
 ## 3. Message Handler
 * 0x12 - onFileGet for MainActivity/FileFragment/
@@ -96,13 +94,14 @@
 * 0x22 - onChangePassword
 
 ## Music Passive Cache
-Basic: When listen to music, download it from the "playing stream" with no extra network cost.
-Clear Cache: Available. Can only do Clear All Music Cache.
-Over-drag: When over-drag, wait for downloading all in the middle and continue.
-Network-cut: Available until when net is cut, when restart, former part also available.
-No Network jump new song: When no passive cache, stop play with no hint.
+* Basic: When listen to music, download it from the "playing stream" with no extra network cost.
+* Clear Cache: Can Clear Music Passive Cache.
+* Over-drag: When over-drag, wait for downloading all data in the middle, and continue.
+* Network-cut: Available until timestamp when net is cut, when restart, former cached part also available.
+* Offline Jump To Un-cached Song: Stop play without hint.
 
 ## Implementation Logic Note
-* MainActivity -> TabLayout -> ViewPager -> Fragment -> PagerAdaptor
-* MusicPlayerActivity (Top Bar, Body, Progress Bar, Control Bar, Footer)
-* MusicService (HttpCacheProxy + ResourceList)
+* MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment (-> ArrayAdaptor)
+* MusicPlayerActivity (REAL BODY: Top Bar, Body, Progress Bar), Following Backdrop Design's "HIDDEN BODY".
+* MusicPlayerActivity (HIDDEN BODY: Peek Height (Control Bar, Footer), Bottom Top Bar, Bottom Body)
+* MusicService (HttpCacheProxy + ResourceList), Body, when change music, to find visible list item to make it highlight, in adaptor, also give a highlight logic.

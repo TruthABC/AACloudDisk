@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +60,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private ImageView mPlayImageView;
     private ImageView mPauseImageView;
 
+    //Views - Bottom Sheet
+    private RelativeLayout mBottomSheet;
+    private BottomSheetBehavior<RelativeLayout> mBottomSheetBehavior;
+    private RelativeLayout mHideBottomSheetButtonWrapper;
+
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
 
@@ -74,6 +80,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
         initViews();
         initServiceBinder();
+        initBottomSheet();
         initEvents();
         initSeekBarSynchronization();
         initFinal();
@@ -106,11 +113,24 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mModesImageView[2] = (ImageView) findViewById(R.id.music_player_button_shuffle);
         mPlayImageView = (ImageView) findViewById(R.id.music_player_button_play);
         mPauseImageView = (ImageView) findViewById(R.id.music_player_button_pause);
+
+        //Bottom Sheet
+        mBottomSheet = (RelativeLayout) findViewById(R.id.music_player_bottom_sheet);
+
+        //Bottom Sheet Header (topBar, not "Peek Height" part)
+        mHideBottomSheetButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_bottom_right_top_button_wrapper);
     }
 
     private void initServiceBinder() {
         Intent bindIntent = new Intent(this, MusicService.class);
         bindService(bindIntent, this, BIND_AUTO_CREATE);
+    }
+
+    private void initBottomSheet() {
+        mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
+        mBottomSheetBehavior.setFitToContents(false);
+        mBottomSheetBehavior.setHideable(false);//prevents the bottom sheet from completely hiding off the screen
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);//initially state
     }
 
     private void initEvents() {
@@ -156,7 +176,14 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
         });
         mMusicListButtonWrapper.setOnClickListener((v) -> {
-            showShortToast("TODO - show other music lists");
+            if(mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            } else {
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+        mHideBottomSheetButtonWrapper.setOnClickListener((v) -> {
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         });
     }
 

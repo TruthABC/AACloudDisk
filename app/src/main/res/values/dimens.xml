@@ -7,8 +7,8 @@
     <dimen name="music_player_side_margin">4dp</dimen>
 
     <dimen name="music_player_topbar_height">56dp</dimen>
-    <dimen name="music_player_topbar_left_top_button_wrapper">48dp</dimen>
-    <dimen name="music_player_topbar_left_top_button_image">28dp</dimen>
+    <dimen name="music_player_topbar_button_wrapper">48dp</dimen>
+    <dimen name="music_player_topbar_button_image">28dp</dimen>
     <dimen name="music_player_topbar_title_margin">56dp</dimen>
 
     <dimen name="music_player_body_side_margin">0dp</dimen>
@@ -26,6 +26,7 @@
     <dimen name="music_player_control_bar_button_margin">8dp</dimen>
 
     <dimen name="music_player_footer_height">12dp</dimen>
+    <dimen name="music_player_bottom_sheet_peek">84dp</dimen>
     <!-- MusicPlayerActivity End -->
 
     <dimen name="bar_height_large">70dip</dimen>
