@@ -256,9 +256,9 @@ public class MusicService extends Service {
             // else
             {
                 Log.i(TAG, "prev() 2. Default: play the previous music from beginning");
-                if (mPlayingMode == ALL_RANDOM) {
+                if (mPlayingMode == ALL_RANDOM) {// ALL_RANDOM::prev means go back to last played one
                     int size = mHistoryResourceIndex.size();
-                    if (size == 0) {
+                    if (size == 0) {// ALL_RANDOM::prev, if no more history played ones
                         jumpRandomMusic();
                     } else {
                         boolean jumpSuccessful = jumpTo(mHistoryResourceIndex.get(size-1));
@@ -276,7 +276,7 @@ public class MusicService extends Service {
 
         public boolean jumpTo(int newIndex) {
             boolean jumpSuccess = jumpToMusic(newIndex);
-            if (jumpSuccess) {
+            if (jumpSuccess || newIndex == mNowResourceIndex) {
                 playNowMusicFromBeginning();
             }
             return jumpSuccess;

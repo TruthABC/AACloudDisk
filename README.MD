@@ -45,7 +45,7 @@
           4、只能删除已经“主动缓存”过、isCached=true、有小图标的音乐，删除后被动缓存依然存在，可以[清空“被动缓存”]。
           5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
-* 20190707 - File Fragment Ripple effect.
+* 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed.
 * 201907xx - TODO: Offline Mode.
 * 201907xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 * 201907xx - TODO: On click MultiSelect & Menu.
