@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //local cache
     private SharedPreferences sharedPreferences;
+    public String lastRelativePath;
 
     //Views
     private Toolbar mToolbar;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+        lastRelativePath = "";
 
         //Aria register (download framework) discard
 //        Aria.download(this).register();
@@ -160,8 +162,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in next version :)
     }
 
-    private String lastId = "!@#$%^&*()_+";
-    public String lastRelativePath = "";
     public void getFileInfoListAndResetAdaptor(final String relativePath) {
         //Use another thread to do server authentication
         Thread getByRelativePathRunnable = new Thread() {
@@ -170,13 +170,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 //get user data
                 String id = sharedPreferences.getString("id","");
 
-                //if the same folder for same user, then skip
-//                if (relativePath.equals(lastRelativePath) && id.equals(lastId)) {
-//                    return;
-//                } else {
-                    lastRelativePath = relativePath;
-                    lastId = id;
-//                }
+                lastRelativePath = relativePath;
 
                 String url = HttpUtilsHttpURLConnection.BASE_URL + "/getFolderInfoByRelativePath";
                 Map<String, String> params = new HashMap<String, String>();
@@ -213,16 +207,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
         //Revise Content
         if (lastRelativePath.length() == 0) {
-            pathTextView.setText("Path: AACloudDisk\\");
+            pathTextView.setText("[Path]AACloudDisk\\");
         } else {
-            pathTextView.setText("Path: AACloudDisk\\" + lastRelativePath + "\\");
+            pathTextView.setText("[Path]AACloudDisk\\" + lastRelativePath);
         }
-
-//        if (lastRelativePath.length()==0) {
-//            backImageView.setVisibility(View.INVISIBLE);
-//        } else {
-//            backImageView.setVisibility(View.VISIBLE);
-//        }
 
         //Event - back
         if (!backImageView.hasOnClickListeners()) {

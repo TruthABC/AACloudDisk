@@ -45,23 +45,19 @@
           4、只能删除已经“主动缓存”过、isCached=true、有小图标的音乐，删除后被动缓存依然存在，可以[清空“被动缓存”]。
           5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
+* 20190707 - File Fragment Ripple effect.
 * 201907xx - TODO: Offline Mode.
 * 201907xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 * 201907xx - TODO: On click MultiSelect & Menu.
 
 ## TODO list
-* 读取列表完毕后再显示右上角按钮。
-* Main Activity file last path delete it please.
-* status bar color change.
-* Loading layer.
-* can reset "all music" scan range and expanded name.
-* GIF DISK BODY.
+* (minor) status bar color change.
+* (minor) Loading layer.
+* (minor) can reset "all music" scan/ignore range and expanded name.
+* (minor) GIF DISK BODY.
 * offline or online music not there exception.
-* Music Tab over-scroll refresh on music list.
-* to Fix: MultiActivity Launched when click fast.
-* music play play from beginning, if it is the same music. (do not need to prepare, use loop)
-* confirm music service bind and set resource list not pending on UI thread. (e.g. initialize service binder on Launcher/Login Activity, try thread.sleep())
-* layout (Top Bar, Body, Progress Bar, Control Bar, Footer)
+* (minor) Music Tab over-scroll refresh on music list.
+* (minor) to Fix: MultiActivity Launched when click fast.
 * Backdrop design on music lists select.
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
@@ -91,16 +87,19 @@
 * Extra Dependency: gson:2.8.2
 
 ## 3. Message Handler
-* 0x12 - onFileGet for FileFragment
+* 0x12 - onFileGet for MainActivity/FileFragment/
 * 0x13 - onAllMP3Get for MP3Fragment
+* 0x18 - OnCreatedFolder for FileFragment
 * 0x22 - onChangePassword
 
 ## Music Passive Cache
 Basic: When listen to music, download it from the "playing stream" with no extra network cost.
-Over-drag: Wait download all in middle.
-Net-cut: Available until when net cut, after restart also available.
-No Network: When no passive cache, stop play and no hint.
+Clear Cache: Available. Can only do Clear All Music Cache.
+Over-drag: When over-drag, wait for downloading all in the middle and continue.
+Network-cut: Available until when net is cut, when restart, former part also available.
+No Network jump new song: When no passive cache, stop play with no hint.
 
 ## Implementation Logic Note
-* MainActivity -> TabLayout -> ViewPager -> PagerAdaptor -> Fragment
+* MainActivity -> TabLayout -> ViewPager -> Fragment -> PagerAdaptor
 * MusicPlayerActivity (Top Bar, Body, Progress Bar, Control Bar, Footer)
+* MusicService (HttpCacheProxy + ResourceList)

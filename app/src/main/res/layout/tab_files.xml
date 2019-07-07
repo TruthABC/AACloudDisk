@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/margin_tiny_half"
         android:textColor="@color/white"
-        android:background="@color/gray_deep"
+        android:background="@drawable/ripple_white_mask_white_bg_accent"
         android:text="Create New Folder"
         android:textSize="@dimen/text_size_normal"
         android:textAlignment="center"/>

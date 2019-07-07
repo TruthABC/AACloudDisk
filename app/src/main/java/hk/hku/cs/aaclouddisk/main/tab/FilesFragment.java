@@ -25,6 +25,11 @@ import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
 
 public class FilesFragment extends Fragment {
 
+    //Tag
+    public static final String TAG = "FilesFragment";
+    public static final String DEBUG_TAG = "shijian";
+
+    //Views
     private TextView mCreateNewFolder;
 
     @Override
