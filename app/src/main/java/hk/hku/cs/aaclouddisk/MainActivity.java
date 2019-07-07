@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         if (mTempResourceList != null && (mMusicServiceBinder.getResourceList() == null || mMusicServiceBinder.getResourceList().size() == 0)) {
             Log.i(TAG, "MusicService Ready, but after ResourceListReady.");
             mMusicServiceBinder.setResourceList(mTempResourceList);
+            mRightTopButton.setVisibility(View.VISIBLE);
         }
     }
     @Override
@@ -206,11 +207,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         ImageView uploadFileImageView = findViewById(R.id.tab_files_uploadFile);
 
         //Revise Content
-        if (lastRelativePath.length() == 0) {
-            pathTextView.setText("[Path]AACloudDisk\\");
-        } else {
-            pathTextView.setText("[Path]AACloudDisk\\" + lastRelativePath);
-        }
+        String newPathText = "[Path]AACloudDisk\\" + lastRelativePath;
+        pathTextView.setText(newPathText);
 
         //Event - back
         if (!backImageView.hasOnClickListeners()) {
@@ -408,7 +406,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 });
                             } else {
                                 activity.runOnUiThread(() -> {
-                                    activity.mRightTopButton.setVisibility(View.VISIBLE);
                                     activity.findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
                                 });
                             }
@@ -440,6 +437,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
                                 String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
                                 String realUrl = diskRootUrl + fileInfo.getRelativePath();
+                                realUrl = realUrl.replace("\\","/");
 
                                 resourceList.add(new ResourceInfo(fileInfo.getName(), realUrl, false, null));
                             }
@@ -448,6 +446,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                             if (activity.mMusicServiceBinder != null && (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0)) {
                                 Log.i(TAG, "MusicService Ready. Set resource List.");
                                 activity.mMusicServiceBinder.setResourceList(activity.mTempResourceList);
+                                activity.runOnUiThread(() -> {
+                                    activity.mRightTopButton.setVisibility(View.VISIBLE);
+                                });
                             } else {
                                 Log.i(TAG, "MusicService not Ready, but needed by set resource List.");
                             }

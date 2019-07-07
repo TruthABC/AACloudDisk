@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,42 +54,37 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         // set file or folder image logo and click event (1/2)
         ImageView deleteLogo = convertView.findViewById(R.id.delete_logo);
         ImageView renameLogo = convertView.findViewById(R.id.rename_logo);
-        deleteLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteConfirm(fileInfo);
-            }
+        RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
+        deleteLogo.setOnClickListener((v) -> {
+            deleteConfirm(fileInfo);
         });
-        renameLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                inputNewName(fileInfo);
-            }
+        renameLogo.setOnClickListener((v) -> {
+            inputNewName(fileInfo);
         });
 
         // set file or folder image logo and click event (2/2)
         ImageView fileImage = convertView.findViewById (R.id.file_image);
-        ImageView intoFolderLogo = convertView.findViewById(R.id.into_folder_logo);
-        ImageView downloadLogo = convertView.findViewById(R.id.browser_logo);
         // if is a folder
         if (fileInfo.getDir() == 1) {
-            //Change to Folder Imamge
+            //Change to Folder Image
             fileImage.setImageResource(R.drawable.closed22);
-            //Hide/Un-hide Download/Into logo
-            downloadLogo.setVisibility(View.GONE);
-            intoFolderLogo.setVisibility(View.VISIBLE);
-            //set(imitate) jump event when into_folder_logo is clicked
-            intoFolderLogo.setOnClickListener((v) -> {
-                mActivity.getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
-            });
         } else { // if not a folder
-            //Change to File Imamge
+            //Change to File Image
             fileImage.setImageResource(R.drawable.file77);
-            //Hide/Un-hide Download/Into logo
-            downloadLogo.setVisibility(View.VISIBLE);
-            intoFolderLogo.setVisibility(View.GONE);
-            //set download event when download_logo is clicked
-            downloadLogo.setOnClickListener((v) -> {
+        }
+        rootItem.setOnClickListener((v) -> {
+            // if is a folder
+            if (fileInfo.getDir() == 1) {
+                Thread waitOneSecondAndGoIntoFolder = new Thread(() -> {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mActivity.getFileInfoListAndResetAdaptor(fileInfo.getRelativePath());
+                });
+                waitOneSecondAndGoIntoFolder.start();
+            } else {
                 //get user id
                 SharedPreferences sharedPreferences = mActivity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
                 String id = sharedPreferences.getString("id", "");
@@ -100,32 +96,23 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
                 realUrl = realUrl.replace("\\","/");
 
                 mActivity.downloadInBrowser(realUrl);
-                //mActivity.download(realUrl, fileInfo.getName());
-            });
-        }
+            }
+        });
 
         return convertView;
     }
 
     private void deleteConfirm(final FileInfo fileInfo) {
         final AlertDialog.Builder normalDialog = new AlertDialog.Builder(mActivity);
-        normalDialog.setIcon(R.drawable.opened7);
+        normalDialog.setIcon(R.drawable.round_delete_forever_black_36);
         normalDialog.setTitle("Confirm Delete");
         normalDialog.setMessage("The deletion cannot recover.");
-        normalDialog.setPositiveButton("Confirm",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        doDelete(fileInfo);
-                    }
-                });
-        normalDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                });
+        normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
+            doDelete(fileInfo);
+        });
+        normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            //do nothing
+        });
         normalDialog.show();
     }
 
@@ -135,20 +122,12 @@ public class FileInfoListAdapter extends ArrayAdapter<FileInfo> {
         AlertDialog.Builder inputDialog =
                 new AlertDialog.Builder(mActivity);
         inputDialog.setTitle("Input New Name").setView(editText);
-        inputDialog.setPositiveButton("Confirm",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        doRename(fileInfo, editText.getText().toString());
-                    }
-                });
-        inputDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                });
+        inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
+            doRename(fileInfo, editText.getText().toString());
+        });
+        inputDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            //do nothing
+        });
         inputDialog.show();
     }
 

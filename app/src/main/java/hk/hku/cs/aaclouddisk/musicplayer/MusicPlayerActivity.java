@@ -188,7 +188,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             @Override
             public void run() {
                 //Warning: when music not prepared (not HalfPlayed), cause onCompletion (and go next music)
-                if (!isSeeking && mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed()) {
+                if (!isSeeking && mMusicServiceBinder != null && mMusicServiceBinder.isHalfMusicPlayed() && mMusicServiceBinder.getMediaPlayer() != null) {
                     mMusicSeekBar.setProgress(mMusicServiceBinder.getMediaPlayer().getCurrentPosition() / 1000);
                 }
                 mHandler.postDelayed(this, 100);

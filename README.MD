@@ -45,17 +45,18 @@
           4、只能删除已经“主动缓存”过、isCached=true、有小图标的音乐，删除后被动缓存依然存在，可以[清空“被动缓存”]。
           5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
-* 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed.
+* 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed. File RootItem Onclick. New Icons.
 * 201907xx - TODO: Offline Mode.
 * 201907xx - TODO: Subjective Cache status and do it. apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 * 201907xx - TODO: On click MultiSelect & Menu.
 
 ## TODO list
+* handler activity leak fix.
+* music not there exception.
 * (minor) status bar color change.
 * (minor) Loading layer.
 * (minor) can reset "all music" scan/ignore range and expanded name.
 * (minor) GIF DISK BODY.
-* offline or online music not there exception.
 * (minor) Music Tab over-scroll refresh on music list.
 * (minor) to Fix: MultiActivity Launched when click fast.
 * Backdrop design on music lists select.
@@ -89,7 +90,9 @@
 ## 3. Message Handler
 * 0x12 - onFileGet for MainActivity/FileFragment/
 * 0x13 - onAllMP3Get for MP3Fragment
-* 0x18 - OnCreatedFolder for FileFragment
+* 0x16 - onDeleteFile for FileInfoListAdaptor
+* 0x17 - onRenameFile for FileInfoListAdaptor
+* 0x18 - onCreatedFolder for FileFragment
 * 0x22 - onChangePassword
 
 ## Music Passive Cache

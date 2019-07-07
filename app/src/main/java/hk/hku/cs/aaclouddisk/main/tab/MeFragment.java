@@ -185,7 +185,7 @@ public class MeFragment extends Fragment {
      */
     private void clearConfirm() {
         final AlertDialog.Builder normalDialog = new AlertDialog.Builder(getActivity());
-        normalDialog.setIcon(R.drawable.opened7);
+        normalDialog.setIcon(R.drawable.round_delete_forever_black_36);
         normalDialog.setTitle("Clear Music Cache");
         normalDialog.setMessage("The music cache clearance cannot be recovered.");
         normalDialog.setPositiveButton("Confirm", (dialog, which) -> {

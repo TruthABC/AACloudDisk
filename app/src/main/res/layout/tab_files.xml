@@ -15,30 +15,38 @@
 
         <ImageView
             android:id="@+id/tab_files_back"
-            android:layout_width="@dimen/image_height_normal"
-            android:layout_height="@dimen/image_height_normal"
-            android:background="@drawable/arrowhead"/>
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/round_arrow_back_black_36"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/ripple_grey"
+            android:contentDescription="Back Folder"
+            android:layout_centerVertical="true"/>
 
         <TextView
             android:id="@+id/tab_files_title"
-            android:layout_width="280dip"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/margin_tiny_half"
-            android:layout_marginTop="@dimen/margin_tiny_half"
-            android:text="Path: AACloudDisk\\"
+            android:layout_width="280dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_tiny"
+            android:layout_marginEnd="@dimen/margin_tiny"
+            android:text="[Path]AACloudDisk\\"
             android:textSize="@dimen/text_size_normal"
-            android:maxLines="2"
-            android:layout_toEndOf="@+id/tab_files_back" />
+            android:maxLines="1"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/tab_files_back"
+            android:layout_toStartOf="@id/tab_files_uploadFile"/>
 
         <ImageView
             android:id="@+id/tab_files_uploadFile"
-            android:layout_width="@dimen/image_height_medium"
-            android:layout_height="@dimen/image_height_medium"
-            android:background="@drawable/cloud32"
-            android:layout_marginTop="@dimen/margin_tiny"
-            android:layout_marginRight="@dimen/margin_tiny"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/cloud32"
+            android:layout_marginEnd="@dimen/margin_tiny"
             android:layout_alignParentEnd="true"
-            android:contentDescription="upload file icon" />
+            android:background="@drawable/ripple_grey"
+            android:contentDescription="Upload File"
+            android:layout_centerVertical="true"/>
 
     </RelativeLayout>
 

@@ -38,8 +38,8 @@
         android:id="@+id/delete_logo"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/opened7"
-        android:tint="@android:color/holo_red_dark"
+        android:src="@drawable/round_delete_forever_black_36"
+        android:background="@drawable/ripple_grey"
         android:contentDescription="Delete"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/rename_logo"
@@ -51,32 +51,10 @@
         android:layout_height="24dp"
         android:src="@drawable/edit"
         android:tint="@color/gray_deepest"
+        android:background="@drawable/ripple_grey"
         android:contentDescription="Rename"
         android:layout_marginEnd="16dp"
-        android:layout_toStartOf="@id/inner_toggle"
-        android:layout_centerVertical="true"/>
-
-    <RelativeLayout
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:id="@+id/inner_toggle"
-        android:layout_marginEnd="16dp"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true" >
-        <ImageView
-            android:id="@+id/browser_logo"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/round_open_in_new_black_24"
-            android:tint="@color/gray_deepest"
-            android:contentDescription="Download" />
-        <ImageView
-            android:id="@+id/into_folder_logo"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/right66"
-            android:tint="@color/gray_deepest"
-            android:contentDescription="Into Folder" />
-    </RelativeLayout>
+        android:layout_centerVertical="true"/>
 
 </RelativeLayout>
