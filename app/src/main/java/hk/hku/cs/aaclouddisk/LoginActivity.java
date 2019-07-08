@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.View;
@@ -18,8 +19,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -265,6 +266,25 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         } catch (Exception e) {
                             showToast("Network error, plz contact maintenance.");
+                            long lastSuccessLogin = sharedPreferences.getLong("lastSuccessLogin", 0);
+                            String lastSuccessId = sharedPreferences.getString("lastSuccessId", "~!@#$%^&*()_+");
+                            String lastSuccessPassword = sharedPreferences.getString("lastSuccessPassword", "~!@#$%^&*()_+");
+                            if (lastSuccessId.equals(mEditTextId.getText().toString()) && lastSuccessPassword.equals(mEditTextPassword.getText().toString())) {
+                                long restHour = 24 - ((new Date().getTime() - lastSuccessLogin) / 1000 / 60 / 60);
+                                if (restHour >= 0) {
+                                    final AlertDialog.Builder normalDialog = new AlertDialog.Builder(LoginActivity.this);
+                                    normalDialog.setIcon(R.drawable.round_wifi_off_black_36);
+                                    normalDialog.setTitle("Network Error");
+                                    normalDialog.setMessage("Enter Offline Mode? (available in " + restHour + " hours)");
+                                    normalDialog.setPositiveButton("Enter", (dialog, which) -> {
+                                        loginAndForward();
+                                    });
+                                    normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                                        //do nothing
+                                    });
+                                    normalDialog.show();
+                                }
+                            }
                         }
 
                         //Set button back to clickable
@@ -353,10 +373,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginAndForward() {
+        //save its login timestamp
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("lastSuccessLogin", new Date().getTime());
+        editor.putString("lastSuccessId", mEditTextId.getText().toString());
+        editor.putString("lastSuccessPassword", mEditTextPassword.getText().toString());
+        editor.commit();
         //go to MainActivity
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivityForResult(intent, 0);
-//        finish();//close this page
     }
 
     private void showToast(final String msg) {

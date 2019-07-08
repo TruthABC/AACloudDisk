@@ -46,15 +46,16 @@
           5、添加离线模式，在线模式：按照ALLMusic返回列表，结合SQL标注缓存过的文件。离线模式：Scan主动缓存文件夹(读取本地SQL)。
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
 * 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed. File RootItem Onclick. New Icons.
-* 20190708 - "Backdrop Design -> Bottom Sheet" Finished. TODO: Music List -> Serializable -> isCached Icon -> List Item
+* 20190708 - "Backdrop Design -> Bottom Sheet" Finished. "MusicListService -> Serializable -> Gson". LoginActivity OfflineMode & Refactoring.
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
-* Backdrop design on music lists select.
+* Local json for Music List.
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
 * Music List Local, Online, inApp design
 * Offline Mode.
+* Improve Passive Cache Name Mapping or Hashing.
 * file multiple-select, file menu
 * (minor) status bar color change.
 * (minor) Loading layer.
@@ -86,6 +87,7 @@
 * Extra Dependency: 'com.google.code.gson:gson:2.8.2', 'com.danikula:videocache:2.7.1'
 
 ## 3. Message Handler
+* 0x11 - onLogin
 * 0x12 - onFileGet for MainActivity/FileFragment/
 * 0x13 - onAllMP3Get for MP3Fragment
 * 0x16 - onDeleteFile for FileInfoListAdaptor

@@ -39,7 +39,7 @@
         <!-- Music Player -->
         <activity android:name=".musicplayer.MusicPlayerActivity" />
         <service android:name=".musicplayer.MusicService" />
-        <service android:name=".musicplayer.MListService" />
+        <service android:name=".musicplayer.MusicListService" />
 
         <!-- Download & Upload management -->
         <activity android:name=".tasklist.TaskListActivity"/>

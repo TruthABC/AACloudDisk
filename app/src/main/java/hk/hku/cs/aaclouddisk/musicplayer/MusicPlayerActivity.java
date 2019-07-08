@@ -23,6 +23,7 @@ import java.util.List;
 
 import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.R;
+import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
 public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
@@ -67,6 +68,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
+    private MusicListService.MusicListServiceBinder mMusicListServiceBinder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mHandler = new Handler();
 
         initViews();
-        initServiceBinder();
+        initAllServiceBinder();
         initBottomSheet();
         initEvents();
         initSeekBarSynchronization();
@@ -121,9 +123,13 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         mHideBottomSheetButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_bottom_right_top_button_wrapper);
     }
 
-    private void initServiceBinder() {
+    private void initAllServiceBinder() {
+        //bind MusicService
         Intent bindIntent = new Intent(this, MusicService.class);
         bindService(bindIntent, this, BIND_AUTO_CREATE);
+        //then bind MusicListService
+        Intent bindIntent2 = new Intent(this, MusicListService.class);
+        bindService(bindIntent2, this, BIND_AUTO_CREATE);
     }
 
     private void initBottomSheet() {
@@ -228,42 +234,49 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     //for initializing mMusicServiceBinder and UI
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+        if (service instanceof MusicService.MusicServiceBinder) { // MusicService Ready
+            mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
 
-        //Title
-        int index = mMusicServiceBinder.getNowResourceIndex();
-        List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
-        if (index >= 0 && index < resourceList.size()) {
-            mTitle.setText(resourceList.get(index).getName());
-        }
+            //Title
+            int index = mMusicServiceBinder.getNowResourceIndex();
+            List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
+            if (index >= 0 && index < resourceList.size()) {
+                mTitle.setText(resourceList.get(index).getName());
+            }
 
-        //Body (Music List as Body)
-        mPlayerBodyListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
-        mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
-        mPlayerBodyListAdaptor.notifyDataSetChanged();
-        mPlayerBodyListView.smoothScrollToPosition(index);
-        refreshMusicListHighlight();
-
-        //Progress Bar & call back
-        refreshMusicProgressMaxSecond();
-        refreshMusicBufferPercent();
-        mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-            mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
-            mPlayImageView.setVisibility(View.INVISIBLE);
-            mPauseImageView.setVisibility(View.VISIBLE);
-            mPlayPauseButtonWrapper.setClickable(true);
+            //Body (Music List as Body)
+            mPlayerBodyListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
+            mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
+            mPlayerBodyListAdaptor.notifyDataSetChanged();
+            mPlayerBodyListView.smoothScrollToPosition(index);
             refreshMusicListHighlight();
+
+            //Progress Bar & call back
             refreshMusicProgressMaxSecond();
             refreshMusicBufferPercent();
-        });
-        mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
-            runOnUiThread(() -> {
-                mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
+            mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
+                mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
+                mPlayImageView.setVisibility(View.INVISIBLE);
+                mPauseImageView.setVisibility(View.VISIBLE);
+                mPlayPauseButtonWrapper.setClickable(true);
+                refreshMusicListHighlight();
+                refreshMusicProgressMaxSecond();
+                refreshMusicBufferPercent();
             });
-        });
+            mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
+                runOnUiThread(() -> {
+                    mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
+                });
+            });
 
-        //Control Bar
-        refreshControlBar();
+            //Control Bar
+            refreshControlBar();
+        } else if (service instanceof MusicListService.MusicListServiceBinder) { // ListService Ready
+            mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
+            TextView tv = (TextView)findViewById(R.id.bottom_text);
+            MusicList musicList = mMusicListServiceBinder.getMusicLists().get(0);
+            tv.setText(musicList.getUserId() + "'s [" + musicList.getListName() + "] Music List (" + musicList.getResourceList().get(0).getName() + ")");
+        }
     }
 
     @Override

@@ -5,6 +5,10 @@ import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Scanner;
 
 import static android.os.Environment.MEDIA_MOUNTED;
 
@@ -43,6 +47,58 @@ public class GlobalTool {
         } else {
             dir.delete();
         }
+    }
+
+    public static Scanner getFileScanner(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return null;
+        }
+
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return scanner;
+    }
+
+    public static PrintStream getFilePrintStream(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            GlobalTool.deleteDir(file);
+        }
+
+        boolean initIOSucc;
+        PrintStream output = null;
+        try {
+            initIOSucc = file.createNewFile();
+            output = new PrintStream(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            initIOSucc =false;
+        }
+
+        if (!initIOSucc) {
+            return null;
+        }
+
+        return output;
+    }
+
+    /**
+     * Return a child dir in cache folder, prefer not SD Card
+     *
+     * @param context Application context
+     * @param childDirName A Child dir (dirName)
+     * @return Child cache file directory
+     */
+    public static File getChildCacheDirectory(Context context, String childDirName) {
+        File cacheDir = getCacheDirectory(context, false);
+        return new File(cacheDir, childDirName);
     }
 
     /**

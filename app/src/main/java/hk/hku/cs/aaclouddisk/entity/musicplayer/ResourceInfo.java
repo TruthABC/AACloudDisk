@@ -6,12 +6,14 @@ public class ResourceInfo {
     private String onlineUrl;
     private boolean isOffline;
     private String offlineUrl;
+    private boolean isLost;
 
     public ResourceInfo(String name, String onlineUrl, boolean isOffline, String offlineUrl) {
         this.name = name;
         this.onlineUrl = onlineUrl;
         this.isOffline = isOffline;
         this.offlineUrl = offlineUrl;
+        this.isLost = false;
     }
 
     public String getName() {
@@ -30,11 +32,11 @@ public class ResourceInfo {
         this.onlineUrl = onlineUrl;
     }
 
-    public boolean isOffline() {
+    public boolean getIsOffline() {
         return isOffline;
     }
 
-    public void setOffline(boolean offline) {
+    public void setIsOffline(boolean offline) {
         isOffline = offline;
     }
 
@@ -44,5 +46,13 @@ public class ResourceInfo {
 
     public void setOfflineUrl(String offlineUrl) {
         this.offlineUrl = offlineUrl;
+    }
+
+    public boolean getIsLost() {
+        return isLost;
+    }
+
+    public void setIsLost(boolean lost) {
+        isLost = lost;
     }
 }
