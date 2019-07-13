@@ -1,4 +1,4 @@
-package hk.hku.cs.aaclouddisk.musicplayer;
+package hk.hku.cs.aaclouddisk.main.tab.mp3;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,34 +11,20 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
-import java.util.List;
-
+import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
-public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
+public class MP3BottomListAdaptor extends ArrayAdapter<MusicList> {
 
     private int mItemResourceId;
-    private MusicPlayerActivity mActivity;
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
-    private MusicListService.MusicListServiceBinder mListServiceBinder;
+    private MainActivity mActivity;
 
-    public MusicPlayerBottomListAdaptor(Context context, int itemResourceId, MusicPlayerActivity activity) {
+    public MP3BottomListAdaptor(Context context, int itemResourceId, MainActivity activity) {
         super(context,  itemResourceId);
         mItemResourceId = itemResourceId;
         mActivity = activity;
-        mMusicServiceBinder = null;
-        mListServiceBinder = null;
-    }
-
-    public void setMusicServiceBinder(MusicService.MusicServiceBinder musicServiceBinder) {
-        mMusicServiceBinder = musicServiceBinder;
-    }
-
-    public void setMusicListServiceBinder(MusicListService.MusicListServiceBinder listServiceBinder) {
-        mListServiceBinder = listServiceBinder;
     }
 
     @NonNull
@@ -72,8 +58,8 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
             renameListLogo.setOnClickListener(null);
 
         } else {
-            deleteListLogo.setVisibility(View.VISIBLE);
-            renameListLogo.setVisibility(View.VISIBLE);
+            deleteListLogo.setVisibility(View.INVISIBLE);
+            renameListLogo.setVisibility(View.INVISIBLE);
             deleteListLogo.setOnClickListener((v) -> {
                 deleteConfirm(position);
             });
@@ -82,19 +68,18 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
             });
         }
 
-        //set set ResourceList event when rootItem is clicked
+        //set open event when open_logo is clicked
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
-            List<ResourceInfo> resourceList = mListServiceBinder.getMusicLists().get(position).getResourceList();
-            if (resourceList != null && resourceList.size() > 0) {
-                mActivity.mMusicListIndex = position;
-                mActivity.mPlayerBodyListAdaptor.clear();
-                mActivity.mPlayerBodyListAdaptor.addAll(resourceList);
-                mActivity.mPlayerBodyListAdaptor.notifyDataSetChanged();
-                mMusicServiceBinder.setResourceList(resourceList);
-                mMusicServiceBinder.play();
+            if (mActivity.clickedMusicIndex != -1) {
+                ResourceInfo resourceInfo = mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList().get(mActivity.clickedMusicIndex);
+                mActivity.mMusicListServiceBinder.addMusicToList(resourceInfo, position);
+                mActivity.mMusicListServiceBinder.saveMusicLists();
+                mActivity.showShortToast("Music Added to List");
+                notifyDataSetChanged();
+                mActivity.mTabPagerAdapter.getMP3Fragment().hideBottom();
             } else {
-                mActivity.showShortToast("Cannot Play Empty List");
+                mActivity.showShortToast("Failed Add to List");
             }
         });
         return convertView;
@@ -106,10 +91,10 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         normalDialog.setTitle("Confirm Delete");
         normalDialog.setMessage("The deletion cannot recover.");
         normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
-            if (mListServiceBinder != null) {
+            if (mActivity.mMusicListServiceBinder != null) {
                 this.remove(this.getItem(position));
-                mListServiceBinder.removeMusicList(position);
-                mListServiceBinder.saveMusicLists();
+                mActivity.mMusicListServiceBinder.removeMusicList(position);
+                mActivity.mMusicListServiceBinder.saveMusicLists();
             } else {
                 mActivity.showShortToast("Delete Failed.");
             }
@@ -127,12 +112,12 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
                 new AlertDialog.Builder(mActivity);
         inputDialog.setTitle("Input New Name").setView(editText);
         inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
-            if (mListServiceBinder != null) {
+            if (mActivity.mMusicListServiceBinder != null) {
                 String newName = editText.getText().toString();
                 this.getItem(position).setListName(newName);
                 this.notifyDataSetChanged();
-                mListServiceBinder.getMusicLists().get(position).setListName(newName);
-                mListServiceBinder.saveMusicLists();
+                mActivity.mMusicListServiceBinder.getMusicLists().get(position).setListName(newName);
+                mActivity.mMusicListServiceBinder.saveMusicLists();
             } else {
                 mActivity.showShortToast("Rename Failed.");
             }
@@ -142,4 +127,5 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         });
         inputDialog.show();
     }
+
 }

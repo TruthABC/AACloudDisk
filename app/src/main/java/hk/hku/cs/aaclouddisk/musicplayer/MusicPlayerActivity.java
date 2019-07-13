@@ -45,7 +45,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private TextView mTitle;
 
     private ListView mPlayerBodyListView;
-    private MusicPlayerBodyListAdaptor mPlayerBodyListAdaptor;
+    public MusicPlayerBodyListAdaptor mPlayerBodyListAdaptor;
+    public int mMusicListIndex;//TODO: make it in musicService
 
     private TextView mMusicTimeText;
     private SeekBar mMusicSeekBar;
@@ -75,8 +76,8 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private MusicPlayerBottomListAdaptor mPlayerBottomListAdaptor;
 
     //Playing Music
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
-    private MusicListService.MusicListServiceBinder mMusicListServiceBinder;
+    public MusicService.MusicServiceBinder mMusicServiceBinder;
+    public MusicListService.MusicListServiceBinder mMusicListServiceBinder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -283,7 +284,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             }
 
             //Body (Music List as Body)
-            mPlayerBodyListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
+            mMusicListIndex = 0;
             mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
             mPlayerBodyListAdaptor.notifyDataSetChanged();
             mPlayerBodyListView.smoothScrollToPosition(index);

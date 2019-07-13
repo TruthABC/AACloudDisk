@@ -41,13 +41,16 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         //set event when add_to_list is clicked
         ImageView addToListLogo = convertView.findViewById(R.id.add_to_list_logo);
         addToListLogo.setOnClickListener((v1) -> {
-            mActivity.showShortToast("[TODO] Bottom Sheet");
+            mActivity.clickedMusicIndex = position;
+            mActivity.mTabPagerAdapter.getMP3Fragment().showBottom();
         });
 
-        //set open event when open_logo is clicked
+        //set event when root is clicked
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
             mActivity.showShortToast("[" + fileInfo.getName() + "]");
+            //set default Online-All List and Play
+            mActivity.mMusicServiceBinder.setResourceList(mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList());
             mActivity.mMusicServiceBinder.jumpTo(position);
         });
         return convertView;

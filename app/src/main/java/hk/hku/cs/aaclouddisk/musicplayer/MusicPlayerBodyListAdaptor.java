@@ -1,8 +1,8 @@
 package hk.hku.cs.aaclouddisk.musicplayer;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -17,13 +17,11 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
 
     private int mItemResourceId;
     private MusicPlayerActivity mActivity;
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
 
     public MusicPlayerBodyListAdaptor(Context context, int itemResourceId, MusicPlayerActivity activity) {
         super(context,  itemResourceId);
         mItemResourceId = itemResourceId;
         mActivity = activity;
-        mMusicServiceBinder = null;
     }
 
     @NonNull
@@ -48,7 +46,7 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         //set resource name
         TextView textView = convertView.findViewById(R.id.resource_name);
         ImageView frontImage = convertView.findViewById(R.id.front_image);
-        if (mMusicServiceBinder.getNowResourceIndex() == position) {
+        if (mActivity.mMusicServiceBinder.getNowResourceIndex() == position) {
             textView.setTextColor(mActivity.getResources().getColor(R.color.primary_light));
             frontImage.setVisibility(View.VISIBLE);
         } else {
@@ -56,23 +54,59 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
             frontImage.setVisibility(View.GONE);
         }
 
-        //set open event when open_logo is clicked
+        //set event when root is clicked
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
             mActivity.showShortToast("[" + name + "]");
-            mMusicServiceBinder.jumpTo(position);
+            mActivity.mMusicServiceBinder.jumpTo(position);
         });
 
-        //set event when close is clicked
-        ImageView closeIcon = convertView.findViewById(R.id.back_image);
-        //TODO: if (isOnlineMusicList) cannot delete
-        closeIcon.setOnClickListener((v) -> {
-            mActivity.showShortToast("[TODO]");
+        //set event when remove is clicked
+        ImageView removeIcon = convertView.findViewById(R.id.back_image);
+        //if (isOnlineMusicList) cannot delete
+        removeIcon.setOnClickListener((v) -> {
+            if (mActivity.mMusicServiceBinder.getResourceList().size() <= 1) {
+                mActivity.showShortToast("Cannot remove last song.");
+            } else {
+                showRemoveMusicFromListConfirm(position, mActivity.mMusicListIndex);
+            }
         });
+
         return convertView;
     }
 
-    public void setMusicServiceBinder(MusicService.MusicServiceBinder musicServiceBinder) {
-        mMusicServiceBinder = musicServiceBinder;
+    private void showRemoveMusicFromListConfirm(int musicIndex, int listIndex) {
+        final AlertDialog.Builder normalDialog = new AlertDialog.Builder(mActivity);
+        normalDialog.setIcon(R.drawable.round_delete_forever_black_36);
+        normalDialog.setTitle("Remove Music");
+        normalDialog.setMessage("Removed from list, file will not be deleted.");
+        normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
+            doRemoveMusicFromList(musicIndex, listIndex);
+        });
+        normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            //do nothing
+        });
+        normalDialog.show();
+    }
+
+    private void doRemoveMusicFromList(int musicIndex, int listIndex) {
+        //clear history played
+        mActivity.mMusicServiceBinder.clearHistory();
+        int playingIndex =  mActivity.mMusicServiceBinder.getNowResourceIndex();
+
+        //Remove
+        mActivity.mMusicServiceBinder.getResourceList().remove(musicIndex);
+        mActivity.mMusicListServiceBinder.getMusicLists().get(listIndex).getResourceList().remove(musicIndex);
+        mActivity.mMusicListServiceBinder.saveMusicLists();
+        if (playingIndex == musicIndex) {
+            if (playingIndex > 0) {
+                playingIndex--;
+            } else {
+                playingIndex = 0;
+            }
+            mActivity.mMusicServiceBinder.jumpTo(playingIndex);
+        } else {
+            //do nothing
+        }
     }
 }

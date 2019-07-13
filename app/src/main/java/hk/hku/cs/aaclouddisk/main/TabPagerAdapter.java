@@ -18,6 +18,10 @@ public class TabPagerAdapter extends FragmentPagerAdapter {
         fragments = new Fragment[TITLES.length];
     }
 
+    public MP3Fragment getMP3Fragment() {
+        return (MP3Fragment)fragments[0];
+    }
+
     @Override
     public int getCount() {
         return TITLES.length;

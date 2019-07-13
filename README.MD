@@ -51,10 +51,17 @@
 * 20190710 - Weekly report 4, project report writing workshop.
 * 20190711 - Project presentation workshop.
 * 20190712 - Project presentation workshop.
-* 20190713 - Bottom Sheet completed (list add/remove/rename). Refactoring (Main, Files, Music, MusicPlayer, icons).
+* 20190713 - Player Bottom Sheet completed (list add/remove/rename). Refactoring (Main, Files, Music, MusicPlayer, icons).
+* 20190713 - Music Tab Bottom Sheet completed (list add). Following MusicPlayer MainActivityMusicTab adapted to new feature.
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
+* bug when delete a music in list
+* customized cache limit.
+* delete All-Online in  "Add Music to List"
+* show add which music
+* remove icon visibility
+* music not there exception.
 * import in FilesFragment redundant.
 * worry: if no any music (a new account), will it be problems with music list (all music online)
 * crash (progress not follow) when enter offline, then back, many clicks among folders, go player.
@@ -66,6 +73,7 @@
 * Offline Mode.
 * Improve Passive Cache Name Mapping or Hashing.
 * file multiple-select, file menu
+* (minor) change UI when no files or get files failed.
 * (minor) App bar height uniform.
 * (minor) status bar color change.
 * (minor) Loading layer.
@@ -74,7 +82,6 @@
 * (minor) Music Tab over-scroll refresh on music list.
 * (minor) to Fix: MultiActivity Launched when click fast.
 * handler activity leak fix.
-* music not there exception.
 * (minor) a UI needed when background play screen locked
 * (minor) a easy float button for user to stop music.
 * (minor) do not show full path, only last layer enough.

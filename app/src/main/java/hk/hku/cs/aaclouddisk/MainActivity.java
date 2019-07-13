@@ -37,6 +37,7 @@ import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
+import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3BottomListAdaptor;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 import hk.hku.cs.aaclouddisk.musicplayer.MusicListService;
 import hk.hku.cs.aaclouddisk.musicplayer.MusicPlayerActivity;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private RelativeLayout mRightTopButton;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
+    public TabPagerAdapter mTabPagerAdapter;
 
     //Http Response handler
     private MainActivityHandler mMainActivityHandler = new MainActivityHandler(this);
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public MusicService.MusicServiceBinder mMusicServiceBinder;
     public List<ResourceInfo> mTempResourceList = null;
     public MusicListService.MusicListServiceBinder mMusicListServiceBinder;
+
+    //Add music to music list
+    public int clickedMusicIndex;
+
     //for initializing mMusicServiceBinder;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -105,6 +111,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     mMusicListServiceBinder.updateOnlineList(mTempResourceList);
                     mMusicListServiceBinder.saveMusicLists();
                 }
+            }
+            //Init Bottom Sheet
+            ListView bottomList = (ListView) findViewById(R.id.music_tab_bottom_list_view);
+            if (bottomList != null) {
+                Log.i(TAG, "mBottomListAdaptor init");
+                MP3BottomListAdaptor bottomListAdaptor = (MP3BottomListAdaptor) bottomList.getAdapter();
+                bottomListAdaptor.clear();
+                bottomListAdaptor.addAll(mMusicListServiceBinder.getMusicLists());
+                bottomListAdaptor.notifyDataSetChanged();
             }
         }
     }
@@ -161,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         });
         // When requested, this adapter returns a specified Fragment(all in package "main.tab"),
         // ViewPager and its adapters use support library fragments, so use getSupportFragmentManager.
-        TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
-        mViewPager.setAdapter(tabPagerAdapter);
+        mTabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mTabPagerAdapter);
 
         mTabLayout.setupWithViewPager(mViewPager);
         mTabLayout.getTabAt(0).setIcon(R.drawable.music81);
@@ -296,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * called by MP3FragmentCreated
+     * only called by MP3FragmentCreated
      */
     public void getMP3InfoListAndResetAdaptor() {
         //Use another thread to do server authentication

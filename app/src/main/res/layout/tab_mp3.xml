@@ -1,42 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<!-- [VBox] Music Fragment Root -->
+<android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/music_tab_root_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
+    <!-- [VBox] REAL BODY: This the interface sitting behind the backdrop and shown when it is collapsed-->
     <RelativeLayout
-        android:id="@+id/mp3_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_normal"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="invisible">
-
-    </RelativeLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dip"
-        android:background="@color/divider"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/no_mp3_hint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="No MP3 Files"
-        android:visibility="gone"/>
+        android:layout_marginTop="@dimen/margin_normal"
+        android:layout_marginBottom="@dimen/margin_large">
+        <!-- [HBox] Full-window TextView -->
+        <TextView
+            android:id="@+id/no_mp3_hint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No MP3 Files"
+            android:visibility="gone"/>
+        <!-- [VBox] All music listed here -->
+        <ListView
+            android:id="@+id/list_view_mp3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_tiny"
+            android:layout_marginRight="@dimen/margin_tiny"
+            android:clickable="false" />
+    </RelativeLayout>
 
-    <ListView
-        android:id="@+id/list_view_mp3"
+    <!-- [VBox] HIDDEN BODY: This is the backdrop's content with a BottomSheetBehaviour applied to it-->
+    <RelativeLayout
+        android:id="@+id/music_tab_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/margin_tiny"
-        android:layout_marginRight="@dimen/margin_tiny"
-        android:layout_marginBottom="@dimen/margin_large"
-        android:clickable="false" />
-
-</LinearLayout>
+        android:paddingTop="@dimen/margin_normal"
+        android:paddingBottom="@dimen/margin_large"
+        app:behavior_peekHeight="1000dp"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+        tools:ignore="MissingPrefix">
+        <!-- [BIG-VBox] Bottom Root Hidden at first (except peek height) -->
+        <!-- [VBox] Bottom Sheet Music List Root -->
+        <RelativeLayout
+            android:id="@+id/music_tab_bottom_root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true">
+            <!-- [HBox] Bottom Sheet Header Top Bar -->
+            <RelativeLayout
+                android:id="@+id/music_tab_bottom_topBar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/music_player_topbar_height"
+                android:paddingStart="@dimen/music_player_side_margin"
+                android:paddingEnd="@dimen/music_player_side_margin"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/bottom_sheet_header_background"
+                android:elevation="4dp">
+                <!-- [Item] Bottom's Left Top Button Wrapper -->
+                <RelativeLayout
+                    android:id="@+id/music_tab_bottom_left_top_button_wrapper"
+                    android:layout_width="@dimen/music_player_topbar_button_wrapper"
+                    android:layout_height="@dimen/music_player_topbar_button_wrapper"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/ripple_white"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerInParent="true"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="@dimen/music_player_topbar_button_image"
+                        android:layout_height="@dimen/music_player_topbar_button_image"
+                        android:src="@drawable/round_playlist_add_black_36"
+                        android:tint="@color/white"/>
+                </RelativeLayout>
+                <!-- [Item] Bottom Title -->
+                <TextView
+                    android:id="@+id/music_tab_bottom_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/music_player_topbar_title_margin"
+                    android:layout_marginEnd="@dimen/music_player_topbar_title_margin"
+                    android:singleLine="true"
+                    android:textSize="18sp"
+                    android:textColor="@color/icons"
+                    android:layout_centerInParent="true"
+                    android:text="Add to Music List"/>
+                <!-- [Item] Bottom's Right Top Button Wrapper -->
+                <RelativeLayout
+                    android:id="@+id/music_tab_bottom_right_top_button_wrapper"
+                    android:layout_width="@dimen/music_player_topbar_button_wrapper"
+                    android:layout_height="@dimen/music_player_topbar_button_wrapper"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/ripple_white"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerInParent="true"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="@dimen/music_player_topbar_button_image"
+                        android:layout_height="@dimen/music_player_topbar_button_image"
+                        android:src="@drawable/round_close_black_36"
+                        android:tint="@color/white"/>
+                </RelativeLayout>
+            </RelativeLayout>
+            <!-- [VBox] Bottom Sheet Body: Music List  -->
+            <RelativeLayout
+                android:id="@+id/music_tab_bottom_body"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_below="@id/music_tab_bottom_topBar">
+                <ListView
+                    android:id="@+id/music_tab_bottom_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/margin_tiny"
+                    android:layout_marginRight="@dimen/margin_tiny" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

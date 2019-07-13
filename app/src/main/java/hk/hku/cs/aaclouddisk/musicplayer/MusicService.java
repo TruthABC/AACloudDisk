@@ -152,6 +152,11 @@ public class MusicService extends Service {
             return mLastResourceIndex;
         }
 
+        public void clearHistory() {
+            mHistoryResourceIndex.clear();
+            mLastResourceIndex = -1;
+        }
+
         public List<ResourceInfo> getResourceList() {
             Log.d("TAG", "getResourceList() executed");
             return mResourceList;
