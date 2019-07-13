@@ -31,22 +31,21 @@
         android:maxLines="1"
         android:textSize="14sp"
         android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="40dp"
         android:layout_toEndOf="@id/front_image"
-        android:layout_toStartOf="@id/back_image"
         android:layout_centerVertical="true"/>
 
     <ImageView
         android:id="@+id/back_image"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/round_audiotrack_black_24"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:padding="6dp"
+        android:src="@drawable/round_close_black_24"
+        android:background="@drawable/ripple_grey"
         android:tint="@color/white_c"
-        android:contentDescription="MP3"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
+        android:contentDescription="delete it from list"
+        android:layout_marginEnd="4dp"
         android:layout_alignParentEnd="true"
-        android:visibility="gone"/>
+        android:layout_centerVertical="true"/>
 
 </RelativeLayout>

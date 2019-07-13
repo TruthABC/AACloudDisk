@@ -1,6 +1,7 @@
 package hk.hku.cs.aaclouddisk.musicplayer;
 
 import android.content.Context;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,13 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         rootItem.setOnClickListener((v1) -> {
             mActivity.showShortToast("[" + name + "]");
             mMusicServiceBinder.jumpTo(position);
+        });
+
+        //set event when close is clicked
+        ImageView closeIcon = convertView.findViewById(R.id.back_image);
+        //TODO: if (isOnlineMusicList) cannot delete
+        closeIcon.setOnClickListener((v) -> {
+            mActivity.showShortToast("[TODO]");
         });
         return convertView;
     }

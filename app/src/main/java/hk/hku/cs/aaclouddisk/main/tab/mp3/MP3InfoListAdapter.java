@@ -38,10 +38,10 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
         TextView fileName = convertView.findViewById (R.id.file_name);
         fileName.setText(fileInfo.getName());
 
-        //set download event when download_logo is clicked
-        ImageView browserLogo = convertView.findViewById(R.id.browser_logo);
-        browserLogo.setOnClickListener((v1) -> {
-            mActivity.downloadInBrowser(getRealUrl(fileInfo));
+        //set event when add_to_list is clicked
+        ImageView addToListLogo = convertView.findViewById(R.id.add_to_list_logo);
+        addToListLogo.setOnClickListener((v1) -> {
+            mActivity.showShortToast("[TODO] Bottom Sheet");
         });
 
         //set open event when open_logo is clicked
@@ -54,6 +54,7 @@ public class MP3InfoListAdapter extends ArrayAdapter<FileInfo> {
     }
 
     /**
+     * TODO: make it a global or activity tool
      * Get real http url by given FileInfo
      * @param fileInfo File Relative Path & Name
      * @return the Real Url of the file

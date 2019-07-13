@@ -8,10 +8,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -23,7 +26,6 @@ import java.util.List;
 
 import hk.hku.cs.aaclouddisk.GlobalTool;
 import hk.hku.cs.aaclouddisk.R;
-import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
 public class MusicPlayerActivity extends AppCompatActivity implements ServiceConnection {
@@ -62,9 +64,15 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     private ImageView mPauseImageView;
 
     //Views - Bottom Sheet
+    private boolean shownBottom = false;
     private RelativeLayout mBottomSheet;
     private BottomSheetBehavior<RelativeLayout> mBottomSheetBehavior;
     private RelativeLayout mHideBottomSheetButtonWrapper;
+    private RelativeLayout mCreateMusiListButtonWrapper;
+
+    //Views - Bottom Sheet Lists
+    private ListView mBottomListView;
+    private MusicPlayerBottomListAdaptor mPlayerBottomListAdaptor;
 
     //Playing Music
     private MusicService.MusicServiceBinder mMusicServiceBinder;
@@ -121,6 +129,12 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
         //Bottom Sheet Header (topBar, not "Peek Height" part)
         mHideBottomSheetButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_bottom_right_top_button_wrapper);
+        mCreateMusiListButtonWrapper = (RelativeLayout) findViewById(R.id.music_player_bottom_left_top_button_wrapper);
+
+        //Music List lists
+        mPlayerBottomListAdaptor = new MusicPlayerBottomListAdaptor(this, R.layout.activity_music_player_bottom_item, this);
+        mBottomListView = (ListView) findViewById(R.id.music_player_bottom_list_view);
+        mBottomListView.setAdapter(mPlayerBottomListAdaptor);
     }
 
     private void initAllServiceBinder() {
@@ -134,9 +148,25 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
     private void initBottomSheet() {
         mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    if (shownBottom) {
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    } else {
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    }
+                }
+            }
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            }
+        });
         mBottomSheetBehavior.setFitToContents(false);
         mBottomSheetBehavior.setHideable(false);//prevents the bottom sheet from completely hiding off the screen
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);//initially state
+        shownBottom = false;
     }
 
     private void initEvents() {
@@ -181,15 +211,23 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             }
 
         });
+
+        //Bottom Sheet Events
         mMusicListButtonWrapper.setOnClickListener((v) -> {
             if(mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                shownBottom = false;
             } else {
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                shownBottom = true;
             }
         });
         mHideBottomSheetButtonWrapper.setOnClickListener((v) -> {
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            shownBottom = false;
+        });
+        mCreateMusiListButtonWrapper.setOnClickListener((v) -> {
+            showInputNewListName();
         });
     }
 
@@ -271,11 +309,14 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
             //Control Bar
             refreshControlBar();
+
+            //Bottom List
+            mPlayerBottomListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
         } else if (service instanceof MusicListService.MusicListServiceBinder) { // ListService Ready
             mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
-            TextView tv = (TextView)findViewById(R.id.bottom_text);
-            MusicList musicList = mMusicListServiceBinder.getMusicLists().get(0);
-            tv.setText(musicList.getUserId() + "'s [" + musicList.getListName() + "] Music List (" + musicList.getResourceList().get(0).getName() + ")");
+            mPlayerBottomListAdaptor.setMusicListServiceBinder(mMusicListServiceBinder);
+            mPlayerBottomListAdaptor.addAll(mMusicListServiceBinder.getMusicLists());
+            mPlayerBottomListAdaptor.notifyDataSetChanged();
         }
     }
 
@@ -355,6 +396,24 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
             mPlayImageView.setVisibility(View.VISIBLE);
             mPauseImageView.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void showInputNewListName() {
+        final EditText editText = new EditText(MusicPlayerActivity.this);
+
+        AlertDialog.Builder inputDialog =
+                new AlertDialog.Builder(MusicPlayerActivity.this);
+        inputDialog.setTitle("Input List Name").setView(editText);
+        inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
+            mMusicListServiceBinder.createMusicList(editText.getText().toString());
+            mPlayerBottomListAdaptor.add(mMusicListServiceBinder.getLastMusicList());
+            mPlayerBottomListAdaptor.notifyDataSetChanged();
+            mMusicListServiceBinder.saveMusicLists();
+        });
+        inputDialog.setNegativeButton("Cancel", (dialog, which) -> {
+            //do nothing
+        });
+        inputDialog.show();
     }
 
     public void showShortToast(final String msg) {

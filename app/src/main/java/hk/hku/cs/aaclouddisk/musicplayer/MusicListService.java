@@ -114,6 +114,14 @@ public class MusicListService extends Service {
             return mMusicLists;
         }
 
+        public MusicList getLastMusicList() {
+            return mMusicLists.get(mMusicLists.size() - 1);
+        }
+
+        public void removeMusicList(int position) {
+            mMusicLists.remove(position);
+        }
+
         public void saveMusicLists() {
             Log.i(TAG, "saveMusicLists to " + mMusicListsFile.getAbsolutePath());
             Thread thread = new Thread(()->{
@@ -133,8 +141,8 @@ public class MusicListService extends Service {
             thread.start();
         }
 
-        public void initMusicLists(List<ResourceInfo> mainActivityTempResourceList) {
-            Log.i(TAG, "initMusicLists");
+        public void initOnlineList(List<ResourceInfo> mainActivityTempResourceList) {
+            Log.i(TAG, "initOnlineList");
             if (userId == null) {
                 userId = "";
             }
@@ -151,5 +159,15 @@ public class MusicListService extends Service {
             MusicList musicList = new MusicList(userId, "Online-All", false, new Date().getTime(), mainActivityTempResourceList, false);
             mMusicLists.set(0, musicList);
         }
+
+        public void createMusicList(String listName) {
+            Log.i(TAG, "createMusicList");
+            if (userId == null) {
+                userId = "";
+            }
+            MusicList musicList = new MusicList(userId, listName, true, new Date().getTime(), new ArrayList<>(), false);
+            mMusicLists.add(musicList);
+        }
+
     }
 }

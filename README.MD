@@ -47,16 +47,26 @@
 * 20190706 - Clear Cache Available. Revise MP3 Item Icon, OnclickEvent. Revise Tab Stricture. Enhance UI Thread Efficiency (more specific threads).
 * 20190707 - File Fragment Ripple effect. JumpTo Same Music Logic Bug fixed. File RootItem Onclick. New Icons.
 * 20190708 - "Backdrop Design -> Bottom Sheet" Finished. "MusicListService -> Serializable -> Gson". LoginActivity OfflineMode & Refactoring.
+* 20190709 - Project presentation workshop.
+* 20190710 - Weekly report 4, project report writing workshop.
+* 20190711 - Project presentation workshop.
+* 20190712 - Project presentation workshop.
+* 20190713 - Bottom Sheet completed (list add/remove/rename). Refactoring (Main, Files, Music, MusicPlayer, icons).
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
-* Local json for Music List.
+* import in FilesFragment redundant.
+* worry: if no any music (a new account), will it be problems with music list (all music online)
+* crash (progress not follow) when enter offline, then back, many clicks among folders, go player.
+* 1 2 3 4 and new bottom sheet
+* MainActivity::initAllService rename, LoginActivity Refactor(handler, id password field), MainActivity Async part Refactor With Flag
 * User make, change, delete other lists.
 * Add music to list, remove music from list.
 * Music List Local, Online, inApp design
 * Offline Mode.
 * Improve Passive Cache Name Mapping or Hashing.
 * file multiple-select, file menu
+* (minor) App bar height uniform.
 * (minor) status bar color change.
 * (minor) Loading layer.
 * (minor) can reset "all music" scan/ignore range and expanded name.

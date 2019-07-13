@@ -25,4 +25,5 @@
     <color name="gray_deep">#808080</color>
     <color name="gray_deeper">#606060</color>
     <color name="gray_deepest">#404040</color>
+    <color name="gray_deeper_than_deepest">#383838</color>
 </resources>

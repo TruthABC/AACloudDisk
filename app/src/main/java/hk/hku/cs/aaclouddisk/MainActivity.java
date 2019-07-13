@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 Log.i(TAG, "MusicListService Ready, but after ResourceListReady.");
                 List<MusicList> musicLists = mMusicListServiceBinder.getMusicLists();
                 if (musicLists.size() == 0) {
-                    mMusicListServiceBinder.initMusicLists(mTempResourceList);
+                    mMusicListServiceBinder.initOnlineList(mTempResourceList);
                     mMusicListServiceBinder.saveMusicLists();
                 } else {
                     mMusicListServiceBinder.updateOnlineList(mTempResourceList);
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     private void initFinal() {
-        mTitle.setText(TabPagerAdapter.TITLES[0]);
+        mTitle.setText("AA Cloud " + TabPagerAdapter.TITLES[0]);
         mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in next version :)
     }
 
@@ -488,7 +488,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                                 Log.i(TAG, "MusicListService Ready. Apply online resource List.");
                                 List<MusicList> musicLists = activity.mMusicListServiceBinder.getMusicLists();
                                 if (musicLists.size() == 0) {
-                                    activity.mMusicListServiceBinder.initMusicLists(activity.mTempResourceList);
+                                    activity.mMusicListServiceBinder.initOnlineList(activity.mTempResourceList);
                                     activity.mMusicListServiceBinder.saveMusicLists();
                                 } else {
                                     activity.mMusicListServiceBinder.updateOnlineList(activity.mTempResourceList);
