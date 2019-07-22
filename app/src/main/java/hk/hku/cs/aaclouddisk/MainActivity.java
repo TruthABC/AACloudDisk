@@ -46,7 +46,6 @@ import hk.hku.cs.aaclouddisk.musicplayer.MusicService;
 import hk.hku.cs.aaclouddisk.tasklist.TaskListActivity;
 
 public class MainActivity extends AppCompatActivity implements ServiceConnection {
-
     //Tag
     public static final String TAG = "MainActivity";
     public static final String DEBUG_TAG = "shijian";
@@ -65,22 +64,19 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private ViewPager mViewPager;
     public TabPagerAdapter mTabPagerAdapter;
 
-    //Http Response handler
-    private MainActivityHandler mMainActivityHandler = new MainActivityHandler(this);
-    //Message::what
-    private static final int FILE_INFO_LIST_RESP = 0x12;
-    private static final int MP3_INFO_LIST_RESP = 0x13;
-    private static final int DELETE_FILE_RESP = 0x16;
-    private static final int RENAME_FILE_RESP = 0x17;
-    private static final int CREATE_FOLDER_RESP = 0x18;
-
     //Playing Music & Music List
     public MusicService.MusicServiceBinder mMusicServiceBinder;
-    public List<ResourceInfo> mTempResourceList = null;
     public MusicListService.MusicListServiceBinder mMusicListServiceBinder;
+    public List<ResourceInfo> mTempResourceList = null;
+    private boolean isMusicServiceReady = false;
+    private boolean isMusicListServiceReady = false;
+    private boolean isTempResourceListReady = false;
 
     //Add music to music list
     public int clickedMusicIndex;
+
+    //Http Response handler
+    private MainActivityHandler mMainActivityHandler = new MainActivityHandler(MainActivity.this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,10 +88,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
         userId = sharedPreferences.getString("id", "");
         lastRelativePath = "";
-
-        //Aria register (download framework) discard
-//        Aria.download(this).register();
-//        Aria.upload(this).register();
 
         initViews();
         initToolBar();
@@ -115,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 mRightTopButton.setVisibility(View.VISIBLE);
             }
             //then bind MusicListService in MusicService Ready callback
-            Intent bindIntent2 = new Intent(this, MusicListService.class);
-            bindService(bindIntent2, this, BIND_AUTO_CREATE);
+            Intent bindIntent2 = new Intent(MainActivity.this, MusicListService.class);
+            bindService(bindIntent2, MainActivity.this, BIND_AUTO_CREATE);
         } else if (service instanceof MusicListService.MusicListServiceBinder) {
             mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
             // if  1.mTempResourceList still null && resourceList still null
@@ -149,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
         }
     }
+    
     @Override
     public void onServiceDisconnected(ComponentName name) {}
 
@@ -156,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "onDestroy");
-        unbindService(this);
+        unbindService(MainActivity.this);
     }
 
     private void initViews() {
@@ -203,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void initAllServiceBinder() {
         //bind MusicService
-        Intent bindIntent = new Intent(this, MusicService.class);
-        bindService(bindIntent, this, BIND_AUTO_CREATE);
+        Intent bindIntent = new Intent(MainActivity.this, MusicService.class);
+        bindService(bindIntent, MainActivity.this, BIND_AUTO_CREATE);
         //then bind MusicListService in MusicService Ready callback
     }
 
@@ -212,7 +205,40 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         mTitle.setText("AA Cloud " + TabPagerAdapter.TITLES[0]);
         mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in download/upload management version :)
     }
+    
+    /**
+     * Use Browser to Download or Play/Preview
+     * @param url target url
+     */
+    public void downloadInBrowser(String url) {
+        Uri uri = Uri.parse(url);
+        Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+    
+    /**
+     * Finish Activity and Go Back to Login
+     */
+    public void logoutAndForward() {
+        MainActivity.this.finish();
+    }
+    
+    public void showShortToast(final String msg) {
+        runOnUiThread(() -> {
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+        });
+    }
+    
+    public void showToast(final String msg) {
+        runOnUiThread(() -> {
+            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+        });
+    }
 
+    /**
+     * called by FilesFragment
+     * @param relativePath the relative path in user's own cloud disk
+     */
     public void getFileInfoListAndResetAdaptor(String relativePath) {
         //Use another thread to do server authentication
         Thread getByRelativePathRunnable = new Thread(() -> {
@@ -227,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             //prepare handler bundle data
             Message msg = mMainActivityHandler.obtainMessage();
-            msg.what = FILE_INFO_LIST_RESP;
+            msg.what = MainActivityHandler.FILE_INFO_LIST_RESP;
             Bundle data = new Bundle();
             data.putString("response", response);
             msg.setData(data);
@@ -239,17 +265,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * Use Browser to download
-     * @param url target url
-     */
-    public void downloadInBrowser(String url) {
-        Uri uri = Uri.parse(url);
-        Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
-        startActivity(intent);
-    }
-
-    /**
-     * only called by MP3FragmentCreated
+     * called by MP3Fragment
      */
     public void getMP3InfoListAndResetAdaptor() {
         //Use another thread to do server authentication
@@ -262,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             //prepare handler bundle data
             Message msg = mMainActivityHandler.obtainMessage();
-            msg.what = MP3_INFO_LIST_RESP;
+            msg.what = MainActivityHandler.MP3_INFO_LIST_RESP;
             Bundle data = new Bundle();
             data.putString("response", response);
             msg.setData(data);
@@ -274,6 +290,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         getAllMP3InfoRunnable.start();
     }
 
+    /**
+     * called by FilesFragment
+     */
     public void createFolderAndHandle() {
         //Use another thread to do server work
         Thread newFolderRunnable = new Thread(() -> {
@@ -286,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             //prepare handler bundle data
             Message msg = mMainActivityHandler.obtainMessage();
-            msg.what = CREATE_FOLDER_RESP;
+            msg.what = MainActivityHandler.CREATE_FOLDER_RESP;
             Bundle data = new Bundle();
             data.putString("response", response);
             msg.setData(data);
@@ -297,6 +316,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         newFolderRunnable.start();
     }
 
+    /**
+     * called by FilesFragment -> ListView -> Adaptor
+     */
     public void deleteFileAndHandle(FileInfo fileInfo) {
         //Use another thread to do server work
         Thread deleteFileRunnable = new Thread(() -> {
@@ -309,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             //prepare handler bundle data
             Message msg = mMainActivityHandler.obtainMessage();
-            msg.what = DELETE_FILE_RESP;
+            msg.what = MainActivityHandler.DELETE_FILE_RESP;
             Bundle data = new Bundle();
             data.putString("response", response);
             msg.setData(data);
@@ -320,6 +342,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         deleteFileRunnable.start();
     }
 
+    /**
+     * called by FilesFragment -> ListView -> Adaptor
+     */
     public void renameFileAndHandle(FileInfo fileInfo, String newName) {
         if (fileInfo.getName().equals(newName)) {
             return;
@@ -337,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
             //prepare handler bundle data
             Message msg = mMainActivityHandler.obtainMessage();
-            msg.what = RENAME_FILE_RESP;
+            msg.what = MainActivityHandler.RENAME_FILE_RESP;
             Bundle data = new Bundle();
             data.putString("response", response);
             msg.setData(data);
@@ -348,18 +373,41 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         renameRunnable.start();
     }
 
-    public void showShortToast(final String msg) {
-        runOnUiThread(() -> {
-            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-        });
-    }
+    /**
+     * called by MeFragment
+     */
+    public void changePasswordAndHandle(final String newPassword) {
+        //should not be empty
+        if (newPassword.equals("")) {
+            showToast("Password cannot be empty");
+            return;
+        }
 
-    public void showToast(final String msg) {
-        runOnUiThread(() -> {
-            Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-        });
-    }
+        //Use another thread to do server work
+        Thread changePasswordRunnable = new Thread() {
+            @Override
+            public void run() {
+                String url = HttpUtilsHttpURLConnection.BASE_URL + "/update_password";
+                Map<String, String> params = new HashMap<>();
+                params.put("id", userId);
+                params.put("password", newPassword);
 
+                String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+
+                //prepare handler bundle data
+                Message msg = mMainActivityHandler.obtainMessage();
+                msg.what = MainActivityHandler.CHANGE_PASSWORD_RESP;
+                Bundle data = new Bundle();
+                data.putString("response", response);
+                msg.setData(data);
+
+                //use handler to handle server response
+                mMainActivityHandler.sendMessage(msg);
+            }
+        };
+        changePasswordRunnable.start();
+    }
+    
     /**
      * The Thread Message Handler (Should be "static", so "inner" class)
      *  Eg. handling HTTP responses
@@ -368,6 +416,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      *        Static inner classes, on the other hand, do not.
      */
     private static class MainActivityHandler extends Handler {
+        //Message::what
+        private static final int FILE_INFO_LIST_RESP = 0x12;
+        private static final int MP3_INFO_LIST_RESP = 0x13;
+        private static final int DELETE_FILE_RESP = 0x16;
+        private static final int RENAME_FILE_RESP = 0x17;
+        private static final int CREATE_FOLDER_RESP = 0x18;
+        private static final int CHANGE_PASSWORD_RESP = 0x22;
+
         private final WeakReference<MainActivity> mActivityRef;
 
         public MainActivityHandler(MainActivity activity) {
@@ -385,11 +441,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
 
             //Which Message switch:
-            //  FILE_INFO_LIST_RESP = 0x12;
-            //  MP3_INFO_LIST_RESP = 0x13;
-            //  DELETE_FILE_RESP = 0x16;
-            //  RENAME_FILE_RESP = 0x17;
-            //  CREATE_FOLDER_RESP = 0x18;
             if (msg.what == FILE_INFO_LIST_RESP) {
                 //Init response data
                 Bundle data = msg.getData();
@@ -603,8 +654,26 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     activity.showToast("Network error, plz contact maintenance.");
                 }
                 /* if (msg.what == RENAME_FILE_RESP)*/
+            } else if (msg.what == CHANGE_PASSWORD_RESP){
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //change password result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Change Password Successful");
+                        activity.logoutAndForward();
+                    } else {
+                        activity.showToast("Change Password Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+                /* if (msg.what == CHANGE_PASSWORD_RESP)*/
             }
         }// MainActivityHandler.handleMessage(Message msg)
     }// MainActivityHandler
-
 }

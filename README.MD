@@ -62,6 +62,7 @@
 * 20190720 - (Gap) Rent house.
 * 20190721 - (Gap) Rent house.
 * 20190722 - File Tab Refactor; MP3 delete from list view bug-fix, MP3 add to list duplication auto-detect.
+* 20190722 - Me Tab Refactor.
 * 201907xx - TODO: upload menu -> 1.upload (give a file) 2. cloud download (give a url) 3. shared file (give a sharing code)
 * 201907xx - TODO: upload menu -> 2. cloud download (pop-up1: please give a url end with .mp3, pop-up2: started or url don't end with mp3)
 * 201907xx - TODO: 3.1. file menu: share this file. TODO: 3.2. manage a json in backend(code = ID + RandomChar, timestamp, hash, sharelimit, timelimit), 3.3. enter share code to get file
@@ -69,12 +70,11 @@
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
-* (urgent) 1GB cache!!!!
-* (urgent) "FLAC" support
 * (urgent) set "flag" in case of "multiple network cost" in MusicTab
-* (urgent) worry: if no any music (a new account), will it be problems with music list (all music online)
-* (urgent) duplication test when add music to list.
 * (urgent) MusicService store MusicList index
+* (medium) worry: if no any music (a new account), will it be problems with music list (all music online)
+* (medium) 1GB cache!!!!
+* (medium) "FLAC" support
 * (medium) refactor MusicTab & MainActivity.
 * (medium) re-new project website
 * (medium) crash (player activity UI e.g. progress not follow) when enter offline, then back, many clicks among folders, go player.
@@ -111,6 +111,7 @@
 * (minor-minor) Back-end: From "net.sf.json" to "Gson"
 * (minor-minor) Can relate tag/note/comments on music files.
 * (done) fixed bug when delete a music in list (double delete bug).
+* (done) "duplication test" before add music to list.
 
 ## 1. Run
 * Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"

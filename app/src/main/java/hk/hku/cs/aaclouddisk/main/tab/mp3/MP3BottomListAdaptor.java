@@ -72,7 +72,7 @@ public class MP3BottomListAdaptor extends ArrayAdapter<MusicList> {
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
             if (mActivity.clickedMusicIndex != -1) {
-                ResourceInfo resourceInfo = mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList().get(mActivity.clickedMusicIndex);
+                ResourceInfo resourceInfo = mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList().get(mActivity.clickedMusicIndex); //TODO index outof boundary exception
                 mActivity.mMusicListServiceBinder.addMusicToList(resourceInfo, position);
                 mActivity.mMusicListServiceBinder.saveMusicLists();
                 mActivity.showShortToast("Music Added to List");

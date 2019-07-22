@@ -99,12 +99,14 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         //Remove
         List<ResourceInfo> musicPlayerResourceList = mActivity.mMusicServiceBinder.getResourceList();
         List<ResourceInfo> musicListsResourceList = mActivity.mMusicListServiceBinder.getMusicLists().get(listIndex).getResourceList();
+        //Remove in ListView
+        mActivity.mPlayerBodyListAdaptor.remove(musicPlayerResourceList.get(musicIndex));
+        mActivity.mPlayerBodyListAdaptor.notifyDataSetChanged();
+        //Remove in Service Data Structure
         musicPlayerResourceList.remove(musicIndex);
         if (musicListsResourceList != musicPlayerResourceList) {//Bug-fix: In case double delete on the same list reference
             musicListsResourceList.remove(musicIndex);
         }
-        mActivity.mPlayerBodyListAdaptor.notifyDataSetChanged();
-        mActivity.mPlayerBottomListAdaptor.notifyDataSetChanged();
         mActivity.mMusicListServiceBinder.saveMusicLists();
         if (playingIndex == musicIndex) {
             if (playingIndex > 0) {
