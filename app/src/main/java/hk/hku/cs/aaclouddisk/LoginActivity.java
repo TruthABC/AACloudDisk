@@ -10,16 +10,16 @@ import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,10 @@ import java.util.Map;
 import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
 
 public class LoginActivity extends AppCompatActivity {
+
+    //Tag
+    public static final String TAG = "LoginActivity";
+    public static final String DEBUG_TAG = "shijian";
 
     //Local State
     SharedPreferences sharedPreferences;
@@ -40,16 +44,19 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox mCheckBoxLogin;
     private ImageView mImageViewSeePw;
 
+    //Http Response handler
+    private LoginActivityHandler mLoginActivityHandler = new LoginActivityHandler(LoginActivity.this);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login);//TODO: Rejecting re-init on previously-failed class
+        Log.v(TAG, "onCreate");
 
         //Local State load
         sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
 
         initViews();
-        initToolBar();
         initEvents();
         initFinal();
     }
@@ -66,66 +73,47 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mBtnLogin = findViewById(R.id.btn_login);
-        mBtnRegister = findViewById(R.id.btn_register);
-        mEditTextId = findViewById(R.id.et_account);
-        mEditTextPassword = findViewById(R.id.et_password);
-        mCheckBoxPassword = findViewById(R.id.checkBox_password);
-        mCheckBoxLogin = findViewById(R.id.checkBox_login);
-        mImageViewSeePw = findViewById(R.id.iv_see_password);
-    }
-
-    private void initToolBar() {
-
+        mBtnLogin = (Button) findViewById(R.id.btn_login);
+        mBtnRegister = (Button) findViewById(R.id.btn_register);
+        mEditTextId = (EditText) findViewById(R.id.et_account);
+        mEditTextPassword = (EditText) findViewById(R.id.et_password);
+        mCheckBoxPassword = (CheckBox) findViewById(R.id.checkBox_password);
+        mCheckBoxLogin = (CheckBox) findViewById(R.id.checkBox_login);
+        mImageViewSeePw = (ImageView) findViewById(R.id.iv_see_password);
     }
 
     private void initEvents() {
         //see password
-        mImageViewSeePw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleSeePw();
-            }
+        mImageViewSeePw.setOnClickListener((v) -> {
+            toggleSeePw();
         });
         //login button logic
-        mBtnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                trySaveUserInput();
-                doAuthentication(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
-            }
+        mBtnLogin.setOnClickListener((v) -> {
+            trySaveUserInput();
+            doAuthentication(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
         });
         //register button logic
-        mBtnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doRegister(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
-            }
+        mBtnRegister.setOnClickListener((v) -> {
+            doRegister(mEditTextId.getText().toString(), mEditTextPassword.getText().toString());
         });
         //checkboxes check logic
-        mCheckBoxPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (!isChecked) {   //if not "remember me", then must not "auto login"
-                    mCheckBoxLogin.setChecked(false);
-                }
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("RememberMe", mCheckBoxPassword.isChecked());
-                editor.putBoolean("AutoLogin", mCheckBoxLogin.isChecked());
-                editor.commit();
+        mCheckBoxPassword.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked) {   //if not "remember me", then must not "auto login"
+                mCheckBoxLogin.setChecked(false);
             }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("RememberMe", mCheckBoxPassword.isChecked());
+            editor.putBoolean("AutoLogin", mCheckBoxLogin.isChecked());
+            editor.commit();
         });
-        mCheckBoxLogin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {   //if "auto login", then must "remember me"
-                    mCheckBoxPassword.setChecked(true);
-                }
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("RememberMe", mCheckBoxPassword.isChecked());
-                editor.putBoolean("AutoLogin", mCheckBoxLogin.isChecked());
-                editor.commit();
+        mCheckBoxLogin.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {   //if "auto login", then must "remember me"
+                mCheckBoxPassword.setChecked(true);
             }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("RememberMe", mCheckBoxPassword.isChecked());
+            editor.putBoolean("AutoLogin", mCheckBoxLogin.isChecked());
+            editor.commit();
         });
     }
 
@@ -204,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //login button logic
-    private void doAuthentication(final String id, final String password) {
+    private void doAuthentication(String id, String password) {
 
         //should not be empty
         if (id.equals("")) {
@@ -216,92 +204,34 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        //show loading box
-//                showLoading();
-
         //Set button non-clickable
         mBtnLogin.setClickable(false);
         mBtnRegister.setClickable(false);
 
         //Use another thread to do server authentication
-        Thread loginRunnable = new Thread() {
-            @Override
-            public void run() {
-                String url = HttpUtilsHttpURLConnection.BASE_URL + "/login";
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-                params.put("password", password);
+        Thread loginRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/login";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", id);
+            params.put("password", password);
 
-                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
 
-                //prepare handler bundle data
-                Message msg = new Message();
-                msg.what=0x11;
-                Bundle data=new Bundle();
-                data.putString("response",response);
-                msg.setData(data);
+            //prepare handler bundle data
+            Message msg = mLoginActivityHandler.obtainMessage();
+            msg.what = LoginActivityHandler.LOGIN_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
 
-                //use handler to handle server response
-                handler.sendMessage(msg);
-            }
-
-            Handler handler = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what==0x11){
-                        Bundle data = msg.getData();
-                        String responseStr = data.getString("response");//returned json
-
-                        //from String to Object(Entity)
-                        try {
-                            Gson gson = new Gson();
-                            CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
-                            //Authentication result
-                            if (response.getErrcode() == 0){
-                                showToast("Login Successful");
-                                //go to main page
-                                loginAndForward();
-                            } else {
-                                showToast("Login Failed: " + response.getErrmsg());
-                            }
-                        } catch (Exception e) {
-                            showToast("Network error, plz contact maintenance.");
-                            long lastSuccessLogin = sharedPreferences.getLong("lastSuccessLogin", 0);
-                            String lastSuccessId = sharedPreferences.getString("lastSuccessId", "~!@#$%^&*()_+");
-                            String lastSuccessPassword = sharedPreferences.getString("lastSuccessPassword", "~!@#$%^&*()_+");
-                            if (lastSuccessId.equals(mEditTextId.getText().toString()) && lastSuccessPassword.equals(mEditTextPassword.getText().toString())) {
-                                long restHour = 24 - ((new Date().getTime() - lastSuccessLogin) / 1000 / 60 / 60);
-                                if (restHour >= 0) {
-                                    final AlertDialog.Builder normalDialog = new AlertDialog.Builder(LoginActivity.this);
-                                    normalDialog.setIcon(R.drawable.round_wifi_off_black_36);
-                                    normalDialog.setTitle("Network Error");
-                                    normalDialog.setMessage("Enter Offline Mode? (available in " + restHour + " hours)");
-                                    normalDialog.setPositiveButton("Enter", (dialog, which) -> {
-                                        loginAndForward();
-                                    });
-                                    normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
-                                        //do nothing
-                                    });
-                                    normalDialog.show();
-                                }
-                            }
-                        }
-
-                        //Set button back to clickable
-                        mBtnLogin.setClickable(true);
-                        mBtnRegister.setClickable(true);
-
-                        //hide loading box
-//                        hideLoading();
-                    }
-                }
-            };
-        };
+            //use handler to handle server response
+            mLoginActivityHandler.sendMessage(msg);
+        });
         loginRunnable.start();
     }
 
     //register button logic
-    private void doRegister(final String id, final String password) {
+    private void doRegister(String id, String password) {
 
         //should not be empty
         if (id.equals("")) {
@@ -318,57 +248,24 @@ public class LoginActivity extends AppCompatActivity {
         mBtnRegister.setClickable(false);
 
         //Use another thread to do server authentication
-        Thread registerRunnable = new Thread() {
-            @Override
-            public void run() {
-                String url = HttpUtilsHttpURLConnection.BASE_URL + "/register";
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-                params.put("password", password);
+        Thread registerRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/register";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", id);
+            params.put("password", password);
 
-                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
 
-                //prepare handler bundle data
-                Message msg = new Message();
-                msg.what=0x21;
-                Bundle data=new Bundle();
-                data.putString("response",response);
-                msg.setData(data);
+            //prepare handler bundle data
+            Message msg = mLoginActivityHandler.obtainMessage();
+            msg.what = LoginActivityHandler.REGISTER_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
 
-                //use handler to handle server response
-                handler.sendMessage(msg);
-            }
-
-            Handler handler = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what==0x21){
-                        Bundle data = msg.getData();
-                        String responseStr = data.getString("response");//returned json
-
-                        //from String to Object(Entity)
-                        try {
-                            Gson gson = new Gson();
-                            CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
-                            //register result
-                            if (response.getErrcode() == 0){
-                                showToast("Register Successful");
-                                ((EditText)findViewById(R.id.et_account)).setText("");
-                                ((EditText)findViewById(R.id.et_password)).setText("");
-                            } else {
-                                showToast("Register Failed: " + response.getErrmsg());
-                            }
-                        } catch (Exception e) {
-                            showToast("Network error, plz contact maintenance.");
-                        }
-
-                        //Set button back to clickable
-                        mBtnLogin.setClickable(true);
-                        mBtnRegister.setClickable(true);
-                    }
-                }
-            };
-        };
+            //use handler to handle server response
+            mLoginActivityHandler.sendMessage(msg);
+        });
         registerRunnable.start();
     }
 
@@ -385,12 +282,106 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showToast(final String msg) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_LONG).show();
-            }
+        runOnUiThread(() -> {
+            Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_LONG).show();
         });
     }
 
+    /**
+     * The Thread Message Handler (Should be "static", so "inner" class)
+     *  Eg. handling HTTP responses
+     *  Hint: Instances of static inner classes do not hold an implicit reference to their outer class.
+     *  Hint: In Java, non-static inner and anonymous classes hold an implicit reference to their outer class.
+     *        Static inner classes, on the other hand, do not.
+     */
+    private static class LoginActivityHandler extends Handler {
+        //Message::what
+        private static final int LOGIN_RESP = 0x11;
+        private static final int REGISTER_RESP = 0x21;
+
+        private final WeakReference<LoginActivity> mActivityRef;
+
+        public LoginActivityHandler(LoginActivity activity) {
+            mActivityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            //Context
+            LoginActivity activity = mActivityRef.get();
+            if (activity == null) {
+                // cannot be here
+                Log.e(DEBUG_TAG, "LoginActivityHandler 'activity == null'");
+                return;
+            }
+
+            //Which Message switch:
+            if (msg.what == LOGIN_RESP){
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //Authentication result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Login Successful");
+                        //go to main page
+                        activity.loginAndForward();
+                    } else {
+                        activity.showToast("Login Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                    long lastSuccessLogin = activity.sharedPreferences.getLong("lastSuccessLogin", 0);
+                    String lastSuccessId = activity.sharedPreferences.getString("lastSuccessId", "~!@#$%^&*()_+");
+                    String lastSuccessPassword = activity.sharedPreferences.getString("lastSuccessPassword", "~!@#$%^&*()_+");
+                    if (lastSuccessId.equals(activity.mEditTextId.getText().toString()) && lastSuccessPassword.equals(activity.mEditTextPassword.getText().toString())) {
+                        long restHour = 24 - ((new Date().getTime() - lastSuccessLogin) / 1000 / 60 / 60);
+                        if (restHour >= 0) {
+                            final AlertDialog.Builder normalDialog = new AlertDialog.Builder(activity);
+                            normalDialog.setIcon(R.drawable.round_wifi_off_black_36);
+                            normalDialog.setTitle("Network Error");
+                            normalDialog.setMessage("Enter Offline Mode? (available in " + restHour + " hours)");
+                            normalDialog.setPositiveButton("Enter", (dialog, which) -> {
+                                activity.loginAndForward();
+                            });
+                            normalDialog.setNegativeButton("Cancel", (dialog, which) -> {
+                                //do nothing
+                            });
+                            normalDialog.show();
+                        }
+                    }
+                }
+
+                //Set button back to clickable
+                activity.mBtnLogin.setClickable(true);
+                activity.mBtnRegister.setClickable(true);
+            } else if (msg.what == REGISTER_RESP){
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //register result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Register Successful");
+                        activity.mEditTextId.setText("");
+                        activity.mEditTextPassword.setText("");
+                    } else {
+                        activity.showToast("Register Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+
+                //Set button back to clickable
+                activity.mBtnLogin.setClickable(true);
+                activity.mBtnRegister.setClickable(true);
+            }
+        }
+    }
 }

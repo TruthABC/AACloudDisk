@@ -404,7 +404,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
         AlertDialog.Builder inputDialog =
                 new AlertDialog.Builder(MusicPlayerActivity.this);
-        inputDialog.setTitle("Input List Name").setView(editText);
+        inputDialog.setTitle("New Music List Name:").setView(editText);
         inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
             mMusicListServiceBinder.createMusicList(editText.getText().toString());
             mPlayerBottomListAdaptor.add(mMusicListServiceBinder.getLastMusicList());

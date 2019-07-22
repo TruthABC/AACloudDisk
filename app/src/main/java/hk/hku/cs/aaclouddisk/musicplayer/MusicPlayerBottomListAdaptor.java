@@ -122,9 +122,9 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
 
     private void inputNewName(int position) {
         final EditText editText = new EditText(mActivity);
+        editText.setText(this.getItem(position).getListName());
 
-        AlertDialog.Builder inputDialog =
-                new AlertDialog.Builder(mActivity);
+        AlertDialog.Builder inputDialog = new AlertDialog.Builder(mActivity);
         inputDialog.setTitle("Input New Name").setView(editText);
         inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
             if (mListServiceBinder != null) {

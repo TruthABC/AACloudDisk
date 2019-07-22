@@ -62,7 +62,8 @@
 * 20190720 - (Gap) Rent house.
 * 20190721 - (Gap) Rent house.
 * 20190722 - File Tab Refactor; MP3 delete from list view bug-fix, MP3 add to list duplication auto-detect.
-* 20190722 - Me Tab Refactor.
+* 20190722 - Me Tab Refactor. LoginActivity Refactor. Rename Refactor. Try solving deleted "view sync" bug.
+* 20190723 - TODO: MP3 Tab Refactor. BUG when delete from list and add to list (deep-copy to online-all list?)
 * 201907xx - TODO: upload menu -> 1.upload (give a file) 2. cloud download (give a url) 3. shared file (give a sharing code)
 * 201907xx - TODO: upload menu -> 2. cloud download (pop-up1: please give a url end with .mp3, pop-up2: started or url don't end with mp3)
 * 201907xx - TODO: 3.1. file menu: share this file. TODO: 3.2. manage a json in backend(code = ID + RandomChar, timestamp, hash, sharelimit, timelimit), 3.3. enter share code to get file
@@ -127,6 +128,7 @@
 
 ## 3. Message Handler
 * 0x11 - onLogin
+* 0x21 - onRegister
 * 0x12 - onFileGet for MainActivity/FileFragment/
 * 0x13 - onAllMP3Get for MP3Fragment
 * 0x16 - onDeleteFile for FileInfoListAdaptor

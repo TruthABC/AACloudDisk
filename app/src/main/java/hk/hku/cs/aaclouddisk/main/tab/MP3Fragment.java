@@ -119,7 +119,7 @@ public class MP3Fragment extends Fragment {
 
         AlertDialog.Builder inputDialog =
                 new AlertDialog.Builder(mActivity);
-        inputDialog.setTitle("Input List Name").setView(editText);
+        inputDialog.setTitle("New Music List Name:").setView(editText);
         inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
             mActivity.mMusicListServiceBinder.createMusicList(editText.getText().toString());
             mBottomListAdaptor.add(mActivity.mMusicListServiceBinder.getLastMusicList());
@@ -133,6 +133,13 @@ public class MP3Fragment extends Fragment {
     }
 
     public void showBottom() {
+        // Initialize music list
+        if (mActivity.mMusicListServiceBinder != null) {
+            Log.i(TAG, "mBottomListAdaptor init");
+            mBottomListAdaptor.clear();
+            mBottomListAdaptor.addAll(mActivity.mMusicListServiceBinder.getMusicLists());
+            mBottomListAdaptor.notifyDataSetChanged();
+        }
         shownBottom = true;
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }

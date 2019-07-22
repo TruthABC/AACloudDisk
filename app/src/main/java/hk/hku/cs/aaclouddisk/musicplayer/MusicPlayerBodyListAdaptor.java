@@ -107,6 +107,7 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         if (musicListsResourceList != musicPlayerResourceList) {//Bug-fix: In case double delete on the same list reference
             musicListsResourceList.remove(musicIndex);
         }
+        mActivity.mPlayerBottomListAdaptor.notifyDataSetChanged();
         mActivity.mMusicListServiceBinder.saveMusicLists();
         if (playingIndex == musicIndex) {
             if (playingIndex > 0) {
