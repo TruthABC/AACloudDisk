@@ -61,7 +61,7 @@
 * 20190719 - (Gap) Worrying.
 * 20190720 - (Gap) Rent house.
 * 20190721 - (Gap) Rent house.
-* 20190722 -
+* 20190722 - File Tab Refactor; MP3 delete from list view bug-fix, MP3 add to list duplication auto-detect.
 * 201907xx - TODO: upload menu -> 1.upload (give a file) 2. cloud download (give a url) 3. shared file (give a sharing code)
 * 201907xx - TODO: upload menu -> 2. cloud download (pop-up1: please give a url end with .mp3, pop-up2: started or url don't end with mp3)
 * 201907xx - TODO: 3.1. file menu: share this file. TODO: 3.2. manage a json in backend(code = ID + RandomChar, timestamp, hash, sharelimit, timelimit), 3.3. enter share code to get file

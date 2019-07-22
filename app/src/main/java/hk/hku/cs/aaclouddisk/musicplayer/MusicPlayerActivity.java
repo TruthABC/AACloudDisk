@@ -73,7 +73,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
     //Views - Bottom Sheet Lists
     private ListView mBottomListView;
-    private MusicPlayerBottomListAdaptor mPlayerBottomListAdaptor;
+    public MusicPlayerBottomListAdaptor mPlayerBottomListAdaptor;
 
     //Playing Music
     public MusicService.MusicServiceBinder mMusicServiceBinder;

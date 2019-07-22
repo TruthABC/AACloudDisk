@@ -171,7 +171,12 @@ public class MusicListService extends Service {
 
         public void addMusicToList(ResourceInfo resourceInfo, int position) {
             MusicList musicList = mMusicLists.get(position);
-            //TODO: judge duplicated
+            //TODO: judge duplicated and give toast
+            for (ResourceInfo ri: musicList.getResourceList()) {
+                if (resourceInfo.getOnlineUrl().equals(ri.getOnlineUrl())) {
+                    return;
+                }
+            }
             musicList.getResourceList().add(resourceInfo);
         }
     }
