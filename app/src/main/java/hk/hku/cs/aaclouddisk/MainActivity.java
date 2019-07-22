@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.lang.ref.WeakReference;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,9 +32,11 @@ import java.util.Map;
 
 import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
+import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
 import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
+import hk.hku.cs.aaclouddisk.main.tab.FilesFragment;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3BottomListAdaptor;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //local cache
     private SharedPreferences sharedPreferences;
+    public String userId;
     public String lastRelativePath;
 
     //Views
@@ -68,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     //Message::what
     private static final int FILE_INFO_LIST_RESP = 0x12;
     private static final int MP3_INFO_LIST_RESP = 0x13;
+    private static final int DELETE_FILE_RESP = 0x16;
+    private static final int RENAME_FILE_RESP = 0x17;
+    private static final int CREATE_FOLDER_RESP = 0x18;
 
     //Playing Music & Music List
     public MusicService.MusicServiceBinder mMusicServiceBinder;
@@ -76,6 +81,27 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     //Add music to music list
     public int clickedMusicIndex;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Log.v(TAG, "onCreate");
+
+        //Local State load
+        sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getString("id", "");
+        lastRelativePath = "";
+
+        //Aria register (download framework) discard
+//        Aria.download(this).register();
+//        Aria.upload(this).register();
+
+        initViews();
+        initToolBar();
+        initAllServiceBinder();
+        initFinal();
+    }
 
     //for initializing mMusicServiceBinder;
     @Override
@@ -124,29 +150,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         }
     }
     @Override
-    public void onServiceDisconnected(ComponentName name) {
-
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Log.v(TAG, "onCreate");
-
-        //Local State load
-        sharedPreferences = getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-        lastRelativePath = "";
-
-        //Aria register (download framework) discard
-//        Aria.download(this).register();
-//        Aria.upload(this).register();
-
-        initViews();
-        initToolBar();
-        initAllServiceBinder();
-        initFinal();
-    }
+    public void onServiceDisconnected(ComponentName name) {}
 
     @Override
     public void onDestroy() {
@@ -206,98 +210,32 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
     private void initFinal() {
         mTitle.setText("AA Cloud " + TabPagerAdapter.TITLES[0]);
-        mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in next version :)
+        mLeftTopButton.setVisibility(View.GONE);//TODO: delete this line in download/upload management version :)
     }
 
-    public void getFileInfoListAndResetAdaptor(final String relativePath) {
+    public void getFileInfoListAndResetAdaptor(String relativePath) {
         //Use another thread to do server authentication
-        Thread getByRelativePathRunnable = new Thread() {
-            @Override
-            public void run() {
-                //get user data
-                String id = sharedPreferences.getString("id","");
+        Thread getByRelativePathRunnable = new Thread(() -> {
+            lastRelativePath = relativePath;
 
-                lastRelativePath = relativePath;
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/getFolderInfoByRelativePath";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", userId);
+            params.put("relativePath", relativePath);
 
-                String url = HttpUtilsHttpURLConnection.BASE_URL + "/getFolderInfoByRelativePath";
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-                params.put("relativePath", relativePath);
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
 
-                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
+            //prepare handler bundle data
+            Message msg = mMainActivityHandler.obtainMessage();
+            msg.what = FILE_INFO_LIST_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
 
-                //prepare handler bundle data
-                Message msg = mMainActivityHandler.obtainMessage();
-                msg.what = FILE_INFO_LIST_RESP;
-                Bundle data=new Bundle();
-                data.putString("response",response);
-                msg.setData(data);
-
-                //use handler to handle server response
-                mMainActivityHandler.sendMessage(msg);
-            }
-
-        };
+            //use handler to handle server response
+            mMainActivityHandler.sendMessage(msg);
+        });
         getByRelativePathRunnable.start();
-
-    }
-
-    /**
-     * revise event and text of fragment bar of tab_files
-     *    called after response of server of FileInfoList of Folder
-     */
-    private void reviseFilesFragmentBar() {
-        //get Views
-        TextView pathTextView = findViewById(R.id.tab_files_title);
-        ImageView backImageView = findViewById(R.id.tab_files_back);
-        ImageView uploadFileImageView = findViewById(R.id.tab_files_uploadFile);
-
-        //Revise Content
-        String newPathText = "[Path]AACloudDisk\\" + lastRelativePath;
-        pathTextView.setText(newPathText);
-
-        //Event - back
-        if (!backImageView.hasOnClickListeners()) {
-            backImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (lastRelativePath.length()==0) {
-                        showToast("Cannot Go Back More");
-                        return;
-                    }
-
-                    //"lastIndex" to check if it is jump with relative path ""
-                    String nextPath = "";
-                    int lastIndex = lastRelativePath.lastIndexOf("\\");
-                    if (lastIndex > 0) {
-                        nextPath = lastRelativePath.substring(0, lastIndex);
-                    }
-
-                    //back to last page
-                    getFileInfoListAndResetAdaptor(nextPath);
-                }
-            });
-        }
-
-        //Event - upload File
-        if (!uploadFileImageView.hasOnClickListeners()) {
-            uploadFileImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //go to upload file page, could be web view
-//                    Intent intent = new Intent(v.getContext(), FileUploadActivity.class);
-//                    intent.putExtra("relativePath", lastRelativePath);
-//                    startActivityForResult(intent, 0);
-                    //go to upload file web page
-                    //get user data
-                    String id = sharedPreferences.getString("id","");
-                    String iii = HttpUtilsHttpURLConnection.BASE_URL + "/upload_file.html?id=" + URLEncoder.encode(id) + "&relativePath=" + URLEncoder.encode(lastRelativePath);
-                    Uri uri = Uri.parse(iii);
-                    Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(intent);
-                }
-            });
-        }
     }
 
     /**
@@ -315,32 +253,99 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      */
     public void getMP3InfoListAndResetAdaptor() {
         //Use another thread to do server authentication
-        Thread getAllMP3InfoRunnable = new Thread() {
-            @Override
-            public void run() {
-                //get user data
-                String id = sharedPreferences.getString("id","");
+        Thread getAllMP3InfoRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/getAllMP3InfoById";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", userId);
 
-                String url = HttpUtilsHttpURLConnection.BASE_URL + "/getAllMP3InfoById";
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
 
-                String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+            //prepare handler bundle data
+            Message msg = mMainActivityHandler.obtainMessage();
+            msg.what = MP3_INFO_LIST_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
 
-                //prepare handler bundle data
-                Message msg = mMainActivityHandler.obtainMessage();
-                msg.what = MP3_INFO_LIST_RESP;
-                Bundle data = new Bundle();
-                data.putString("response", response);
-                msg.setData(data);
-
-                //use handler to handle server response
-                mMainActivityHandler.sendMessage(msg);
-            }
-        };
-
+            //use handler to handle server response
+            mMainActivityHandler.sendMessage(msg);
+        });
         mTempResourceList = null;
         getAllMP3InfoRunnable.start();
+    }
+
+    public void createFolderAndHandle() {
+        //Use another thread to do server work
+        Thread newFolderRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/create_folder";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", userId);
+            params.put("relativePath", lastRelativePath);
+
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+
+            //prepare handler bundle data
+            Message msg = mMainActivityHandler.obtainMessage();
+            msg.what = CREATE_FOLDER_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
+
+            //use handler to handle server response
+            mMainActivityHandler.sendMessage(msg);
+        });
+        newFolderRunnable.start();
+    }
+
+    public void deleteFileAndHandle(FileInfo fileInfo) {
+        //Use another thread to do server work
+        Thread deleteFileRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/delete_file";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", userId);
+            params.put("relativePath", fileInfo.getRelativePath());
+
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+
+            //prepare handler bundle data
+            Message msg = mMainActivityHandler.obtainMessage();
+            msg.what = DELETE_FILE_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
+
+            //use handler to handle server response
+            mMainActivityHandler.sendMessage(msg);
+        });
+        deleteFileRunnable.start();
+    }
+
+    public void renameFileAndHandle(FileInfo fileInfo, String newName) {
+        if (fileInfo.getName().equals(newName)) {
+            return;
+        }
+        //Use another thread to do server work
+        Thread renameRunnable = new Thread(() -> {
+            String url = HttpUtilsHttpURLConnection.BASE_URL + "/rename_file";
+            Map<String, String> params = new HashMap<>();
+            params.put("id", userId);
+            params.put("relativePath", lastRelativePath);
+            params.put("oldName", fileInfo.getName());
+            params.put("newName", newName);
+
+            String response = HttpUtilsHttpURLConnection.postByHttp(url, params);
+
+            //prepare handler bundle data
+            Message msg = mMainActivityHandler.obtainMessage();
+            msg.what = RENAME_FILE_RESP;
+            Bundle data = new Bundle();
+            data.putString("response", response);
+            msg.setData(data);
+
+            //use handler to handle server response
+            mMainActivityHandler.sendMessage(msg);
+        });
+        renameRunnable.start();
     }
 
     public void showShortToast(final String msg) {
@@ -363,73 +368,78 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
      *        Static inner classes, on the other hand, do not.
      */
     private static class MainActivityHandler extends Handler {
-        private final WeakReference<MainActivity> mActivity;
+        private final WeakReference<MainActivity> mActivityRef;
 
         public MainActivityHandler(MainActivity activity) {
-            mActivity = new WeakReference<>(activity);
+            mActivityRef = new WeakReference<>(activity);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            MainActivity activity = mActivity.get();
+            //Context
+            MainActivity activity = mActivityRef.get();
             if (activity == null) {
                 // cannot be here
-                Log.e("shijian", "MainActivityHandler 'activity == null'");
+                Log.e(DEBUG_TAG, "MainActivityHandler 'activity == null'");
                 return;
             }
+
+            //Which Message switch:
+            //  FILE_INFO_LIST_RESP = 0x12;
+            //  MP3_INFO_LIST_RESP = 0x13;
+            //  DELETE_FILE_RESP = 0x16;
+            //  RENAME_FILE_RESP = 0x17;
+            //  CREATE_FOLDER_RESP = 0x18;
             if (msg.what == FILE_INFO_LIST_RESP) {
+                //Init response data
                 Bundle data = msg.getData();
-                String responseStr = data.getString("response");//returned json
+                String responseStr = data.getString("response");
+
+                //Thread for slow Gson convert
                 Thread handleResponseThread = new Thread(() -> {
                     Log.i(TAG, "FILE_INFO_LIST_RESP ThreadName: " + Thread.currentThread().getName());
-                    //from String to Object(Entity)
+
+                    //convert from String to Object(Entity)
                     try {
                         Gson gson = new Gson();
                         FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
-                        //Folder Info result
-                        if (response.getErrcode() == 0){
-//                                showToast("Folder Info Get Successful");
-                            //find View and then its Adapter
-                            ListView listView = (ListView) activity.findViewById(R.id.list_view_files);
-                            FileInfoListAdapter adapter = (FileInfoListAdapter) listView.getAdapter();
 
-                            //if no File
-                            if (response.getFileInfoList().size() == 0) {
-                                activity.runOnUiThread(() -> {
-                                    activity.findViewById(R.id.no_file_hint).setVisibility(View.VISIBLE);
-                                });
-                            } else {
-                                activity.runOnUiThread(() -> {
-                                    activity.findViewById(R.id.no_file_hint).setVisibility(View.GONE);
-                                });
-                            }
+                        //After Gson convert do UI things
+                        activity.runOnUiThread(() -> {
+                            Log.i(TAG, "After Gson Converted ThreadName: " + Thread.currentThread().getName());
+                            //Context
+                            FilesFragment filesFragment = activity.mTabPagerAdapter.getFilesFragment();
+                            FileInfoListAdapter adapter = filesFragment.mFileListAdaptor;
 
-                            //apply changes and call adapter to change
-                            if (adapter == null) {
-                                adapter = new FileInfoListAdapter(activity, R.layout.tab_files_item, activity);
+                            //Folder Info result
+                            if (response.getErrcode() == 0){
+                                Log.i(TAG,"Folder Info Get Successful, getErrcode() == 0");
+
+                                //Revise Subtitle Content
+                                String newPathText = "[Path]AACloudDisk\\" + activity.lastRelativePath;
+                                filesFragment.mPathTextView.setText(newPathText);
+
+                                //Revise File List
+                                adapter.clear();
                                 adapter.addAll(response.getFileInfoList());
-                                FileInfoListAdapter finalAdapter = adapter;
-                                activity.runOnUiThread(() -> {
-                                    listView.setAdapter(finalAdapter);
-                                    finalAdapter.notifyDataSetChanged();
-                                });
+                                adapter.notifyDataSetChanged();
                             } else {
-                                FileInfoListAdapter finalAdapter = adapter;
-                                activity.runOnUiThread(() -> {
-                                    finalAdapter.clear();
-                                    finalAdapter.addAll(response.getFileInfoList());
-                                    finalAdapter.notifyDataSetChanged();
-                                });
+                                activity.showToast("Folder Info Get Failed: " + response.getErrmsg());
                             }
-                            activity.runOnUiThread(activity::reviseFilesFragmentBar);
-                        } else {
-                            activity.showToast("Folder Info Get Failed: " + response.getErrmsg());
-                        }
+
+                            //Revise No File Hint
+                            if (adapter.isEmpty()) {
+                                filesFragment.mNoFileHint.setVisibility(View.VISIBLE);
+                            } else {
+                                filesFragment.mNoFileHint.setVisibility(View.GONE);
+                            }
+                        });
                     } catch (Exception e) {
                         activity.showToast("Network error, plz contact maintenance.");
                     }
                 });
                 handleResponseThread.start();
+                /* if (msg.what == FILE_INFO_LIST_RESP) */
             } else if (msg.what == MP3_INFO_LIST_RESP) {
                 Bundle data = msg.getData();
                 String responseStr = data.getString("response");//returned json
@@ -535,7 +545,65 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                     }
                 });
                 handleResponseThread.start();
-            }// if (msg.what == MP3_INFO_LIST_RESP)
+                /* if (msg.what == MP3_INFO_LIST_RESP)*/
+            } else if (msg.what == CREATE_FOLDER_RESP) {
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Create Folder Successful");
+                        activity.getFileInfoListAndResetAdaptor(activity.lastRelativePath);
+                    } else {
+                        activity.showToast("Create Folder Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+                /* if (msg.what == CREATE_FOLDER_RESP)*/
+            } else if (msg.what == DELETE_FILE_RESP){
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //change password result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Delete File Successful");
+                        activity.getFileInfoListAndResetAdaptor(activity.lastRelativePath);
+                    } else {
+                        activity.showToast("Delete File Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+                /* if (msg.what == DELETE_FILE_RESP)*/
+            } else if (msg.what == RENAME_FILE_RESP){
+                Bundle data = msg.getData();
+                String responseStr = data.getString("response");//returned json
+
+                //from String to Object(Entity)
+                try {
+                    Gson gson = new Gson();
+                    CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
+                    //change password result
+                    if (response.getErrcode() == 0){
+                        activity.showToast("Rename File Successful");
+                        activity.getFileInfoListAndResetAdaptor(activity.lastRelativePath);
+                    } else {
+                        activity.showToast("Rename File Failed: " + response.getErrmsg());
+                    }
+                } catch (Exception e) {
+                    activity.showToast("Network error, plz contact maintenance.");
+                }
+                /* if (msg.what == RENAME_FILE_RESP)*/
+            }
         }// MainActivityHandler.handleMessage(Message msg)
     }// MainActivityHandler
 

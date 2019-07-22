@@ -52,44 +52,65 @@
 * 20190711 - Project presentation workshop.
 * 20190712 - Project presentation workshop.
 * 20190713 - Player Bottom Sheet completed (list add/remove/rename). Refactoring (Main, Files, Music, MusicPlayer, icons).
-* 20190713 - Music Tab Bottom Sheet completed (list add). Following MusicPlayer MainActivityMusicTab adapted to new feature.
+* 20190713 - Music Tab Bottom Sheet completed (music add to list). Following MusicPlayer MainActivityMusicTab adapted to new feature.
+* 20190714 - Make poster for this Project.
+* 20190715 - Make poster for this Project, project report writing workshop.
+* 20190716 - ResourceList double delete bug fixed. MSc Project web page update.
+* 20190717 - Week 5 progress report.
+* 20190718 - (Gap) Send material of traveling.
+* 20190719 - (Gap) Worrying.
+* 20190720 - (Gap) Rent house.
+* 20190721 - (Gap) Rent house.
+* 20190722 -
+* 201907xx - TODO: upload menu -> 1.upload (give a file) 2. cloud download (give a url) 3. shared file (give a sharing code)
+* 201907xx - TODO: upload menu -> 2. cloud download (pop-up1: please give a url end with .mp3, pop-up2: started or url don't end with mp3)
+* 201907xx - TODO: 3.1. file menu: share this file. TODO: 3.2. manage a json in backend(code = ID + RandomChar, timestamp, hash, sharelimit, timelimit), 3.3. enter share code to get file
+* 201907xx - TODO: 3+. show all shared files, delete shared files. (re-share, use the same code, delete file -> delete share, share cannot than 5 single files)
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
-* bug when delete a music in list
-* customized cache limit.
-* delete All-Online in  "Add Music to List"
-* show add which music
-* remove icon visibility
-* music not there exception.
-* import in FilesFragment redundant.
-* worry: if no any music (a new account), will it be problems with music list (all music online)
-* crash (progress not follow) when enter offline, then back, many clicks among folders, go player.
-* 1 2 3 4 and new bottom sheet
-* MainActivity::initAllService rename, LoginActivity Refactor(handler, id password field), MainActivity Async part Refactor With Flag
-* User make, change, delete other lists.
-* Add music to list, remove music from list.
-* Music List Local, Online, inApp design
-* Offline Mode.
-* Improve Passive Cache Name Mapping or Hashing.
-* file multiple-select, file menu
-* (minor) change UI when no files or get files failed.
-* (minor) App bar height uniform.
-* (minor) status bar color change.
-* (minor) Loading layer.
-* (minor) can reset "all music" scan/ignore range and expanded name.
-* (minor) GIF DISK BODY.
-* (minor) Music Tab over-scroll refresh on music list.
-* (minor) to Fix: MultiActivity Launched when click fast.
-* handler activity leak fix.
-* (minor) a UI needed when background play screen locked
-* (minor) a easy float button for user to stop music.
-* (minor) do not show full path, only last layer enough.
+* (urgent) 1GB cache!!!!
+* (urgent) "FLAC" support
+* (urgent) set "flag" in case of "multiple network cost" in MusicTab
+* (urgent) worry: if no any music (a new account), will it be problems with music list (all music online)
+* (urgent) duplication test when add music to list.
+* (urgent) MusicService store MusicList index
+* (medium) refactor MusicTab & MainActivity.
+* (medium) re-new project website
+* (medium) crash (player activity UI e.g. progress not follow) when enter offline, then back, many clicks among folders, go player.
+* (medium) MainActivity::initAllService rename, LoginActivity Refactor(handler, id password field), MainActivity Async part Refactor With Flag
+* (medium) handler activity leak fix.
+* (medium) music running in backend (when no screen off)
+* (minor) name scrolling.
+* (minor) Default list of Fav.
+* (minor) rename of "Add to Music List"
 * (minor) File secondary app bar use "Backdrop" design. Ref. also to Baidu Net Disk.
-* (minor) Entering an item effect. (layered expand)
-* (minor) Launching Screen.
-* (minor) Back-end: From "net.sf.json" to "Gson"
-* (minor) Can relate tag/note/comments on music files.
+* (minor) refresh on music list (e.g. Music Tab over-scroll).
+* (minor) show menu when click on MusicTabItem
+* (minor) fileTab refresh button
+* (minor) customized cache limit - 512mb.
+* (minor) show add which music.
+* (minor) remove icon's visibility
+* (minor) music not there exception.
+* (minor) file multiple-select, file menu
+* (minor) "java import" in FilesFragment.
+* (minor) Improve Passive Cache Name Mapping or Hashing.
+* (minor) change UI when no files or get files failed.
+* (minor) to Fix: Multi-Activity Launched when click fast.
+* (minor-minor) response.getErrmsg() with "-" but ":" Connected
+* (minor-minor) App bar height uniform.
+* (minor-minor) status bar color change.
+* (minor-minor) Loading layer.
+* (minor-minor) can reset "all music" scan/ignore range and expanded name.
+* (minor-minor) GIF DISK BODY.
+* (minor-minor) a UI needed when background play screen locked
+* (minor-minor) a easy float button for user to stop music.
+* (minor-minor) do not show full path, only last layer enough.
+* (minor-minor) Entering an item effect. (layered expand)
+* (minor-minor) Launching Screen.
+* (minor-minor) Back-end: From "net.sf.json" to "Gson"
+* (minor-minor) Can relate tag/note/comments on music files.
+* (done) fixed bug when delete a music in list (double delete bug).
 
 ## 1. Run
 * Platform (Recommended): "Xiaomi Redmi 5A (Android 7.1.2, API25)"

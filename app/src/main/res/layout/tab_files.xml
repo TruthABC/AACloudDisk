@@ -15,10 +15,11 @@
 
         <ImageView
             android:id="@+id/tab_files_back"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="4dp"
             android:src="@drawable/round_arrow_back_black_36"
-            android:layout_marginStart="@dimen/margin_tiny"
+            android:layout_marginStart="6dp"
             android:layout_alignParentStart="true"
             android:background="@drawable/ripple_grey"
             android:contentDescription="Back Folder"
@@ -28,10 +29,10 @@
             android:id="@+id/tab_files_title"
             android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_tiny"
-            android:layout_marginEnd="@dimen/margin_tiny"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             android:text="[Path]AACloudDisk\\"
-            android:textSize="@dimen/text_size_normal"
+            android:textSize="@dimen/text_size_small"
             android:maxLines="1"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/tab_files_back"
@@ -39,10 +40,11 @@
 
         <ImageView
             android:id="@+id/tab_files_uploadFile"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="4dp"
             android:src="@drawable/cloud32"
-            android:layout_marginEnd="@dimen/margin_tiny"
+            android:layout_marginEnd="6dp"
             android:layout_alignParentEnd="true"
             android:background="@drawable/ripple_grey"
             android:contentDescription="Upload File"
@@ -52,7 +54,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dip"
+        android:layout_height="1dp"
         android:background="@color/divider"
         android:visibility="gone"/>
 
@@ -69,7 +71,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dip"
+        android:layout_height="1dp"
         android:background="@color/gray_deep"
         android:visibility="gone"/>
 
@@ -79,7 +81,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="No Files"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <ListView
         android:id="@+id/list_view_files"

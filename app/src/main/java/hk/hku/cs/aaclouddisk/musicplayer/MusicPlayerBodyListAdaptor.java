@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
@@ -66,7 +68,7 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         //if (isOnlineMusicList) cannot delete
         removeIcon.setOnClickListener((v) -> {
             if (mActivity.mMusicServiceBinder.getResourceList().size() <= 1) {
-                mActivity.showShortToast("Cannot remove last song.");
+                mActivity.showShortToast("Cannot remove the last song.");
             } else {
                 showRemoveMusicFromListConfirm(position, mActivity.mMusicListIndex);
             }
@@ -79,7 +81,7 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         final AlertDialog.Builder normalDialog = new AlertDialog.Builder(mActivity);
         normalDialog.setIcon(R.drawable.round_delete_forever_black_36);
         normalDialog.setTitle("Remove Music");
-        normalDialog.setMessage("Removed from list, file will not be deleted.");
+        normalDialog.setMessage("File will not be deleted.");
         normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
             doRemoveMusicFromList(musicIndex, listIndex);
         });
@@ -95,8 +97,12 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         int playingIndex =  mActivity.mMusicServiceBinder.getNowResourceIndex();
 
         //Remove
-        mActivity.mMusicServiceBinder.getResourceList().remove(musicIndex);
-        mActivity.mMusicListServiceBinder.getMusicLists().get(listIndex).getResourceList().remove(musicIndex);
+        List<ResourceInfo> musicPlayerResourceList = mActivity.mMusicServiceBinder.getResourceList();
+        List<ResourceInfo> musicListsResourceList = mActivity.mMusicListServiceBinder.getMusicLists().get(listIndex).getResourceList();
+        musicPlayerResourceList.remove(musicIndex);
+        if (musicListsResourceList != musicPlayerResourceList) {//Bug-fix: In case double delete on the same list reference
+            musicListsResourceList.remove(musicIndex);
+        }
         mActivity.mMusicListServiceBinder.saveMusicLists();
         if (playingIndex == musicIndex) {
             if (playingIndex > 0) {

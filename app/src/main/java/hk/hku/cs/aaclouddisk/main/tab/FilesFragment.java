@@ -1,27 +1,23 @@
 package hk.hku.cs.aaclouddisk.main.tab;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLEncoder;
 
 import hk.hku.cs.aaclouddisk.HttpUtilsHttpURLConnection;
 import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
-import hk.hku.cs.aaclouddisk.entity.response.CommonResponse;
+import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
 
 public class FilesFragment extends Fragment {
 
@@ -29,12 +25,26 @@ public class FilesFragment extends Fragment {
     public static final String TAG = "FilesFragment";
     public static final String DEBUG_TAG = "shijian";
 
+    //Context: Parent Activity
+    public MainActivity mActivity;
+
     //Views
+    private ImageView mBackImageView;
+    public TextView mPathTextView;
+    private ImageView mUploadFileImageView;
+
     private TextView mCreateNewFolder;
 
+    private ListView mFileList;
+    public FileInfoListAdapter mFileListAdaptor;
+
+    public TextView mNoFileHint;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab_files, container, false);
+
+        mActivity = (MainActivity) getActivity();
 
         initViews(rootView);
         initEvents();
@@ -44,86 +54,48 @@ public class FilesFragment extends Fragment {
     }
 
     private void initViews(View v) {
-        mCreateNewFolder = v.findViewById(R.id.new_folder_text);
+        mBackImageView = (ImageView) v.findViewById(R.id.tab_files_back);
+        mPathTextView = (TextView) v.findViewById(R.id.tab_files_title);
+        mUploadFileImageView = (ImageView) v.findViewById(R.id.tab_files_uploadFile);
+
+        mCreateNewFolder = (TextView) v.findViewById(R.id.new_folder_text);
+
+        mFileListAdaptor = new FileInfoListAdapter(getContext(), R.layout.tab_files_item, mActivity);
+        mFileList = (ListView) v.findViewById(R.id.list_view_files);
+        mFileList.setAdapter(mFileListAdaptor);
+
+        mNoFileHint = (TextView) v.findViewById(R.id.no_file_hint);
     }
 
     private void initEvents() {
-        mCreateNewFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doCreateNewFolder();
+        //Event - back
+        mBackImageView.setOnClickListener((v) -> {
+            if (mActivity.lastRelativePath.length()==0) {
+                mActivity.showShortToast("Cannot Go Back More");
+                return;
             }
+            //"lastIndex" to check if it is jump with relative path ""
+            String nextPath = "";
+            int lastIndex = mActivity.lastRelativePath.lastIndexOf("\\");
+            if (lastIndex > 0) {
+                nextPath = mActivity.lastRelativePath.substring(0, lastIndex);
+            }
+            //back to last level
+            mActivity.getFileInfoListAndResetAdaptor(nextPath);
         });
-    }
-
-    private void doCreateNewFolder() {
-        //get user id
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-        final String id = sharedPreferences.getString("id", "");
-
-        //Use another thread to do server work
-        Thread nreFolderRunnable = new Thread() {
-            @Override
-            public void run() {
-                String url = HttpUtilsHttpURLConnection.BASE_URL + "/create_folder";
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-                params.put("relativePath", ((MainActivity)getActivity()).lastRelativePath);
-
-
-                String response = HttpUtilsHttpURLConnection.postByHttp(url,params);
-
-                //prepare handler bundle data
-                Message msg = new Message();
-                msg.what=0x18;
-                Bundle data=new Bundle();
-                data.putString("response",response);
-                msg.setData(data);
-
-                //use handler to handle server response
-                handler.sendMessage(msg);
-            }
-
-            Handler handler = new Handler(){
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what==0x18){
-                        Bundle data = msg.getData();
-                        String responseStr = data.getString("response");//returned json
-
-                        //from String to Object(Entity)
-                        try {
-                            Gson gson = new Gson();
-                            CommonResponse response = gson.fromJson(responseStr, CommonResponse.class);
-                            //result
-                            if (response.getErrcode() == 0){
-                                showToast("Create Folder Successful");
-                                ((MainActivity)getActivity()).getFileInfoListAndResetAdaptor(((MainActivity)getActivity()).lastRelativePath);
-                            } else {
-                                showToast("Create Folder Failed: " + response.getErrmsg());
-                            }
-                        } catch (Exception e) {
-                            showToast("Network error, plz contact maintenance.");
-                        }
-                    }
-                }
-            };
-        };
-        nreFolderRunnable.start();
+        mUploadFileImageView.setOnClickListener((v) -> {
+            //go to upload file web page TODO: could be web view
+            String iii = HttpUtilsHttpURLConnection.BASE_URL + "/upload_file.html?id=" + URLEncoder.encode(mActivity.userId) + "&relativePath=" + URLEncoder.encode(mActivity.lastRelativePath);
+            Uri uri = Uri.parse(iii);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            startActivity(intent);
+        });
+        mCreateNewFolder.setOnClickListener((v) -> {
+            mActivity.createFolderAndHandle();
+        });
     }
 
     private void initFinal() {
-        String lastRelativePath = ((MainActivity)getActivity()).lastRelativePath;
-        ((MainActivity)getActivity()).getFileInfoListAndResetAdaptor(lastRelativePath);
+        mActivity.getFileInfoListAndResetAdaptor(mActivity.lastRelativePath);
     }
-
-    private void showToast(final String msg) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
 }
