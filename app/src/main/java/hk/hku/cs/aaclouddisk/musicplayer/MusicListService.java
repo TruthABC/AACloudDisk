@@ -141,22 +141,22 @@ public class MusicListService extends Service {
             thread.start();
         }
 
-        public void initOnlineList(List<ResourceInfo> mainActivityTempResourceList) {
+        public void initOnlineList(List<ResourceInfo> resourceList) {
             Log.i(TAG, "initOnlineList");
             if (userId == null) {
                 userId = "";
             }
-            MusicList musicList = new MusicList(userId, "Online-All", false, new Date().getTime(), mainActivityTempResourceList, false);
+            MusicList musicList = new MusicList(userId, "Online-All", false, new Date().getTime(), resourceList, false);
             mMusicLists.clear();
             mMusicLists.add(musicList);
         }
 
-        public void updateOnlineList(List<ResourceInfo> mainActivityTempResourceList) {
+        public void updateOnlineList(List<ResourceInfo> resourceList) {
             Log.i(TAG, "updateOnlineList");
             if (userId == null) {
                 userId = "";
             }
-            MusicList musicList = new MusicList(userId, "Online-All", false, new Date().getTime(), mainActivityTempResourceList, false);
+            MusicList musicList = new MusicList(userId, "Online-All", false, new Date().getTime(), resourceList, false);
             mMusicLists.set(0, musicList);
         }
 

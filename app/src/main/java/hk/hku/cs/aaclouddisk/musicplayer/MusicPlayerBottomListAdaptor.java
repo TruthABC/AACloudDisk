@@ -22,23 +22,11 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
 
     private int mItemResourceId;
     private MusicPlayerActivity mActivity;
-    private MusicService.MusicServiceBinder mMusicServiceBinder;
-    private MusicListService.MusicListServiceBinder mListServiceBinder;
 
     public MusicPlayerBottomListAdaptor(Context context, int itemResourceId, MusicPlayerActivity activity) {
         super(context,  itemResourceId);
         mItemResourceId = itemResourceId;
         mActivity = activity;
-        mMusicServiceBinder = null;
-        mListServiceBinder = null;
-    }
-
-    public void setMusicServiceBinder(MusicService.MusicServiceBinder musicServiceBinder) {
-        mMusicServiceBinder = musicServiceBinder;
-    }
-
-    public void setMusicListServiceBinder(MusicListService.MusicListServiceBinder listServiceBinder) {
-        mListServiceBinder = listServiceBinder;
     }
 
     @NonNull
@@ -65,13 +53,17 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         //set visibility (invisible for default online list)
         ImageView deleteListLogo = convertView.findViewById(R.id.delete_list_logo);
         ImageView renameListLogo = convertView.findViewById(R.id.rename_list_logo);
-        if (position == 0) {
+        if (position == 0 || position == mActivity.mMusicServiceBinder.getNowMusicListIndex()) {
+            deleteListLogo.setImageResource(R.drawable.round_volume_up_black_36);
             deleteListLogo.setVisibility(View.INVISIBLE);
             renameListLogo.setVisibility(View.INVISIBLE);
             deleteListLogo.setOnClickListener(null);
             renameListLogo.setOnClickListener(null);
-
+            if (position == mActivity.mMusicServiceBinder.getNowMusicListIndex()) {
+                deleteListLogo.setVisibility(View.VISIBLE);
+            }
         } else {
+            deleteListLogo.setImageResource(R.drawable.round_delete_forever_black_36);
             deleteListLogo.setVisibility(View.VISIBLE);
             renameListLogo.setVisibility(View.VISIBLE);
             deleteListLogo.setOnClickListener((v) -> {
@@ -85,17 +77,17 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         //set set ResourceList event when rootItem is clicked
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
-            List<ResourceInfo> resourceList = mListServiceBinder.getMusicLists().get(position).getResourceList();
+            List<ResourceInfo> resourceList = mActivity.mMusicListServiceBinder.getMusicLists().get(position).getResourceList();
             if (resourceList != null && resourceList.size() > 0) {
-                mActivity.mMusicListIndex = position;
                 mActivity.mPlayerBodyListAdaptor.clear();
                 mActivity.mPlayerBodyListAdaptor.addAll(resourceList);
                 mActivity.mPlayerBodyListAdaptor.notifyDataSetChanged();
-                mMusicServiceBinder.setResourceList(resourceList);
-                mMusicServiceBinder.play();
+                mActivity.mMusicServiceBinder.setResourceListByMusicList(mActivity.mMusicListServiceBinder.getMusicLists().get(position), position);
+                mActivity.mMusicServiceBinder.play();
             } else {
                 mActivity.showShortToast("Cannot Play Empty List");
             }
+            this.notifyDataSetChanged();
         });
         return convertView;
     }
@@ -106,10 +98,10 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         normalDialog.setTitle("Confirm Delete");
         normalDialog.setMessage("The deletion cannot recover.");
         normalDialog.setPositiveButton("Confirm", (dialog, which) -> {
-            if (mListServiceBinder != null) {
-                this.remove(this.getItem(position));
-                mListServiceBinder.removeMusicList(position);
-                mListServiceBinder.saveMusicLists();
+            if (mActivity.mMusicListServiceBinder != null) {
+                this.remove(this.getItem(position)); //will auto-call notifyDataSetChanged in this method
+                mActivity.mMusicListServiceBinder.removeMusicList(position);
+                mActivity.mMusicListServiceBinder.saveMusicLists();
             } else {
                 mActivity.showShortToast("Delete Failed.");
             }
@@ -127,12 +119,12 @@ public class MusicPlayerBottomListAdaptor extends ArrayAdapter<MusicList> {
         AlertDialog.Builder inputDialog = new AlertDialog.Builder(mActivity);
         inputDialog.setTitle("Input New Name").setView(editText);
         inputDialog.setPositiveButton("Confirm", (dialog, which) -> {
-            if (mListServiceBinder != null) {
+            if (mActivity.mMusicListServiceBinder != null) {
                 String newName = editText.getText().toString();
                 this.getItem(position).setListName(newName);
                 this.notifyDataSetChanged();
-                mListServiceBinder.getMusicLists().get(position).setListName(newName);
-                mListServiceBinder.saveMusicLists();
+                mActivity.mMusicListServiceBinder.getMusicLists().get(position).setListName(newName);
+                mActivity.mMusicListServiceBinder.saveMusicLists();
             } else {
                 mActivity.showShortToast("Rename Failed.");
             }

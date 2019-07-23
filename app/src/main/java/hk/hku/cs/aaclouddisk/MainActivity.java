@@ -17,7 +17,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,8 +36,8 @@ import hk.hku.cs.aaclouddisk.entity.response.FileInfo;
 import hk.hku.cs.aaclouddisk.entity.response.FolderInfoResponse;
 import hk.hku.cs.aaclouddisk.main.TabPagerAdapter;
 import hk.hku.cs.aaclouddisk.main.tab.FilesFragment;
+import hk.hku.cs.aaclouddisk.main.tab.MP3Fragment;
 import hk.hku.cs.aaclouddisk.main.tab.files.FileInfoListAdapter;
-import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3BottomListAdaptor;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 import hk.hku.cs.aaclouddisk.musicplayer.MusicListService;
 import hk.hku.cs.aaclouddisk.musicplayer.MusicPlayerActivity;
@@ -65,15 +64,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public TabPagerAdapter mTabPagerAdapter;
 
     //Playing Music & Music List
-    public MusicService.MusicServiceBinder mMusicServiceBinder;
-    public MusicListService.MusicListServiceBinder mMusicListServiceBinder;
-    public List<ResourceInfo> mTempResourceList = null;
-    private boolean isMusicServiceReady = false;
-    private boolean isMusicListServiceReady = false;
-    private boolean isTempResourceListReady = false;
+    public MusicService.MusicServiceBinder mMusicServiceBinder = null;
+    public MusicListService.MusicListServiceBinder mMusicListServiceBinder = null;
 
-    //Add music to music list
-    public int clickedMusicIndex;
+    //for "Add music to music list"
+    public int clickedMusicIndex = -1;
 
     //Http Response handler
     private MainActivityHandler mMainActivityHandler = new MainActivityHandler(MainActivity.this);
@@ -100,45 +95,12 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     public void onServiceConnected(ComponentName name, IBinder service) {
         if (service instanceof MusicService.MusicServiceBinder) {
             mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
-            // if 1.ServiceLateReady(ServerResponseFirst) && ALWAYS_TRUE(2.don't have resourceList || 3. resourceList empty)
-            if (mTempResourceList != null && (mMusicServiceBinder.getResourceList() == null || mMusicServiceBinder.getResourceList().size() == 0)) {
-                Log.i(TAG, "MusicService Ready, but after ResourceListReady.");
-                mMusicServiceBinder.setResourceList(mTempResourceList);
-                mRightTopButton.setVisibility(View.VISIBLE);
-            }
-            //then bind MusicListService in MusicService Ready callback
-            Intent bindIntent2 = new Intent(MainActivity.this, MusicListService.class);
-            bindService(bindIntent2, MainActivity.this, BIND_AUTO_CREATE);
         } else if (service instanceof MusicListService.MusicListServiceBinder) {
             mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
-            // if  1.mTempResourceList still null && resourceList still null
-            if (mTempResourceList == null && mMusicListServiceBinder.getMusicLists().size() > 0 && (mMusicServiceBinder.getResourceList() == null || mMusicServiceBinder.getResourceList().size() == 0) ) {
-                //Give a local offline version MusicList to it.
-                mMusicServiceBinder.setResourceList(mMusicListServiceBinder.getMusicLists().get(0).getResourceList());
-                mRightTopButton.setVisibility(View.VISIBLE);
-                Log.i(TAG, "MusicListService Ready, 'mTempResourceList == null' detected, firstly setResourceList");
-            }
-            // if 1.ServiceLateReady(ServerResponseFirst)
-            if (mTempResourceList != null) {
-                Log.i(TAG, "MusicListService Ready, but after ResourceListReady.");
-                List<MusicList> musicLists = mMusicListServiceBinder.getMusicLists();
-                if (musicLists.size() == 0) {
-                    mMusicListServiceBinder.initOnlineList(mTempResourceList);
-                    mMusicListServiceBinder.saveMusicLists();
-                } else {
-                    mMusicListServiceBinder.updateOnlineList(mTempResourceList);
-                    mMusicListServiceBinder.saveMusicLists();
-                }
-            }
-            //Init Bottom Sheet
-            ListView bottomList = (ListView) findViewById(R.id.music_tab_bottom_list_view);
-            if (bottomList != null) {
-                Log.i(TAG, "mBottomListAdaptor init");
-                MP3BottomListAdaptor bottomListAdaptor = (MP3BottomListAdaptor) bottomList.getAdapter();
-                bottomListAdaptor.clear();
-                bottomListAdaptor.addAll(mMusicListServiceBinder.getMusicLists());
-                bottomListAdaptor.notifyDataSetChanged();
-            }
+        }
+        //Do another init after two service both ready
+        if (mMusicServiceBinder != null && mMusicListServiceBinder != null) {
+            MainActivity.this.getMP3InfoListAndHandle();
         }
     }
     
@@ -195,10 +157,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     private void initAllServiceBinder() {
+        mMusicServiceBinder = null;
+        mMusicListServiceBinder = null;
         //bind MusicService
         Intent bindIntent = new Intent(MainActivity.this, MusicService.class);
         bindService(bindIntent, MainActivity.this, BIND_AUTO_CREATE);
-        //then bind MusicListService in MusicService Ready callback
+        //then bind MusicListService
+        Intent bindIntent2 = new Intent(MainActivity.this, MusicListService.class);
+        bindService(bindIntent2, MainActivity.this, BIND_AUTO_CREATE);
     }
 
     private void initFinal() {
@@ -215,7 +181,78 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
         Intent intent  = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
-    
+
+    /**
+     * Called when get music files failed or Network failed (@Notnull Services)
+     */
+    private void applyOfflineMusicList() {
+        //Context
+        MP3Fragment mp3Fragment = mTabPagerAdapter.getMP3Fragment();
+        MP3InfoListAdapter adapter = mp3Fragment.mBodyListAdaptor;
+        adapter.clear();
+        mp3Fragment.mNoMP3Hint.setVisibility(View.VISIBLE);
+        adapter.notifyDataSetChanged();
+
+        List<MusicList> musicLists = mMusicListServiceBinder.getMusicLists();
+        if (musicLists.size() == 0) {
+            mMusicListServiceBinder.initOnlineList(new ArrayList<>());
+            mMusicListServiceBinder.saveMusicLists();
+        }
+        mMusicServiceBinder.setResourceListByMusicList(musicLists.get(0), 0);
+        mRightTopButton.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Called when get music files info (@Notnull Services)
+     */
+    private void applyOnlineMusicList(List<FileInfo> fileInfoList) {
+        //Context
+        MP3Fragment mp3Fragment = mTabPagerAdapter.getMP3Fragment();
+        MP3InfoListAdapter adapter = mp3Fragment.mBodyListAdaptor;
+
+        //if no Music File
+        if (fileInfoList.size() == 0) {
+            adapter.clear();
+            mp3Fragment.mNoMP3Hint.setVisibility(View.VISIBLE);
+            adapter.notifyDataSetChanged();
+        } else {
+            adapter.clear();
+            adapter.addAll(fileInfoList);
+            mp3Fragment.mNoMP3Hint.setVisibility(View.GONE);
+            adapter.notifyDataSetChanged();
+        }
+
+        // if Services All Ready (Bug-fix-190723: It Must Be Ready in Logic)
+        if (mMusicServiceBinder != null && mMusicListServiceBinder != null) {
+            //Construct Resource List
+            List<ResourceInfo> resourceList = new ArrayList<>();
+            for (FileInfo fileInfo: fileInfoList) {
+                String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
+                String diskRootUrl = baseUrl + "/data/disk/" + userId + "/files/";
+                String realUrl = diskRootUrl + fileInfo.getRelativePath();
+                realUrl = realUrl.replace("\\","/");
+
+                resourceList.add(new ResourceInfo(fileInfo.getName(), realUrl, false, null));
+            }
+
+            //For MusicListService
+            List<MusicList> musicLists = mMusicListServiceBinder.getMusicLists();
+            if (musicLists.size() == 0) {
+                mMusicListServiceBinder.initOnlineList(resourceList);
+                mMusicListServiceBinder.saveMusicLists();
+            } else {
+                mMusicListServiceBinder.updateOnlineList(resourceList);
+                mMusicListServiceBinder.saveMusicLists();
+            }
+            //For MusicService
+            mMusicServiceBinder.setResourceListByMusicList(musicLists.get(0), 0);
+            mRightTopButton.setVisibility(View.VISIBLE);
+            Log.i(TAG, "Service Ready. Apply online resource List.");
+        } else { //should not be here
+            Log.i(TAG, "Service not Ready, should not be here handling network response.");
+        }
+    }
+
     /**
      * Finish Activity and Go Back to Login
      */
@@ -265,9 +302,13 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     }
 
     /**
-     * called by MP3Fragment
+     * called by MP3Fragment InitFinal & Service All Ready
      */
-    public void getMP3InfoListAndResetAdaptor() {
+    public void getMP3InfoListAndHandle() {
+        //If Service or Fragment not ready, Halt
+        if (mMusicServiceBinder == null || mMusicListServiceBinder == null || mTabPagerAdapter.getMP3Fragment() == null) {
+            return;
+        }
         //Use another thread to do server authentication
         Thread getAllMP3InfoRunnable = new Thread(() -> {
             String url = HttpUtilsHttpURLConnection.BASE_URL + "/getAllMP3InfoById";
@@ -286,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             //use handler to handle server response
             mMainActivityHandler.sendMessage(msg);
         });
-        mTempResourceList = null;
         getAllMP3InfoRunnable.start();
     }
 
@@ -502,97 +542,15 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         FolderInfoResponse response = gson.fromJson(responseStr, FolderInfoResponse.class);
                         //Info result
                         if (response.getErrcode() == 0){
-                            //find View and then its Adapter
-                            ListView listView = (ListView) activity.findViewById(R.id.list_view_mp3);
-                            MP3InfoListAdapter adapter = (MP3InfoListAdapter) listView.getAdapter();
-
-                            //if no File
-                            if (response.getFileInfoList().size() == 0) {
-                                activity.runOnUiThread(() -> {
-                                    activity.findViewById(R.id.no_mp3_hint).setVisibility(View.VISIBLE);
-                                });
-                            } else {
-                                activity.runOnUiThread(() -> {
-                                    activity.findViewById(R.id.no_mp3_hint).setVisibility(View.GONE);
-                                });
-                            }
-
-                            //apply changes and call adapter to change
-                            if (adapter == null) {
-                                adapter = new MP3InfoListAdapter(activity, R.layout.tab_mp3_item, activity);
-                                adapter.addAll(response.getFileInfoList());
-                                MP3InfoListAdapter finalAdapter = adapter;
-                                activity.runOnUiThread(() -> {
-                                    listView.setAdapter(finalAdapter);
-                                    finalAdapter.notifyDataSetChanged();
-                                });
-                            } else {
-                                MP3InfoListAdapter finalAdapter = adapter;
-                                activity.runOnUiThread(() -> {
-                                    finalAdapter.clear();
-                                    finalAdapter.addAll(response.getFileInfoList());
-                                    finalAdapter.notifyDataSetChanged();
-                                });
-                            }
-
-                            //Try to set MusicService Resource List
-                            List<ResourceInfo> resourceList = new ArrayList<>();
-                            for (FileInfo fileInfo: response.getFileInfoList()) {
-                                SharedPreferences sharedPreferences = activity.getSharedPreferences("AACloudLogin", Context.MODE_PRIVATE);
-                                String id = sharedPreferences.getString("id", "");
-
-                                String baseUrl = HttpUtilsHttpURLConnection.BASE_URL;
-                                String diskRootUrl = baseUrl + "/data/disk/" + id + "/files/";
-                                String realUrl = diskRootUrl + fileInfo.getRelativePath();
-                                realUrl = realUrl.replace("\\","/");
-
-                                resourceList.add(new ResourceInfo(fileInfo.getName(), realUrl, false, null));
-                            }
-                            activity.mTempResourceList = resourceList;//backup resourceList for else situation, then can be used when Service Initialized
-                            // if 1.ServiceReady && (2.don't have resourceList || 3. resourceList empty)
-                            if (activity.mMusicServiceBinder != null && (activity.mMusicServiceBinder.getResourceList() == null || activity.mMusicServiceBinder.getResourceList().size() == 0)) {
-                                Log.i(TAG, "MusicService Ready. Set resource List.");
-                                activity.mMusicServiceBinder.setResourceList(activity.mTempResourceList);
-                                activity.runOnUiThread(() -> {
-                                    activity.mRightTopButton.setVisibility(View.VISIBLE);
-                                });
-                            } else {
-                                Log.i(TAG, "MusicService not Ready, but needed by set resource List.");
-                            }
-                            // if 1.ListServiceReady
-                            if (activity.mMusicListServiceBinder != null) {
-                                Log.i(TAG, "MusicListService Ready. Apply online resource List.");
-                                List<MusicList> musicLists = activity.mMusicListServiceBinder.getMusicLists();
-                                if (musicLists.size() == 0) {
-                                    activity.mMusicListServiceBinder.initOnlineList(activity.mTempResourceList);
-                                    activity.mMusicListServiceBinder.saveMusicLists();
-                                } else {
-                                    activity.mMusicListServiceBinder.updateOnlineList(activity.mTempResourceList);
-                                    activity.mMusicListServiceBinder.saveMusicLists();
-                                }
-                            } else {
-                                Log.i(TAG, "MusicListService not Ready, but needed by apply online resource List.");
-                            }
+                            activity.runOnUiThread(() -> { activity.applyOnlineMusicList(response.getFileInfoList()); });
                         } else {
                             activity.showToast("MP3 Info Get Failed: " + response.getErrmsg());
-                            // if (0. here, mTempResourceList must be null) 1.ListServiceReady (then MusicService Must Ready) 2. it has online list (MusicList.get(0))
-                            if (activity.mMusicListServiceBinder != null && activity.mMusicListServiceBinder.getMusicLists().size() > 0) {
-                                activity.mMusicServiceBinder.setResourceList(activity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList());
-                                activity.runOnUiThread(() -> {
-                                    activity.mRightTopButton.setVisibility(View.VISIBLE);
-                                });
-                            }
+                            activity.runOnUiThread(activity::applyOfflineMusicList);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         activity.showToast("Network error, plz contact maintenance.");
-                        // if (0. here, mTempResourceList must be null) 1.ListServiceReady (then MusicService Must Ready) 2. it has online list (MusicList.get(0))
-                        if (activity.mMusicListServiceBinder != null && activity.mMusicListServiceBinder.getMusicLists().size() > 0) {
-                            activity.mMusicServiceBinder.setResourceList(activity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList());
-                            activity.runOnUiThread(() -> {
-                                activity.mRightTopButton.setVisibility(View.VISIBLE);
-                            });
-                        }
+                        activity.runOnUiThread(activity::applyOfflineMusicList);
                     }
                 });
                 handleResponseThread.start();

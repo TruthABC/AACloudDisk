@@ -46,7 +46,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
 
     private ListView mPlayerBodyListView;
     public MusicPlayerBodyListAdaptor mPlayerBodyListAdaptor;
-    public int mMusicListIndex;//TODO: make it in musicService
 
     private TextView mMusicTimeText;
     private SeekBar mMusicSeekBar;
@@ -95,6 +94,66 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
         initEvents();
         initSeekBarSynchronization();
         initFinal();
+    }
+
+    //for initializing mMusicServiceBinder and UI
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        if (service instanceof MusicService.MusicServiceBinder) { // MusicService Ready
+            mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
+
+            //Title
+            int index = mMusicServiceBinder.getNowResourceIndex();
+            List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
+            if (index >= 0 && index < resourceList.size()) {
+                mTitle.setText(resourceList.get(index).getName());
+            }
+
+            //Body (Music List as Body)
+            mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
+            mPlayerBodyListAdaptor.notifyDataSetChanged();
+            mPlayerBodyListView.smoothScrollToPosition(index);
+            refreshMusicListHighlight();
+
+            //Progress Bar & call back
+            refreshMusicProgressMaxSecond();
+            refreshMusicBufferPercent();
+            mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
+                mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
+                mPlayImageView.setVisibility(View.INVISIBLE);
+                mPauseImageView.setVisibility(View.VISIBLE);
+                mPlayPauseButtonWrapper.setClickable(true);
+                refreshMusicListHighlight();
+                refreshMusicProgressMaxSecond();
+                refreshMusicBufferPercent();
+            });
+            mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
+                runOnUiThread(() -> {
+                    mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
+                });
+            });
+
+            //Control Bar
+            refreshControlBar();
+        } else if (service instanceof MusicListService.MusicListServiceBinder) { // ListService Ready
+            mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
+            mPlayerBottomListAdaptor.addAll(mMusicListServiceBinder.getMusicLists());
+            mPlayerBottomListAdaptor.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.v(TAG, "onDestroy");
+        mMusicServiceBinder.setOuterOnPreparedListener(null);
+        mMusicServiceBinder.setOuterOnBufferingUpdateListener(null);
+        unbindService(this);
     }
 
     private void initViews() {
@@ -269,71 +328,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements ServiceCon
     }
 
     private void initFinal() {}
-
-    //for initializing mMusicServiceBinder and UI
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        if (service instanceof MusicService.MusicServiceBinder) { // MusicService Ready
-            mMusicServiceBinder = (MusicService.MusicServiceBinder) service;
-
-            //Title
-            int index = mMusicServiceBinder.getNowResourceIndex();
-            List<ResourceInfo> resourceList = mMusicServiceBinder.getResourceList();
-            if (index >= 0 && index < resourceList.size()) {
-                mTitle.setText(resourceList.get(index).getName());
-            }
-
-            //Body (Music List as Body)
-            mMusicListIndex = 0;
-            mPlayerBodyListAdaptor.addAll(mMusicServiceBinder.getResourceList());
-            mPlayerBodyListAdaptor.notifyDataSetChanged();
-            mPlayerBodyListView.smoothScrollToPosition(index);
-            refreshMusicListHighlight();
-
-            //Progress Bar & call back
-            refreshMusicProgressMaxSecond();
-            refreshMusicBufferPercent();
-            mMusicServiceBinder.setOuterOnPreparedListener((v) -> {
-                mTitle.setText(mMusicServiceBinder.getResourceList().get(mMusicServiceBinder.getNowResourceIndex()).getName());
-                mPlayImageView.setVisibility(View.INVISIBLE);
-                mPauseImageView.setVisibility(View.VISIBLE);
-                mPlayPauseButtonWrapper.setClickable(true);
-                refreshMusicListHighlight();
-                refreshMusicProgressMaxSecond();
-                refreshMusicBufferPercent();
-            });
-            mMusicServiceBinder.setOuterOnBufferingUpdateListener((mp, percent) -> {
-                runOnUiThread(() -> {
-                    mMusicSeekBar.setSecondaryProgress((percent * mMusicSeekBar.getMax()) / 100);
-                });
-            });
-
-            //Control Bar
-            refreshControlBar();
-
-            //Bottom List
-            mPlayerBottomListAdaptor.setMusicServiceBinder(mMusicServiceBinder);
-        } else if (service instanceof MusicListService.MusicListServiceBinder) { // ListService Ready
-            mMusicListServiceBinder = (MusicListService.MusicListServiceBinder) service;
-            mPlayerBottomListAdaptor.setMusicListServiceBinder(mMusicListServiceBinder);
-            mPlayerBottomListAdaptor.addAll(mMusicListServiceBinder.getMusicLists());
-            mPlayerBottomListAdaptor.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.v(TAG, "onDestroy");
-        mMusicServiceBinder.setOuterOnPreparedListener(null);
-        mMusicServiceBinder.setOuterOnBufferingUpdateListener(null);
-        unbindService(this);
-    }
 
     /**
      * refresh Body (MusicList) Highlight (playing) Item

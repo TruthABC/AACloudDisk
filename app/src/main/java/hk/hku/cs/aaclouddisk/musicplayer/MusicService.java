@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 import hk.hku.cs.aaclouddisk.GlobalTool;
+import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.ResourceInfo;
 
 public class MusicService extends Service {
@@ -36,6 +37,8 @@ public class MusicService extends Service {
     private MediaPlayer.OnBufferingUpdateListener mOuterOnBufferingUpdateListener;
 
     //For MediaPlayer
+    private int mNowMusicListIndex;
+    private MusicList mNowMusicList;
     private List<ResourceInfo> mResourceList;
     private int mNowResourceIndex;
     private List<Integer> mHistoryResourceIndex;
@@ -157,14 +160,26 @@ public class MusicService extends Service {
             mLastResourceIndex = -1;
         }
 
+        public MusicList getNowMusicList() {
+            Log.d("TAG", "getMusicList() executed");
+            return mNowMusicList;
+        }
+
+        public int getNowMusicListIndex() {
+            Log.d("TAG", "getNowMusicListIndex() executed");
+            return mNowMusicListIndex;
+        }
+
         public List<ResourceInfo> getResourceList() {
             Log.d("TAG", "getResourceList() executed");
             return mResourceList;
         }
 
-        public void setResourceList(List<ResourceInfo> resourceList) {
-            Log.d("TAG", "setResourceList() executed");
-            mResourceList = resourceList;
+        public void setResourceListByMusicList(MusicList musicList, int musicListIndex) {
+            Log.d("TAG", "setResourceListByMusicList() executed");
+            mNowMusicListIndex = musicListIndex;
+            mNowMusicList = musicList;
+            mResourceList = musicList.getResourceList();
             mNowResourceIndex = 0;
             mHistoryResourceIndex = new ArrayList<>();
             mLastResourceIndex = -1;

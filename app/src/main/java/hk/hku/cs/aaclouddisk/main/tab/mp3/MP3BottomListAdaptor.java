@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.entity.musicplayer.MusicList;
@@ -39,7 +41,7 @@ public class MP3BottomListAdaptor extends ArrayAdapter<MusicList> {
         int musicCount = 0;
         if (musicList != null) {
             name = musicList.getListName();
-            musicCount = musicList.getResourceList().size(); // TODO worry: if no any music (a new account), will it be problems with music list (all music online)
+            musicCount = musicList.getResourceList().size(); // don't worry: at least an empty list will be there
         } else {
             name = "";
         }
@@ -56,7 +58,6 @@ public class MP3BottomListAdaptor extends ArrayAdapter<MusicList> {
             renameListLogo.setVisibility(View.INVISIBLE);
             deleteListLogo.setOnClickListener(null);
             renameListLogo.setOnClickListener(null);
-
         } else {
             deleteListLogo.setVisibility(View.INVISIBLE);
             renameListLogo.setVisibility(View.INVISIBLE);
@@ -71,9 +72,10 @@ public class MP3BottomListAdaptor extends ArrayAdapter<MusicList> {
         //set open event when open_logo is clicked
         RelativeLayout rootItem = convertView.findViewById(R.id.root_item);
         rootItem.setOnClickListener((v1) -> {
-            if (mActivity.clickedMusicIndex != -1) {
-                ResourceInfo resourceInfo = mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList().get(mActivity.clickedMusicIndex); //TODO index outof boundary exception
-                mActivity.mMusicListServiceBinder.addMusicToList(resourceInfo, position);
+            List<ResourceInfo> resourceList = mActivity.mMusicListServiceBinder.getMusicLists().get(0).getResourceList();
+            if (mActivity.clickedMusicIndex >= 0 && mActivity.clickedMusicIndex < resourceList.size()) {
+                ResourceInfo resourceInfo = resourceList.get(mActivity.clickedMusicIndex); //TODO index out of boundary exception
+                mActivity.mMusicListServiceBinder.addMusicToList(new ResourceInfo(resourceInfo), position);
                 mActivity.mMusicListServiceBinder.saveMusicLists();
                 mActivity.showShortToast("Music Added to List");
                 notifyDataSetChanged();

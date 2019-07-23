@@ -12,10 +12,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import hk.hku.cs.aaclouddisk.MainActivity;
 import hk.hku.cs.aaclouddisk.R;
 import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3BottomListAdaptor;
+import hk.hku.cs.aaclouddisk.main.tab.mp3.MP3InfoListAdapter;
 
 public class MP3Fragment extends Fragment {
 
@@ -25,6 +27,11 @@ public class MP3Fragment extends Fragment {
 
     //Context: Parent Activity
     public MainActivity mActivity;
+
+    //Views
+    public TextView mNoMP3Hint;
+    private ListView mBodyListView;
+    public MP3InfoListAdapter mBodyListAdaptor;
 
     //Views - Bottom Sheet
     private boolean shownBottom = false;
@@ -52,6 +59,12 @@ public class MP3Fragment extends Fragment {
     }
 
     private void initViews(View v) {
+        //Body Views
+        mNoMP3Hint = (TextView) v.findViewById(R.id.no_mp3_hint);
+        mBodyListAdaptor = new MP3InfoListAdapter(getContext(), R.layout.tab_mp3_item, mActivity);
+        mBodyListView = (ListView) v.findViewById(R.id.list_view_mp3);
+        mBodyListView.setAdapter(mBodyListAdaptor);
+
         //Bottom Sheet
         mBottomSheet = (RelativeLayout) v.findViewById(R.id.music_tab_bottom_sheet);
 
@@ -60,7 +73,7 @@ public class MP3Fragment extends Fragment {
         mCreateMusiListButtonWrapper = (RelativeLayout) v.findViewById(R.id.music_tab_bottom_left_top_button_wrapper);
 
         //Music List lists
-        mBottomListAdaptor = new MP3BottomListAdaptor(getActivity(), R.layout.tab_mp3_bottom_item, (MainActivity)getActivity());
+        mBottomListAdaptor = new MP3BottomListAdaptor(getContext(), R.layout.tab_mp3_bottom_item, mActivity);
         mBottomListView = (ListView) v.findViewById(R.id.music_tab_bottom_list_view);
         mBottomListView.setAdapter(mBottomListAdaptor);
     }
@@ -110,7 +123,7 @@ public class MP3Fragment extends Fragment {
             mBottomListAdaptor.addAll(mActivity.mMusicListServiceBinder.getMusicLists());
             mBottomListAdaptor.notifyDataSetChanged();
         }
-        mActivity.getMP3InfoListAndResetAdaptor();
+        mActivity.getMP3InfoListAndHandle();
         mActivity.clickedMusicIndex = -1;
     }
 

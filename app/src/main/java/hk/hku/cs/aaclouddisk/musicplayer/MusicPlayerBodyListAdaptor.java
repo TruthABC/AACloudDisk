@@ -44,15 +44,12 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         //set resource name
         TextView resourceName = convertView.findViewById(R.id.resource_name);
         resourceName.setText(name);
-
-        //set resource name
-        TextView textView = convertView.findViewById(R.id.resource_name);
         ImageView frontImage = convertView.findViewById(R.id.front_image);
         if (mActivity.mMusicServiceBinder.getNowResourceIndex() == position) {
-            textView.setTextColor(mActivity.getResources().getColor(R.color.primary_light));
+            resourceName.setTextColor(mActivity.getResources().getColor(R.color.primary_light));
             frontImage.setVisibility(View.VISIBLE);
         } else {
-            textView.setTextColor(mActivity.getResources().getColor(R.color.white_c));
+            resourceName.setTextColor(mActivity.getResources().getColor(R.color.white_c));
             frontImage.setVisibility(View.GONE);
         }
 
@@ -66,13 +63,19 @@ public class MusicPlayerBodyListAdaptor extends ArrayAdapter<ResourceInfo> {
         //set event when remove is clicked
         ImageView removeIcon = convertView.findViewById(R.id.back_image);
         //if (isOnlineMusicList) cannot delete
-        removeIcon.setOnClickListener((v) -> {
-            if (mActivity.mMusicServiceBinder.getResourceList().size() <= 1) {
-                mActivity.showShortToast("Cannot remove the last song.");
-            } else {
-                showRemoveMusicFromListConfirm(position, mActivity.mMusicListIndex);
-            }
-        });
+        if (mActivity.mMusicServiceBinder.getNowMusicList().getIsUserCreated()) {
+            removeIcon.setVisibility(View.VISIBLE);
+            removeIcon.setOnClickListener((v) -> {
+                if (mActivity.mMusicServiceBinder.getResourceList().size() <= 1) {
+                    mActivity.showShortToast("Cannot remove the last song.");
+                } else {
+                    showRemoveMusicFromListConfirm(position, mActivity.mMusicServiceBinder.getNowMusicListIndex());
+                }
+            });
+        } else {
+            removeIcon.setVisibility(View.INVISIBLE);
+            removeIcon.setOnClickListener(null);
+        }
 
         return convertView;
     }

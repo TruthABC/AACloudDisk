@@ -16,6 +16,14 @@ public class ResourceInfo {
         this.isLost = false;
     }
 
+    public ResourceInfo(ResourceInfo resourceInfo) {
+        this.name = resourceInfo.name;
+        this.onlineUrl = resourceInfo.onlineUrl;
+        this.isOffline = resourceInfo.isOffline;
+        this.offlineUrl = resourceInfo.offlineUrl;
+        this.isLost = resourceInfo.isLost;
+    }
+
     public String getName() {
         return name;
     }
