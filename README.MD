@@ -71,6 +71,8 @@
 * 201907xx - TODO: Cache status. Apply music caching function: 1. Use An ImageView showing whether cached 2.Click and then popup to caching the music (or delete cache) 3.Finished, change ImageView
 
 ## Future Work
+* (urgent) still: delete from music list bug.
+* (urgent) player service list reset after music file network get.
 * (urgent) set "flag" in case of "multiple network cost" in MusicTab
 * (urgent) MusicService store MusicList index
 * (medium) worry: if no any music (a new account), will it be problems with music list (all music online)
